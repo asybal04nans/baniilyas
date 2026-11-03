@@ -2150,5 +2150,194 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  loadMembers();
 })();
 </script>
+<!-- ===== FITUR TERPUSAT: kiriman semua fitur + verifikasi admin (MULAI) ===== -->
+<style>
+.kr-field{display:flex;flex-direction:column;gap:5px}
+.kr-card{border:1px solid #e0d5b8;border-radius:12px;padding:12px 14px;margin:10px 0;background:#fffdf6}
+.kr-card h4{margin:0 0 4px;font-size:15px;color:#214b35}
+.kr-meta{font-size:12px;color:#6d6652;margin-bottom:6px}
+.kr-data{font-size:13px;line-height:1.7;word-break:break-word}
+.kr-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.kr-ok{background:#1f6b45!important;color:#fff!important}
+.kr-no{background:#fff!important;color:#a33!important;border:1px solid #d9a5a5!important}
+.kr-tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;background:#efe6cd;color:#6b4e12;margin-right:6px}
+.kr-tag.ok{background:#dcefe2;color:#1d5a3a}.kr-tag.warn{background:#fbe5d6;color:#8a4414}
+.calendar-day.has-event{box-shadow:inset 0 -4px 0 #c99b4b;font-weight:700}
+</style>
+<script>
+(function(){
+ const $=id=>document.getElementById(id);
+ const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const rapi=v=>window.rapikanNama?window.rapikanNama(v):String(v||'').trim();
+ const money=n=>'Rp'+new Intl.NumberFormat('id-ID').format(Number(n)||0);
+ const safeLink=u=>/^https:\/\/[^\s"'<>]+$/i.test(String(u||''))?String(u):'';
+ const LABEL={name:'Nama',founder:'Pendiri',leader:'Pimpinan/pengasuh',relation:'Hubungan',phone:'Telepon/WA',address:'Alamat',web:'Website/medsos',profile:'Profil',owner:'Pemilik',code:'Kode silsilah',product:'Produk',desc:'Keterangan',title:'Judul',author:'Pengarang',category:'Kategori',source:'Sumber/izin',link:'Tautan',description:'Keterangan',date:'Tanggal',time:'Jam',place:'Tempat',amount:'Nominal',purpose:'Peruntukan',note:'Catatan',ref:'Referensi',method:'Metode',proof:'Bukti',room:'Ruang',text:'Isi',key:'Kunci'};
+ const JENIS={pesantren:'Pesantren',umkm:'UMKM',buku:'Kitab/Ebook',media:'Foto/Video',kalender:'Agenda kalender',donasi:'Donasi',haul:'Iuran Haul',chat:'Pesan chat',info:'Informasi'};
+ const api=(p)=>window.BaniIlyasApi(p);
+ window.__terbit=window.__terbit||{pesantren:[],umkm:[],buku:[],media:[],kalender:[],chat:[],info:{},haul:{terverifikasi:[],menunggu:0,menungguTotal:0}};
+ const say=(el,t,ok)=>{if(!el)return;el.classList.remove('hidden');el.textContent=t;el.style.color=ok===false?'#a33':'';};
+ const fresh=btn=>{if(!btn)return btn;const n=btn.cloneNode(true);btn.replaceWith(n);return n;}; // buang pendengar lama (penyimpanan lokal)
+
+ /* ---------- bidang tambahan pada formulir ---------- */
+ function sisipPengirim(beforeEl,idNama,idWa,label){
+  if(!beforeEl||$(idNama))return;
+  const d=document.createElement('div');d.className='formgrid';d.style.marginTop='14px';
+  d.innerHTML='<div class="field"><label for="'+idNama+'">Nama pengirim (anggota keluarga)</label><input id="'+idNama+'" placeholder="Nama lengkap Anda"></div><div class="field"><label for="'+idWa+'">Nomor WhatsApp pengirim (opsional, hanya dilihat admin)</label><input id="'+idWa+'" placeholder="08xxxxxxxxxx"></div>';
+  beforeEl.parentNode.insertBefore(d,beforeEl);
+ }
+ // Pesantren
+ (function(){const b=$('savePesantren');if(!b)return;sisipPengirim(b,'pKirimNama','pKirimWa');
+  const h=b.closest('.panel')&&b.closest('.panel').querySelector('h3');if(h)h.textContent='Kirim Data Pesantren';
+  const n=[...b.parentNode.querySelectorAll('p.note')].pop();if(n)n.textContent='Siapa pun anggota keluarga boleh mengirim. Data tampil di daftar setelah diperiksa dan disetujui admin.';
+  b.textContent='Kirim Data Pesantren untuk Verifikasi';
+  const p=b.parentNode.querySelector('p.note');if(p&&p!==n)p.textContent='Masukkan data berdasarkan informasi yang sudah pasti. Admin akan memeriksa sebelum ditampilkan.';})();
+ // UMKM
+ (function(){const b=$('saveUmkm');if(!b)return;const n=[...b.parentNode.querySelectorAll('p.note')].pop();if(n)n.textContent='Pengajuan dikirim ke admin dan tampil di daftar setelah disetujui.';})();
+ // Kitab: ganti unggah PDF dengan tautan
+ (function(){const f=$('bFile');if(!f)return;const w=f.closest('.field');if(w)w.style.display='none';
+  const b=$('submitBook');sisipPengirim(b,'bKirimNama','bKirimWa');
+  const d=document.createElement('div');d.className='field';d.style.cssText='grid-column:1/-1';d.innerHTML='<label for="bLink">Tautan file PDF (Google Drive, dll.; atur agar dapat dibuka)</label><input id="bLink" placeholder="https://drive.google.com/...">';w.parentNode.appendChild(d);
+  const n=[...b.parentNode.querySelectorAll('p.note')].pop();if(n)n.textContent='Setiap kiriman diperiksa admin (isi dan hak distribusi) sebelum masuk koleksi. Jangan mengirim buku berhak cipta tanpa izin.';})();
+ // Foto/video: tautan
+ (function(){const f=$('mediaFiles');if(!f)return;const w=f.closest('.field');if(w){w.innerHTML='<label for="mediaLink">Tautan foto/video (Google Drive, YouTube, dll.; atur agar dapat dibuka)</label><input id="mediaLink" placeholder="https://drive.google.com/...">';}
+  const p=$('mediaContributionPanel');if(p){const pi=p.querySelector('.media-intro');if(pi)pi.textContent='Anak incu Bani Ilyas dapat mengirimkan dokumentasi keluarga berupa tautan. Admin memeriksa kiriman sebelum ditampilkan.';
+   const ns=p.querySelectorAll('p.note');const n=ns[ns.length-1];if(n)n.textContent='Jangan mengirim foto/video pribadi tanpa izin pihak terkait.';}
+  const adm=$('mediaAdminLogin');if(adm){const pn=adm.closest('.panel');if(pn)pn.style.display='none';}})();
+ // Kalender: formulir usul agenda
+ (function(){const g=$('calendarEvents');if(!g||$('calAgendaJudul'))return;const host=g.closest('.panel');
+  const d=document.createElement('div');d.className='panel';
+  d.innerHTML='<h3>Usulkan Agenda Keluarga</h3><p class="note">Agenda tampil di kalender setelah disetujui admin.</p><div class="formgrid" style="margin-top:12px"><div class="field"><label for="calAgendaJudul">Nama agenda</label><input id="calAgendaJudul" placeholder="Contoh: Pengajian Haul Mama Odi"></div><div class="field"><label for="calAgendaTgl">Tanggal</label><input id="calAgendaTgl" type="date"></div><div class="field"><label for="calAgendaJam">Jam (opsional)</label><input id="calAgendaJam" placeholder="Contoh: 08.00 WIB"></div><div class="field"><label for="calAgendaTempat">Tempat (opsional)</label><input id="calAgendaTempat" placeholder="Tempat acara"></div><div class="field" style="grid-column:1/-1"><label for="calAgendaKet">Keterangan (opsional)</label><input id="calAgendaKet" placeholder="Keterangan singkat"></div><div class="field"><label for="calAgendaNama">Nama pengirim</label><input id="calAgendaNama" placeholder="Nama lengkap Anda"></div><div class="field"><label for="calAgendaWa">Nomor WhatsApp (opsional)</label><input id="calAgendaWa" placeholder="08xxxxxxxxxx"></div></div><button class="primary" id="calAgendaKirim" style="margin-top:14px">Kirim Agenda untuk Verifikasi</button><div class="result hidden" id="calAgendaMsg" role="status"></div>';
+  host.parentNode.insertBefore(d,host.nextSibling);
+  const n=host.querySelector('.note:last-child');if(n&&/Kalender online/.test(n.textContent))n.textContent='Agenda yang tampil sudah disetujui admin. Tanggal bertanda garis emas memiliki agenda.';})();
+ // Haul: sembunyikan panel admin lokal; verifikasi lewat menu Verifikasi Admin
+ (function(){const h=document.querySelector('.haul-admin');if(h)h.style.display='none';
+  const dis=document.querySelector('.haul-disclaimer');if(dis)dis.textContent='Laporan iuran dikirim ke server dan dihitung sebagai dana masuk hanya setelah dikonfirmasi admin/bendahara.';
+  const l=document.querySelector('#haulName')?.closest('.panel')?.querySelector('.field:nth-child(6) label');if(l)l.textContent='Keterangan bukti transfer / tautan (opsional)';
+  const nt=$('haulName')?.closest('.panel')?.querySelector('p.note');if(nt)nt.textContent='Setelah transfer, isi formulir ini. Laporan berstatus Menunggu Verifikasi sampai admin/bendahara memastikan dana diterima.';})();
+ // Chat: sembunyikan kontrol admin lokal
+ (function(){const a=$('chatAdminLogin');if(a){const c=a.closest('.media-toolbar')||a.parentNode;c.style.display='none';const s=$('chatAdminStatus');if(s)s.style.display='none';}
+  const ps=document.querySelectorAll('#chat p.note,#chat .media-intro');ps.forEach(p=>{if(/localStorage|perangkat ini|prototipe/i.test(p.textContent))p.textContent='Pesan dikirim ke admin dan tampil setelah diperiksa agar percakapan tetap santun.';});})();
+
+ /* ---------- kirim ---------- */
+ async function kirim(jenis,pengirim,kontak,data,msgEl,aksiSukses){
+  if(!pengirim.trim()){say(msgEl,'Isi nama pengirim terlebih dahulu.',false);return false;}
+  say(msgEl,'Mengirim...');
+  try{const r=await api({action:'kirim',jenis,pengirim:rapi(pengirim),kontak,data,website:''});say(msgEl,r.pesan||'Kiriman diterima dan menunggu verifikasi admin.');if(aksiSukses)aksiSukses();return true;}
+  catch(e){say(msgEl,'Kiriman belum terkirim: '+e.message,false);return false;}
+ }
+ const val=id=>($(id)?$(id).value:'').trim();
+ const clear=ids=>ids.forEach(i=>{if($(i))$(i).value='';});
+
+ (function(){const b=fresh($('savePesantren'));if(!b)return;b.addEventListener('click',()=>{
+  const x={name:val('pName'),founder:val('pFounder'),leader:val('pLeader'),relation:val('pRelation'),phone:val('pPhone'),address:val('pAddress'),web:val('pWeb'),profile:val('pProfile')};
+  const m=$('pesantrenMessage');if(!x.name||!x.address||!x.founder){say(m,'Isi nama pesantren, alamat, dan pendiri terlebih dahulu.',false);return;}
+  kirim('pesantren',val('pKirimNama'),val('pKirimWa'),x,m,()=>clear(['pName','pFounder','pLeader','pPhone','pAddress','pWeb','pProfile','pRelation']));});})();
+ (function(){const b=fresh($('saveUmkm'));if(!b)return;b.addEventListener('click',()=>{
+  const x={name:val('uName'),owner:val('uOwner'),code:val('uCode'),product:val('uProduct'),phone:val('uPhone'),address:val('uAddress'),desc:val('uDesc')};
+  const m=$('umkmMsg');if(!x.name||!x.owner){say(m,'Isi nama usaha dan nama pemilik.',false);return;}
+  kirim('umkm',x.owner,x.phone,x,m,()=>clear(['uName','uOwner','uCode','uProduct','uPhone','uAddress','uDesc']));});})();
+ (function(){const b=fresh($('submitBook'));if(!b)return;b.addEventListener('click',()=>{
+  const x={title:val('bTitle'),author:val('bAuthor'),category:val('bCategory'),source:val('bSource'),link:val('bLink')};
+  const m=$('bookMsg');if(!x.title||!x.link){say(m,'Isi judul dan tautan file PDF.',false);return;}
+  kirim('buku',val('bKirimNama'),val('bKirimWa'),x,m,()=>clear(['bTitle','bAuthor','bSource','bLink']));});})();
+ (function(){const b=fresh($('submitMedia'));if(!b)return;b.addEventListener('click',()=>{
+  const m=$('mediaSubmitMessage');const x={title:val('mediaTitle'),category:val('mediaCategory'),link:val('mediaLink')};
+  if(!x.title||!x.link){say(m,'Isi judul dokumentasi dan tautan foto/video.',false);return;}
+  if(!$('mediaConsent').checked){say(m,'Centang pernyataan izin penggunaan foto/video sebelum mengirim.',false);return;}
+  kirim('media',val('mediaContributor'),'',x,m,()=>{clear(['mediaTitle','mediaLink']);$('mediaConsent').checked=false;});});})();
+ (function(){const b=$('calAgendaKirim');if(!b)return;b.addEventListener('click',()=>{
+  const x={title:val('calAgendaJudul'),date:val('calAgendaTgl'),time:val('calAgendaJam'),place:val('calAgendaTempat'),desc:val('calAgendaKet')};
+  const m=$('calAgendaMsg');if(!x.title||!x.date){say(m,'Isi nama agenda dan tanggal.',false);return;}
+  kirim('kalender',val('calAgendaNama'),val('calAgendaWa'),x,m,()=>clear(['calAgendaJudul','calAgendaTgl','calAgendaJam','calAgendaTempat','calAgendaKet']));});})();
+ (function(){const b=$('createDonation');if(!b)return;b.addEventListener('click',()=>{
+  setTimeout(()=>{const amount=Number(val('dAmount')),name=val('dName');if(!name||!(amount>=1000))return;
+   const ref=((($('donationResult')||{}).textContent||'').match(/BIL-\d+/)||[''])[0];
+   api({action:'kirim',jenis:'donasi',pengirim:rapi(name),kontak:val('dPhone'),data:{amount:String(amount),purpose:val('dPurpose'),note:val('dNote'),ref},website:''})
+    .then(()=>{const r=$('donationResult');if(r)r.insertAdjacentHTML('beforeend','<br><small>✓ Rencana donasi tercatat di sistem; admin akan memverifikasi setelah transfer diterima.</small>');}).catch(()=>{});},0);});})();
+ (function(){const b=fresh($('submitHaulContribution'));if(!b)return;b.addEventListener('click',()=>{
+  const m=$('haulSubmitMessage');const amount=Number(val('haulAmount')),date=val('haulDate');
+  if(!val('haulName')||!(amount>0)||!date){say(m,'Lengkapi nama penyetor, nominal iuran, dan tanggal transfer.',false);return;}
+  kirim('haul',val('haulName'),'',{amount:String(Math.round(amount)),code:val('haulCode'),date,method:val('haulMethod'),proof:val('haulProof'),note:val('haulNote')},m,()=>{clear(['haulName','haulCode','haulAmount','haulDate','haulProof','haulNote']);muat(true);});});})();
+ (function(){const b=fresh($('sendChat'));if(!b)return;b.addEventListener('click',()=>{
+  const m=$('chatMessage');const text=val('chatText');if(!val('chatName')||!text){say(m,'Isi nama dan pesan terlebih dahulu.',false);return;}
+  if(!$('chatConsent').checked){say(m,'Centang pernyataan adab percakapan sebelum mengirim.',false);return;}
+  kirim('chat',val('chatName'),'',{room:val('chatRoom'),code:val('chatCode'),text},m,()=>{clear(['chatText']);$('chatConsent').checked=false;if($('chatCharCount'))$('chatCharCount').textContent='0/1.000 karakter';});});})();
+
+ /* ---------- tampilkan data terbit ---------- */
+ const T=()=>window.__terbit;
+ function renderPesantrenT(){ if(window.renderPesantren)window.renderPesantren(); }
+ window.getPesantren=function(){return T().pesantren;};
+ function renderUmkmT(){const el=$('umkmList');if(!el)return;const q=(val('umkmSearch')).toLowerCase();
+  const it=T().umkm.filter(x=>Object.values(x).join(' ').toLowerCase().includes(q));
+  el.innerHTML=it.length?it.map(x=>'<div class="pesantren-card"><h4>'+esc(x.name)+'</h4><div class="pesantren-meta">'+esc(x.product)+' · '+esc(x.owner)+' · '+esc(x.code)+'</div><div class="pesantren-detail"><b>Alamat:</b> '+esc(x.address)+'<br><b>Kontak:</b> '+esc(x.phone)+'<br>'+esc(x.desc)+'</div></div>').join(''):'<p class="note">Belum ada UMKM yang disetujui admin.</p>';}
+ function renderBukuT(){const el=$('bookList');if(!el)return;const q=(val('bookSearch')).toLowerCase();
+  const it=T().buku.filter(x=>Object.values(x).join(' ').toLowerCase().includes(q));
+  el.innerHTML=it.length?it.map(x=>'<div class="pesantren-card"><h4>'+esc(x.title)+'</h4><div class="pesantren-meta">'+esc(x.author)+' · '+esc(x.category)+'</div><div class="pesantren-detail">'+esc(x.source)+'</div>'+(safeLink(x.link)?'<div class="pesantren-actions"><a class="donate-link" target="_blank" rel="noopener noreferrer" href="'+esc(safeLink(x.link))+'">Buka / Unduh</a></div>':'')+'</div>').join(''):'<p class="note">Belum ada koleksi yang disahkan admin.</p>';}
+ function renderMediaT(){const el=$('publishedMediaList');if(!el)return;const it=T().media;
+  const c=$('publishedMediaCount');if(c)c.textContent=it.length+' dokumentasi';
+  el.innerHTML=it.length?it.map(x=>'<div class="kr-card"><h4>'+esc(x.title)+'</h4><div class="kr-meta">'+esc(x.category)+' · dikirim '+esc(x.pengirim)+'</div>'+(x.description?'<div class="kr-data">'+esc(x.description)+'</div>':'')+(safeLink(x.link)?'<div class="kr-actions"><a class="donate-link" target="_blank" rel="noopener noreferrer" href="'+esc(safeLink(x.link))+'">Lihat foto/video</a></div>':'')+'</div>').join(''):'<div class="media-empty">Belum ada foto atau video yang diterbitkan.</div>';}
+ function acaraTgl(k){return T().kalender.filter(x=>x.date===k);}
+ function tandaiKalender(){document.querySelectorAll('[data-calday]').forEach(b=>{if(acaraTgl(b.dataset.calday).length)b.classList.add('has-event');});
+  const box=$('calendarEvents');if(!box)return;
+  try{if(typeof calSelected!=='undefined'&&calSelected){const ev=acaraTgl(calSelected);
+   box.innerHTML='<b>'+esc(calSelected)+'</b><br>'+(ev.length?ev.map(x=>'• <b>'+esc(x.title)+'</b>'+(x.time?' · '+esc(x.time):'')+(x.place?' · '+esc(x.place):'')+(x.desc?'<br><small>'+esc(x.desc)+'</small>':'')).join('<br>'):'Belum ada agenda pada tanggal ini.');}
+   else{const next=T().kalender.filter(x=>x.date>=new Date().toISOString().slice(0,10)).sort((a,b)=>a.date<b.date?-1:1).slice(0,5);
+    box.innerHTML=next.length?'<b>Agenda terdekat</b><br>'+next.map(x=>'• '+esc(x.date)+' — <b>'+esc(x.title)+'</b>'+(x.place?' ('+esc(x.place)+')':'')).join('<br>'):'Pilih tanggal untuk melihat agenda keluarga.';}}catch(e){}}
+ if(typeof renderCalendar==='function'){const asli=renderCalendar;window.renderCalendar=renderCalendar=function(){asli();tandaiKalender();};}
+ function renderHaulT(){const h=T().haul,tot=h.terverifikasi.reduce((a,x)=>a+(Number(x.amount)||0),0);
+  if($('haulVerifiedTotal'))$('haulVerifiedTotal').textContent=money(tot);
+  if($('haulVerifiedCount'))$('haulVerifiedCount').textContent=h.terverifikasi.length;
+  if($('haulPendingTotal'))$('haulPendingTotal').textContent=money(h.menungguTotal);
+  if($('haulPendingCount'))$('haulPendingCount').textContent=h.menunggu;
+  const log=$('haulPublicLog');if(log)log.innerHTML=h.terverifikasi.length?'<div class="haul-table-wrap"><table class="haul-table"><thead><tr><th>Tanggal</th><th>Nama penyetor</th><th>Kode</th><th>Nominal</th><th>Status</th></tr></thead><tbody>'+h.terverifikasi.slice().reverse().map(x=>'<tr><td>'+esc(x.date)+'</td><td>'+esc(x.nama)+'</td><td>'+esc(x.code||'-')+'</td><td>'+money(x.amount)+'</td><td>Terverifikasi</td></tr>').join('')+'</tbody></table></div>'+(h.menunggu?'<p class="note">+ '+h.menunggu+' laporan menunggu verifikasi (belum dihitung).</p>':''):'<div class="media-empty">'+(h.menunggu?h.menunggu+' laporan menunggu verifikasi (belum dihitung).':'Belum ada laporan iuran Haul.')+'</div>';
+  const info=T().info,hb=$('haulBankInfo');if(hb&&info['haul-rekening'])hb.innerHTML='<b>Informasi Rekening Iuran Haul</b><br>'+esc(info['haul-rekening']).replace(/\n/g,'<br>');
+  const hs=$('hostingBankInfo');if(hs&&info['hosting-rekening'])hs.innerHTML='<b>Rekening Donasi Operasional</b><br>'+esc(info['hosting-rekening']).replace(/\n/g,'<br>');}
+ function renderChatT(){const l=$('chatList');if(!l)return;const f=$('chatFilter')?$('chatFilter').value:'Semua';
+  const it=T().chat.filter(x=>f==='Semua'||x.room===f).slice().reverse();
+  l.innerHTML=it.length?it.map(x=>'<article class="chat-msg"><div class="chat-meta"><b>'+esc(x.pengirim)+'</b>'+(x.code?' · '+esc(x.code):'')+' · '+esc(x.room)+' · '+esc(x.waktu)+'</div><p>'+esc(x.text).replace(/\n/g,'<br>')+'</p></article>').join(''):'<div class="media-empty">Belum ada percakapan yang disetujui admin.</div>';}
+ function renderSemua(){renderPesantrenT();renderUmkmT();renderBukuT();renderMediaT();renderHaulT();renderChatT();tandaiKalender();}
+ let terakhir=0,sedang=false;
+ async function muat(paksa){if(sedang)return;if(!paksa&&Date.now()-terakhir<20000){renderSemua();return;}
+  sedang=true;try{const r=await api({action:'terbit'});window.__terbit=r.terbit;terakhir=Date.now();}catch(e){}finally{sedang=false;}renderSemua();}
+ ['umkmSearch','bookSearch','chatFilter'].forEach(id=>{const e=$(id);if(e)e.addEventListener(id==='chatFilter'?'change':'input',()=>setTimeout(renderSemua,0));});
+ document.addEventListener('click',e=>{if(e.target.closest('[data-page]')||e.target.closest('#refreshChat')||e.target.closest('#refreshHaulLog'))setTimeout(()=>muat(false),80);});
+ window.__muatTerbit=muat;
+ window.__renderTerbit=renderSemua;
+ muat(true);
+
+ /* ---------- verifikasi admin ---------- */
+ (function(){const sec=$('verifikasi');if(!sec)return;
+  const p=document.createElement('div');p.className='panel';p.id='krPanel';
+  p.innerHTML='<div class="panelhead"><h3>Verifikasi Kiriman Fitur</h3><span class="pill">KHUSUS ADMIN</span></div><p class="note">Pesantren, UMKM, kitab, foto/video, agenda, donasi, iuran haul, dan chat yang dikirim anggota. Pilih <b>Setujui</b> agar tampil di website, atau <b>Tolak</b>. Gunakan kata sandi Admin di atas.</p><button class="primary" type="button" id="krMuat">Muat Kiriman</button><div class="note" id="krMsg" role="status" style="margin-top:10px"></div><div id="krMenunggu"></div><h4 style="margin:18px 0 4px">Sudah tampil di website</h4><div id="krTerbit"></div><h4 style="margin:18px 0 4px">Terbitkan langsung oleh admin</h4><p class="note">Untuk memasang informasi rekening yang tampil di halaman Iuran Haul dan Donasi.</p><div class="formgrid"><div class="field"><label for="krInfoKey">Informasi</label><select id="krInfoKey"><option value="haul-rekening">Rekening iuran Haul (bendahara)</option><option value="hosting-rekening">Rekening donasi operasional website</option></select></div><div class="field" style="grid-column:1/-1"><label for="krInfoText">Isi (boleh beberapa baris)</label><textarea id="krInfoText" placeholder="Bendahara: ...&#10;Bank: ...&#10;No. rekening: ...&#10;Atas nama: ..."></textarea></div></div><button class="secondary" type="button" id="krInfoKirim" style="margin-top:10px">Terbitkan Informasi</button>';
+  const list=$('adminList');sec.insertBefore(p,list?list.nextSibling:null);
+  const token=()=>($('adminToken')?$('adminToken').value:'');
+  const msg=(t,ok)=>{const m=$('krMsg');m.textContent=t;m.style.color=ok===false?'#a33':'';};
+  function kartu(x,terbit){
+   const d=document.createElement('div');d.className='kr-card';
+   const baris=Object.keys(x.data).filter(k=>x.data[k]!=='').map(k=>{
+    const v=x.data[k];const isi=(k==='link'||k==='web')&&safeLink(v)?'<a target="_blank" rel="noopener noreferrer" href="'+esc(safeLink(v))+'">'+esc(v)+'</a>':esc(k==='amount'?money(v):v);
+    return '<b>'+esc(LABEL[k]||k)+':</b> '+isi;}).join('<br>');
+   d.innerHTML='<h4>'+esc(JENIS[x.jenis]||x.jenis)+': '+esc(x.jenis==='haul'||x.jenis==='donasi'?money(x.data.amount):x.judul)+'</h4><div class="kr-meta"><span class="kr-tag '+(x.pengirimTerdaftar?'ok':'warn')+'">'+(x.pengirimTerdaftar?'✓ Nama ada di silsilah':'⚠ Nama belum ada di silsilah')+'</span>'+esc(x.pengirim)+(x.kontak?' · '+esc(x.kontak):'')+' · '+esc(x.waktu)+' · '+esc(x.id)+'</div><div class="kr-data">'+baris+'</div>';
+   const a=document.createElement('div');a.className='kr-actions';
+   const act=(label,cls,keputusan)=>{const b=document.createElement('button');b.type='button';b.className='secondary '+cls;b.textContent=label;b.addEventListener('click',async()=>{
+    if(!terbit||keputusan==='TOLAK'){if(terbit&&!confirm('Tarik kiriman ini dari website?'))return;}
+    b.disabled=true;try{const r=await api({action:'kirimanKeputusan',token:token(),id:x.id,keputusan});msg(r.pesan);await muatAdmin();window.__muatTerbit&&window.__muatTerbit(true);}catch(e){msg(e.message,false);b.disabled=false;}});a.appendChild(b);};
+   if(terbit){act('Tarik dari website','kr-no','TOLAK');}else{act('✓ Setujui','kr-ok','SETUJU');act('✗ Tolak','kr-no','TOLAK');}
+   d.appendChild(a);return d;}
+  async function muatAdmin(){
+   msg('Memuat...');
+   try{const r=await api({action:'kirimanList',token:token()});const m=$('krMenunggu'),t=$('krTerbit');m.textContent='';t.textContent='';
+    const w=r.kiriman.filter(x=>x.status==='MENUNGGU'),s=r.kiriman.filter(x=>x.status==='DISETUJUI');
+    if(!w.length)m.innerHTML='<p class="note">Tidak ada kiriman yang menunggu.</p>';w.forEach(x=>m.appendChild(kartu(x,false)));
+    if(!s.length)t.innerHTML='<p class="note">Belum ada.</p>';s.slice().reverse().forEach(x=>t.appendChild(kartu(x,true)));
+    msg(w.length+' kiriman menunggu verifikasi.');}
+   catch(e){msg(e.message,false);}}
+  $('krMuat').addEventListener('click',muatAdmin);
+  $('krInfoKirim').addEventListener('click',async()=>{const text=($('krInfoText').value||'').trim();if(!text){msg('Isi informasi terlebih dahulu.',false);return;}
+   try{const r=await api({action:'kirimanTerbitkan',token:token(),jenis:'info',data:{key:$('krInfoKey').value,text}});msg(r.pesan);$('krInfoText').value='';await muatAdmin();window.__muatTerbit&&window.__muatTerbit(true);}catch(e){msg(e.message,false);}});
+ })();
+})();
+</script>
+<!-- ===== FITUR TERPUSAT (SELESAI) ===== -->
 </body>
 </html>
