@@ -2305,6 +2305,60 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  window.__renderTerbit=renderSemua;
  muat(true);
 
+
+ /* ---------- saran otomatis nama ayah/leluhur pada kotak tempel nasab ---------- */
+ (function(){
+  const ta=$('nasabBin');if(!ta)return;
+  const box=document.createElement('div');box.id='nasabSaran';box.style.cssText='display:none;margin:6px 0;border:1px solid #d8c99f;border-radius:10px;background:#fffdf6;overflow:hidden';
+  ta.insertAdjacentElement('afterend',box);
+  const nk=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+  const GELAR=new Set(['r','rd','raden','h','hj','kh','k','ky','nyai','ny','alm','almarhum','almarhumah','ibu','bapak']);
+  const SEP=/\s+(?:bin|binti|bnt|bn)\s+/gi;
+  const TAIL=/\s*\(?\s*anak\s*ke[-\s]*\d{1,2}\s*\)?\s*$/i;
+  function pecah(t){ // -> {awal, sisa, ekor} ; awal = sampai pemisah terakhir, sisa = nama yang sedang diketik
+   let ekor='';const m=t.match(TAIL);if(m){ekor=m[0];t=t.slice(0,m.index);}
+   let end=-1,mm;SEP.lastIndex=0;while((mm=SEP.exec(t)))end=mm.index+mm[0].length;
+   if(end<0)return null;
+   return {awal:t.slice(0,end),sisa:t.slice(end),ekor};
+  }
+  function rantai(m,byId){const out=[];let c=m,g=0;while(c&&g++<60){out.push(c);c=byId.get(c.ayahId);}return out;}
+  function teksRantai(m,byId){const ch=rantai(m,byId);return ch.map((c,i)=>i===ch.length-1?c.nama:c.nama+(c.jk==='P'?' binti ':' bin ')).join('');}
+  function cocok(sisa,list){
+   const q=nk(sisa).split(' ').filter(x=>x&&!GELAR.has(x));if(!q.length)return [];
+   const jml=q.join('').length;if(jml<2)return [];
+   return list.filter(a=>{const tk=nk(a.nama).split(' ').filter(x=>x&&!GELAR.has(x));return q.every(w=>tk.some(x=>x.startsWith(w)));});
+  }
+  function tampil(){
+   const pc=pecah(ta.value);const list=window.__membersList||[];
+   if(!pc||!pc.sisa.trim()||pc.ekor||!list.length){box.style.display='none';box.textContent='';return;}
+   const byId=new Map(list.map(a=>[a.id,a]));
+   const hit=cocok(pc.sisa,list).slice(0,6);
+   if(!hit.length){box.style.display='none';box.textContent='';return;}
+   box.textContent='';
+   const h=document.createElement('div');h.style.cssText='padding:6px 10px;font-size:12px;color:#6d6652;background:#f4ecd6';h.textContent='Nama terdaftar — klik untuk melengkapi otomatis:';box.appendChild(h);
+   hit.forEach(a=>{const p=byId.get(a.ayahId);const b=document.createElement('button');b.type='button';b.className='secondary';b.style.cssText='display:block;width:100%;text-align:left;border:0;border-top:1px solid #eee2c3;border-radius:0;background:#fff;padding:8px 10px;font-size:13px;margin:0';
+    b.textContent=a.nama+(p?' — '+(a.jk==='P'?'putri ':'putra ')+p.nama:' — leluhur utama');
+    b.addEventListener('mousedown',e=>e.preventDefault());
+    b.addEventListener('click',()=>{ta.value=pc.awal+teksRantai(a,byId)+(pc.ekor||'');box.style.display='none';ta.focus();ta.dispatchEvent(new Event('change',{bubbles:true}));});
+    box.appendChild(b);});
+   box.style.display='block';
+  }
+  ta.addEventListener('input',tampil);
+  // saat selesai mengetik: bila nama ayah/leluhur terakhir cocok persis satu orang terdaftar, lengkapi rantai otomatis
+  ta.addEventListener('change',()=>{
+   const pc=pecah(ta.value),list=window.__membersList||[];if(!pc||!pc.sisa.trim()||!list.length)return;
+   const byId=new Map(list.map(a=>[a.id,a]));
+   const sisa=pc.sisa.replace(/[.,;]+$/,'').trim();
+   const qn=nk(sisa).split(' ').filter(x=>x&&!GELAR.has(x)).join(' ');
+   if(qn.length<3)return;
+   const hit=cocok(sisa,list);
+   const tepat=hit.filter(a=>nk(a.nama).split(' ').filter(x=>x&&!GELAR.has(x)).join(' ')===qn);
+   const pilih=tepat.length===1?tepat[0]:(hit.length===1?hit[0]:null);
+   if(!pilih||!pilih.ayahId)return; // leluhur utama (akar) sudah lengkap
+   ta.value=pc.awal+teksRantai(pilih,byId)+(pc.ekor||'');box.style.display='none';
+  });
+  ta.addEventListener('blur',()=>setTimeout(()=>{box.style.display='none';},200));
+ })();
  /* ---------- verifikasi admin ---------- */
  (function(){const sec=$('verifikasi');if(!sec)return;
   const p=document.createElement('div');p.className='panel';p.id='krPanel';
