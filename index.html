@@ -582,11 +582,11 @@ main {
 <section id="add" class="hidden">
  <div class="panel">
   <div class="panelhead"><h3>Formulir Data Anggota Kulawarga</h3><span class="pill">PENGAJUAN DATA</span></div>
-  <p class="note">Isi nama lengkap, jenis kelamin, nama ayah (bin/binti), dan rantai nasab dari ayah sampai KH. R. Muhamad Ilyas. Nama ibu, nama istri/suami, dan alamat bersifat opsional; alamat hanya dapat dilihat Admin. Setiap pengajuan diperiksa Admin lebih dahulu, dan data baru masuk silsilah resmi setelah rantai ayah-anak terbukti tersambung serta disetujui Admin.</p>
+  <p class="note">Isi nama lengkap, jenis kelamin, lalu <b>pilih nama ayah (atau ibu) dari daftar</b>. Rantai nasab sampai KH. R. Muhamad Ilyas terisi otomatis. Nama ibu, nama istri/suami, dan alamat bersifat opsional; alamat hanya dapat dilihat Admin. Setiap pengajuan diperiksa Admin lebih dahulu, dan data baru masuk silsilah resmi setelah rantai ayah-anak terbukti tersambung serta disetujui Admin.</p>
   <div class="formgrid">
    <div class="field"><label>Nama lengkap anggota</label><input id="name" placeholder="Nama lengkap anggota keluarga" maxlength="120"></div>
    <div class="field"><label>Jenis kelamin</label><select id="gender"><option value="">Pilih...</option><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
-   <div class="field"><label>Nama ayah (atau nama ibu bila keturunan lewat jalur ibu)</label><input id="father" placeholder="Nama lengkap ayah / ibu" maxlength="120"></div>
+   <div class="field"><label>Nama ayah (atau ibu bila keturunan lewat jalur ibu)</label><input id="father" list="fatherList" autocomplete="off" placeholder="Ketik beberapa huruf, lalu pilih dari daftar" maxlength="160"><datalist id="fatherList"></datalist><small id="fatherHint">Daftar memuat anggota yang sudah terverifikasi.</small><label style="display:flex;gap:6px;align-items:center;margin-top:6px;font-weight:normal"><input type="checkbox" id="fatherManual"> Orang tua saya belum ada di daftar (isi rantai manual, diperiksa Admin)</label></div>
    <div class="field" style="grid-column:1/-1"><label>Rantai nasab dari ayah sampai KH. R. Muhamad Ilyas</label><textarea id="chain" rows="5" placeholder="Satu nama per baris, dimulai dari ayah, lalu kakek, dan seterusnya sampai KH. R. Muhamad Ilyas.&#10;Contoh:&#10;R. M. Dimyati&#10;KH. R. Muhamad Ilyas"></textarea><small>Jangan menuliskan nama orang yang diajukan. Mulai dari ayahnya. Jika ada satu nama yang belum pasti, tulis yang diketahui dan Admin akan memeriksanya.</small></div>
    <div class="field"><label>Nama pengaju</label><input id="submitter" placeholder="Nama Anda" maxlength="100"></div>
    <div class="field"><label>Kontak pengaju (WhatsApp/telepon)</label><input id="contact" placeholder="Opsional, hanya dilihat Admin" maxlength="60"></div>
@@ -600,8 +600,8 @@ main {
    <b>Pituduh / Cara memasukkan nama:</b>
    <ol>
     <li>Isi <b>Nama lengkap anggota</b> dengan nama orang yang diusulkan, termasuk gelar bila memang digunakan dalam dokumen keluarga (gunakan bentuk <b>R.</b> untuk Raden, misalnya R. Siti Aisyah).</li>
-    <li>Pilih <b>Jenis kelamin</b> dan isi <b>Nama ayah</b>.</li>
-    <li>Isi <b>Rantai nasab</b> satu nama per baris: mulai dari ayah, lalu kakek, dan seterusnya sampai <b>KH. R. Muhamad Ilyas</b>. Nama yang diajukan tidak ditulis di sini.</li>
+    <li>Pilih <b>Jenis kelamin</b>, lalu ketik beberapa huruf <b>nama ayah</b> (atau ibu) dan pilih dari daftar yang muncul.</li>
+    <li><b>Rantai nasab</b> sampai <b>KH. R. Muhamad Ilyas</b> terisi otomatis. Bila orang tua Anda belum ada di daftar, minta orang tua atau kakek Anda didaftarkan lebih dulu, atau centang pilihan manual agar Admin yang memeriksa.</li>
     <li>Nama ibu, istri/suami, dan alamat bersifat opsional. Nama ibu dicatat sebagai informasi hubungan keluarga, bukan penentu garis keturunan.</li>
     <li>Tekan <b>Kirim Pengajuan</b>. Anda akan mendapat nomor pengajuan. Data belum masuk silsilah resmi sampai Admin memeriksa dan menyetujuinya.</li>
    </ol>
@@ -1323,10 +1323,13 @@ function createMemberCode(){
 document.getElementById('makeCode').addEventListener('click',async()=>{
  const v=id=>(document.getElementById(id)?.value||'').trim();
  const out=document.getElementById('formResult'), btn=document.getElementById('makeCode');
- const data={action:'submit',nama:v('name'),jk:v('gender'),namaAyah:v('father'),rantai:v('chain'),pengaju:v('submitter'),kontak:v('contact'),ibu:v('mother'),pasangan:v('spouse'),alamat:v('memberAddress'),website:v('hpWebsite')};
+ const sel=window.__pilihOrtu?window.__pilihOrtu():null;
+ const manual=!!document.getElementById('fatherManual')?.checked;
+ const data={action:'submit',nama:v('name'),jk:v('gender'),namaAyah:(sel&&!manual)?sel.nama:v('father'),rantai:(sel&&!manual)?sel.chain:v('chain'),pengaju:v('submitter'),kontak:v('contact'),ibu:v('mother'),pasangan:v('spouse'),alamat:v('memberAddress'),website:v('hpWebsite')};
  const warn=t=>{out.classList.remove('hidden');out.textContent=t;};
  if(!data.nama||!data.namaAyah){warn('Isi nama lengkap anggota dan nama ayah (bin/binti) terlebih dahulu.');return;}
  if(!data.jk){warn('Pilih jenis kelamin.');return;}
+ if(window.__membersReady&&!manual&&!sel){warn('Pilih nama ayah/ibu dari daftar yang muncul. Bila belum ada di daftar, centang "Orang tua saya belum ada di daftar".');return;}
  if(!data.rantai){warn('Isi rantai nasab dari ayah sampai KH. R. Muhamad Ilyas, satu nama per baris.');return;}
  if(!data.pengaju){warn('Isi nama pengaju.');return;}
  btn.disabled=true;warn('Mengirim pengajuan...');
@@ -1339,6 +1342,7 @@ document.getElementById('makeCode').addEventListener('click',async()=>{
   const link=document.createElement('a');link.href='https://wa.me/6282117034277?text='+encodeURIComponent(wa);link.target='_blank';link.rel='noopener';link.className='primary';link.style.display='inline-block';link.style.marginTop='12px';link.textContent='Beri tahu Admin melalui WhatsApp (opsional)';
   out.appendChild(document.createElement('br'));out.appendChild(link);
   ['name','gender','father','chain','submitter','contact','mother','spouse','memberAddress'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  if(window.__syncOrtu)window.__syncOrtu();
  }catch(e){warn('Pengajuan belum terkirim: '+e.message);}
  btn.disabled=false;
 });
@@ -1780,11 +1784,41 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   return new Set([...document.querySelectorAll('#tree .childlist > .child > strong, #tree .root b')]
    .map(n=>norm(n.textContent.replace(/^\s*\d+\.\s*/,''))));
  }
+ /* ----- Pilih ayah/ibu dari daftar terverifikasi; rantai nasab terisi otomatis ----- */
+ (function(){
+  let opts=new Map();
+  function chainOf(m,byId){const out=[];const seen=new Set();let c=m;while(c&&!seen.has(c.id)){seen.add(c.id);out.push(c.nama);c=byId.get(c.ayahId);}return out;}
+  window.__buildOrtu=function(){
+   const list=window.__membersList||[];const dl=$('fatherList');if(!dl)return;
+   const byId=new Map(list.map(a=>[a.id,a]));opts=new Map();dl.textContent='';
+   const labels=list.map(a=>{const p=byId.get(a.ayahId);return a.ayahId&&p?a.nama+' — '+(a.jk==='P'?'putri ':'putra ')+p.nama:a.nama+' — leluhur utama';});
+   list.forEach((a,i)=>{
+    let l=labels[i];if(opts.has(l))l+=' ['+a.id+']';
+    const ch=chainOf(a,byId);
+    if(ch[ch.length-1]!==list.find(x=>!x.ayahId)?.nama)return; // hanya yang tersambung ke akar
+    opts.set(l,{nama:a.nama,chain:ch.join('\n')});
+    const o=document.createElement('option');o.value=l;dl.appendChild(o);
+   });
+   window.__membersReady=opts.size>0;window.__syncOrtu();
+  };
+  window.__pilihOrtu=function(){const f=$('father');return f?opts.get(f.value.trim())||null:null;};
+  window.__syncOrtu=function(){
+   const f=$('father'),c=$('chain'),h=$('fatherHint'),mn=$('fatherManual');if(!f||!c)return;
+   const manual=mn&&mn.checked,sel=window.__pilihOrtu();
+   if(!window.__membersReady||manual){c.readOnly=false;if(h)h.textContent=manual?'Mode manual: isi rantai sendiri; Admin akan memeriksanya.':'Daftar belum termuat; isi rantai secara manual.';return;}
+   c.readOnly=true;
+   if(sel){c.value=sel.chain;if(h)h.textContent='Rantai terisi otomatis ('+sel.chain.split('\n').length+' nama sampai KH. R. Muhamad Ilyas).';}
+   else{c.value='';if(h)h.textContent='Pilih salah satu nama dari daftar yang muncul saat Anda mengetik.';}
+  };
+  document.addEventListener('input',e=>{if(e.target&&e.target.id==='father')window.__syncOrtu();});
+  document.addEventListener('change',e=>{if(e.target&&(e.target.id==='father'||e.target.id==='fatherManual'))window.__syncOrtu();});
+ })();
  async function loadMembers(){
   const box=$('onlineVerifiedMembers');
   try{
    const list=(await api({action:'members'})).anggota||[];
    window.__onlineVerifiedNames=list.filter(a=>a.ayahId).map(a=>a.nama);
+   window.__membersList=list;if(window.__buildOrtu)window.__buildOrtu();
    const maxGen=list.reduce((m,a)=>Math.max(m,Number(a.generasi)||0),0);
    $('countPeople').textContent=String(list.length);
    $('statLine').textContent='BI-0–BI-'+maxGen;
