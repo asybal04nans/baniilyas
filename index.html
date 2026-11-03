@@ -2504,6 +2504,12 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 #pohonModal .pk-node.root{background:#f4e9c9;border-color:#c9a35a;font-weight:700}
 #pohonModal .pk-node small{color:#6b7a66;font-size:11px}
 #pohonModal .pk-node button{font-size:11px;padding:3px 8px;border-radius:7px}
+#pohonModal .pk-row{display:inline-flex;flex-wrap:wrap;align-items:center;gap:0}
+#pohonModal .pk-arrow{position:relative;width:34px;height:2px;background:#b8893b;margin:0 8px 0 4px;flex:none}
+#pohonModal .pk-arrow::after{content:"";position:absolute;right:-1px;top:-4px;border-left:8px solid #b8893b;border-top:5px solid transparent;border-bottom:5px solid transparent}
+#pohonModal .pk-sp{display:flex;flex-direction:column;gap:4px}
+#pohonModal .pk-spbox{background:#f7efd6;border:1px dashed #b8893b;border-radius:9px;padding:5px 10px;font-size:13px;color:#4a3b17}
+#pohonModal .pk-spbox small{display:block;font-size:10px;color:#8a6d2c;text-transform:uppercase;letter-spacing:.04em}
 #pohonModal summary{cursor:pointer;list-style:none}#pohonModal summary::-webkit-details-marker{display:none}
 #pohonModal summary .pk-node::before{content:"▾";color:#9b752f}
 #pohonModal details:not([open])>summary .pk-node::before{content:"▸"}
@@ -2529,16 +2535,26 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  function simpul(list,a,depth){
   const li=document.createElement('li');const kids=anakDari(list,a.id);
   const node=document.createElement('span');node.className='pk-node';
+  const row=document.createElement('span');row.className='pk-row';
   const nm=document.createElement('span');nm.textContent=a.nama;node.appendChild(nm);
   const sm=document.createElement('small');sm.textContent=(a.jk==='P'?'putri':a.jk==='L'?'putra':'putra/putri')+(a.anakKe?' · anak ke-'+a.anakKe:'');node.appendChild(sm);
   if(kids.length){const c=document.createElement('span');c.className='pk-n';c.textContent=kids.length+' anak';node.appendChild(c);}
   const rb=document.createElement('button');rb.type='button';rb.className='secondary';rb.textContent='Rundayan';rb.title='Buat rundayan atas nama '+a.nama;
   rb.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();tutup();const p=$('printPerson');if(p)p.value=a.nama;if(window.printFamilyTree)window.printFamilyTree();});
   node.appendChild(rb);
+  row.appendChild(node);
+  const sps=(a.pasangan||[]).filter(Boolean);
+  if(sps.length){
+   const ar=document.createElement('span');ar.className='pk-arrow';ar.setAttribute('aria-hidden','true');row.appendChild(ar);
+   const col=document.createElement('span');col.className='pk-sp';
+   const lab=a.jk==='P'?'Suami':(a.jk==='L'?'Istri':'Pasangan');
+   sps.forEach(n=>{const b=document.createElement('span');b.className='pk-spbox';const sm=document.createElement('small');sm.textContent=lab;b.appendChild(sm);b.appendChild(document.createTextNode(n));col.appendChild(b);});
+   row.appendChild(col);
+  }
   if(kids.length){
-   const d=document.createElement('details');d.open=true;const s=document.createElement('summary');s.appendChild(node);d.appendChild(s);
+   const d=document.createElement('details');d.open=true;const s=document.createElement('summary');s.appendChild(row);d.appendChild(s);
    const ul=document.createElement('ul');ul.className='pk';kids.forEach(k=>ul.appendChild(simpul(list,k,depth+1)));d.appendChild(ul);li.appendChild(d);
-  }else li.appendChild(node);
+  }else li.appendChild(row);
   return li;
  }
  function buka(label,wife){
@@ -2568,7 +2584,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   const w=window.open('','_blank');if(!w){alert('Jendela cetak diblokir browser. Izinkan pop-up untuk situs ini.');return;}
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const clone=$('pkIsi').cloneNode(true);clone.querySelectorAll('button').forEach(b=>b.remove());clone.querySelectorAll('details').forEach(d=>d.open=true);
-  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Pohon Silsilah '+esc(cur.nama)+'</title><style>body{font-family:Arial,sans-serif;margin:14mm;color:#1c2b22;-webkit-print-color-adjust:exact;print-color-adjust:exact}h2{margin:0 0 2mm;color:#1d4a38}p.s{margin:0 0 6mm;color:#6b5a2e;font-size:12px}ul{list-style:none;margin:0;padding:0 0 0 7mm;border-left:1.5px solid #c9a35a}ul.top{border:0;padding:0}li{margin:2mm 0;break-inside:avoid}.pk-node{display:inline-block;border:1px solid #c9a35a;border-radius:6px;padding:1.2mm 3mm;font-size:12px}.pk-node.root{background:#f4e9c9;font-weight:700}small{color:#667;font-size:10px;margin-left:4px}.pk-n{font-size:10px;color:#1f5f4a;margin-left:4px}summary{list-style:none}summary::-webkit-details-marker{display:none}</style></head><body><h2>Pohon Silsilah '+esc(cur.nama)+'</h2><p class="s">'+esc($('pkSub').textContent)+' · Keluarga Besar Seweu Siwi Bani Ilyas Limbangan</p>'+clone.innerHTML+'</body></html>');
+  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Pohon Silsilah '+esc(cur.nama)+'</title><style>body{font-family:Arial,sans-serif;margin:14mm;color:#1c2b22;-webkit-print-color-adjust:exact;print-color-adjust:exact}h2{margin:0 0 2mm;color:#1d4a38}p.s{margin:0 0 6mm;color:#6b5a2e;font-size:12px}ul{list-style:none;margin:0;padding:0 0 0 7mm;border-left:1.5px solid #c9a35a}ul.top{border:0;padding:0}li{margin:2mm 0;break-inside:avoid}.pk-node{display:inline-block;border:1px solid #c9a35a;border-radius:6px;padding:1.2mm 3mm;font-size:12px}.pk-node.root{background:#f4e9c9;font-weight:700}small{color:#667;font-size:10px;margin-left:4px}.pk-n{font-size:10px;color:#1f5f4a;margin-left:4px}summary{list-style:none}summary::-webkit-details-marker{display:none}.pk-row{display:inline-flex;align-items:center}.pk-arrow{position:relative;width:30px;height:2px;background:#b8893b;margin:0 8px 0 4px}.pk-arrow::after{content:"";position:absolute;right:-1px;top:-4px;border-left:8px solid #b8893b;border-top:5px solid transparent;border-bottom:5px solid transparent}.pk-sp{display:flex;flex-direction:column;gap:3px}.pk-spbox{background:#f7efd6;border:1px dashed #b8893b;border-radius:6px;padding:1mm 2.5mm;font-size:11px}.pk-spbox small{display:block;font-size:8px;color:#8a6d2c;text-transform:uppercase}</style></head><body><h2>Pohon Silsilah '+esc(cur.nama)+'</h2><p class="s">'+esc($('pkSub').textContent)+' · Keluarga Besar Seweu Siwi Bani Ilyas Limbangan</p>'+clone.innerHTML+'</body></html>');
   w.document.close();setTimeout(()=>w.print(),400);
  });
  /* aktifkan nama anak */
