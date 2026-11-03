@@ -485,7 +485,6 @@ main {
    <button data-page="kartu">Kartu Bani Ilyas</button>
    <button data-page="chat">Chat Anak Incu</button>
    <button data-page="verifikasi">Verifikasi Admin</button>
-   <button data-page="visits">Log Kunjungan (Admin)</button>
   </nav>
  </div>
 </header>
@@ -645,24 +644,6 @@ main {
  <div id="adminList"></div>
 </section>
 
-<section id="visits" class="hidden">
- <div class="panel">
-  <div class="panelhead">
-   <div><h3>Log Kunjungan Website</h3><p class="note">Catatan kunjungan untuk pemantauan admin. Tidak ada laporan yang dikirim ke WhatsApp.</p></div>
-   <button type="button" class="secondary" id="refreshVisitLog">Perbarui</button>
-  </div>
-  <div class="stats" style="margin-top:12px">
-   <div class="stat"><strong id="visitToday">0</strong><span>Pengunjung hari ini (perangkat ini)</span></div>
-   <div class="stat"><strong id="visitAll">0</strong><span>Total kunjungan tercatat (perangkat ini)</span></div>
-  </div>
-  <div class="panelhead" style="margin-top:18px">
-   <h4>Riwayat Kunjungan</h4>
-   <button type="button" class="secondary" id="exportVisitLog">Unduh CSV</button>
-  </div>
-  <div id="visitLogTable" class="note">Belum ada catatan kunjungan.</div>
-  <p class="note" style="margin-top:14px"><b>Catatan teknis:</b> Versi prototipe ini menyimpan log di browser/perangkat yang digunakan (localStorage). Karena itu, data belum terkumpul lintas pengunjung atau lintas perangkat dan belum dapat dilihat admin dari perangkat lain. Untuk laporan harian seluruh pengunjung secara terpusat, website perlu backend/database dan autentikasi admin.</p>
- </div>
-</section>
 
 <section id="nasab" class="hidden">
  <div class="panel nasab-poster-panel">
@@ -1277,7 +1258,7 @@ window.PancakakiDownloadGate = {
 <footer>Arsip Digital Kulawarga Bani Ilyas · Limbangan, Garut · Rarancang awal pikeun dimekarkeun babarengan ku kulawarga</footer>
 <script>
 const navButtons=document.querySelectorAll('nav button');
-const pageIds=['home','profil','add','archive','pesantren','umkm','library','calendar','donasi','haul','guide','nasab','kartu','chat','visits','verifikasi'];
+const pageIds=['home','profil','add','archive','pesantren','umkm','library','calendar','donasi','haul','guide','nasab','kartu','chat','verifikasi'];
 navButtons.forEach(btn=>btn.addEventListener('click',()=>{
  navButtons.forEach(b=>b.classList.remove('active'));
  btn.classList.add('active');
@@ -1286,7 +1267,6 @@ navButtons.forEach(btn=>btn.addEventListener('click',()=>{
   if(page) page.classList.toggle('hidden',id!==btn.dataset.page);
  });
  if(btn.dataset.page==='archive' && typeof renderArchive==='function') renderArchive();
- if(btn.dataset.page==='visits' && typeof window.renderPancakakiVisitLog==='function') window.renderPancakakiVisitLog();
  window.scrollTo({top:0,behavior:'smooth'});
 }));
 /* Tautan langsung: ...#tambah membuka formulir pengajuan; #silsilah membuka beranda */
@@ -1597,51 +1577,6 @@ document.getElementById('createDonation')?.addEventListener('click',()=>{
 </script>
 
 
-<script>
-/* Log kunjungan prototipe: tersimpan lokal pada browser ini, tanpa WhatsApp. */
-(function(){
- const KEY='pancakaki_bani_ilyas_visit_log_v1';
- const now=new Date();
- const stamp=now.toISOString();
- let rows=[];
- try{rows=JSON.parse(localStorage.getItem(KEY)||'[]');if(!Array.isArray(rows))rows=[];}catch(e){rows=[];}
- // Catat satu kunjungan per sesi tab/browser.
- try{
-  if(!sessionStorage.getItem('pancakaki_visit_counted')){
-   rows.push({time:stamp,day:now.toLocaleDateString('id-ID'),source:'Kunjungan website'});
-   localStorage.setItem(KEY,JSON.stringify(rows));
-   sessionStorage.setItem('pancakaki_visit_counted','1');
-  }
- }catch(e){}
- function safe(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
- function getRows(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return []}}
- function render(){
-  const data=getRows();
-  const today=new Date().toLocaleDateString('id-ID');
-  const countToday=data.filter(x=>new Date(x.time).toLocaleDateString('id-ID')===today).length;
-  const a=document.getElementById('visitToday'),b=document.getElementById('visitAll'),t=document.getElementById('visitLogTable');
-  if(a)a.textContent=countToday;
-  if(b)b.textContent=data.length;
-  if(t){
-   if(!data.length){t.textContent='Belum ada catatan kunjungan.';return;}
-   const ordered=data.slice().reverse();
-   t.innerHTML='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">No.</th><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">Tanggal</th><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">Waktu</th><th style="text-align:left;padding:9px;border-bottom:1px solid #ddd">Keterangan</th></tr></thead><tbody>'+ordered.map((x,i)=>'<tr><td style="padding:9px;border-bottom:1px solid #eee">'+(i+1)+'</td><td style="padding:9px;border-bottom:1px solid #eee">'+safe(new Date(x.time).toLocaleDateString('id-ID'))+'</td><td style="padding:9px;border-bottom:1px solid #eee">'+safe(new Date(x.time).toLocaleTimeString('id-ID'))+'</td><td style="padding:9px;border-bottom:1px solid #eee">'+safe(x.source||'Kunjungan website')+'</td></tr>').join('')+'</tbody></table></div>';
-  }
- }
- document.addEventListener('click',e=>{
-  if(e.target.id==='refreshVisitLog')render();
-  if(e.target.id==='exportVisitLog'){
-   const data=getRows();
-   const csv=['Tanggal,Waktu,Keterangan',...data.map(x=>{const d=new Date(x.time);return [d.toLocaleDateString('id-ID'),d.toLocaleTimeString('id-ID'),x.source||'Kunjungan website'].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')})].join('\n');
-   const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
-   const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='log-kunjungan-pancakaki-bani-ilyas.csv';a.click();URL.revokeObjectURL(url);
-  }
- });
- document.addEventListener('click',e=>{if(e.target.closest('[data-page="visits"]'))setTimeout(render,0);});
- document.addEventListener('DOMContentLoaded',render);
- window.renderPancakakiVisitLog=render;
-})();
-</script>
 
 
 <script>
@@ -3096,7 +3031,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 /* Log aktivitas untuk admin: semua yang masuk ke website dan keputusan admin */
 (function(){
  const $=id=>document.getElementById(id);
- const kp=$('krMuat')&&$('krMuat').closest('.panel');if(!kp||$('logAdminPanel'))return;
+ const kp=$('adminToken')&&$('adminToken').closest('.panel');if(!kp||$('logAdminPanel'))return;
  const p=document.createElement('div');p.className='panel';p.id='logAdminPanel';
  p.innerHTML='<div class="panelhead"><h3>Log Aktivitas Website</h3><span class="pill">KHUSUS ADMIN</span></div><p class="note">Setiap data yang masuk (pengajuan nama, pesantren, UMKM, kitab, foto/video, agenda, donasi, iuran, chat, dan update) tercatat di sini beserta waktu dan nama pengirim, juga keputusan admin. Alamat dan nomor WhatsApp tidak ditulis di log.</p>'+
   '<div class="formgrid"><div class="field"><label for="lgFilter">Tampilkan</label><select id="lgFilter"><option value="">Semua</option><option value="MASUK">Yang masuk saja</option><option value="KEPUTUSAN">Keputusan admin saja</option></select></div><div class="field"><label for="lgCari">Cari</label><input id="lgCari" placeholder="Nama pengirim, jenis, kata kunci..."></div></div>'+
@@ -3172,12 +3107,12 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 /* Kelola silsilah oleh admin: ubah, tambah, hapus, gabung */
 (function(){
  const $=id=>document.getElementById(id);
- const anchor=$('logAdminPanel')||($('krMuat')&&$('krMuat').closest('.panel'));if(!anchor||$('kelolaPanel'))return;
+ const anchor=$('logAdminPanel');if(!anchor||$('kelolaPanel'))return;
  const p=document.createElement('div');p.className='panel';p.id='kelolaPanel';
  p.innerHTML='<div class="panelhead"><h3>Kelola Silsilah (Admin)</h3><span class="pill">KHUSUS ADMIN</span></div><p class="note">Admin dapat mengubah, menambah, menghapus, dan menggabungkan nama langsung, tanpa antre persetujuan. Gunakan bila ada nama dobel atau salah tulis. Penghapusan tidak permanen: barisnya tetap tersimpan di Google Sheets dengan status DIHAPUS. Semua tindakan tercatat di Log Aktivitas.</p>'+
   '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" type="button" id="klMuat">Muat Daftar Anggota</button><button class="secondary" type="button" id="klBaru">+ Tambah orang baru</button></div>'+
   '<div class="field" style="margin-top:10px"><label for="klCari">Cari nama</label><input id="klCari" placeholder="Ketik sebagian nama..."></div><div class="note" id="klInfo" role="status"></div><div class="kl-list" id="klList"></div>';
- anchor.parentNode.insertBefore(p,anchor.nextSibling);
+ anchor.parentNode.insertBefore(p,anchor);
  const M=$('kelolaModal');let semua=[],cur=null,baru=false;
  const token=()=>($('adminToken')?$('adminToken').value:'');
  const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
