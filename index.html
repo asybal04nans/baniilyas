@@ -583,6 +583,7 @@ main {
  <div class="panel">
   <div class="panelhead"><h3>Formulir Data Anggota Kulawarga</h3><span class="pill">PENGAJUAN DATA</span></div>
   <p class="note">Isi nama lengkap, jenis kelamin, lalu <b>pilih nama ayah (atau ibu) dari daftar</b>. Rantai nasab sampai KH. R. Muhamad Ilyas terisi otomatis. Nama ibu, nama istri/suami, dan alamat bersifat opsional; alamat hanya dapat dilihat Admin. Setiap pengajuan diperiksa Admin lebih dahulu, dan data baru masuk silsilah resmi setelah rantai ayah-anak terbukti tersambung serta disetujui Admin.</p>
+  <div class="field" style="margin:14px 0 6px"><label for="nasabBin">Cara cepat: tempel nasab dengan format &quot;bin&quot;</label><textarea id="nasabBin" rows="3" placeholder="Contoh: R. Nanan Mutoharul Janan bin KH. R. Memed Mahmudin bin KH. R. Muhamad Ilyas (anak ke-2)"></textarea><div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:8px;align-items:center"><button type="button" class="secondary" id="nasabBinApply">Isi Formulir Otomatis</button><small id="nasabBinMsg" style="color:#4b5949"></small></div><small>Tulis: Nama <b>bin</b> (putra) atau <b>binti</b> (putri) Ayah <b>bin</b> Kakek ... sampai KH. R. Muhamad Ilyas. Urutan anak boleh ditambah di akhir, misalnya (anak ke-2).</small></div>
   <div class="formgrid">
    <div class="field"><label>Nama lengkap anggota</label><input id="name" placeholder="Nama lengkap anggota keluarga" maxlength="120"></div>
    <div class="field"><label>Jenis kelamin</label><select id="gender"><option value="">Pilih...</option><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
@@ -1927,6 +1928,34 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   };
   document.addEventListener('input',e=>{if(e.target&&e.target.id==='father')window.__syncOrtu();});
   document.addEventListener('change',e=>{if(e.target&&(e.target.id==='father'||e.target.id==='fatherManual'))window.__syncOrtu();});
+  const nkb=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+  function isiBin(){
+   const msg=$('nasabBinMsg'),say=(t,ok)=>{if(msg){msg.textContent=t;msg.style.color=ok?'#1f5f4a':'#a33';}};
+   let t=String($('nasabBin').value||'').replace(/\s+/g,' ').trim();if(!t){say('Tempel dulu teks nasabnya.',false);return;}
+   let anak='';const m=t.match(/\(?\s*anak\s*ke[-\s]*(\d{1,2})\s*\)?/i);if(m){anak=m[1];t=t.replace(m[0],' ').replace(/\s+/g,' ').trim();}
+   const p=t.split(/\s+(bin|binti|bnt|bn)\s+/i);
+   if(p.length<3){say('Format belum dikenali. Contoh: Nama bin Ayah bin Kakek bin KH. R. Muhamad Ilyas.',false);return;}
+   const nama=p[0].trim(),jk=/^bin?t|^bnt/i.test(p[1])?'P':'L',rantai=[];
+   for(let i=2;i<p.length;i+=2)rantai.push(p[i].trim().replace(/[.,;]+$/,''));
+   const rootNama=(window.__membersList||[]).find(a=>!a.ayahId);const rn=rootNama?rootNama.nama:'KH. R. Muhamad Ilyas';
+   if(nkb(rantai[rantai.length-1])!==nkb(rn))rantai.push(rn);
+   $('name').value=nama;$('gender').value=jk;if(anak&&$('anakKe'))$('anakKe').value=anak;
+   const f=$('father'),mn=$('fatherManual'),c=$('chain');
+   const cand=[...opts.entries()].filter(([l,o])=>nkb(o.nama)===nkb(rantai[0]));
+   const key=rantai.map(nkb).join('>');
+   let pick=cand.length===1?cand[0]:cand.filter(([l,o])=>o.chain.split('\n').map(nkb).join('>')===key)[0];
+   if(pick){
+    if(mn)mn.checked=false;f.value=pick[0];window.__syncOrtu();
+    const sama=pick[1].chain.split('\n').map(nkb).join('>')===key;
+    say(sama?'Terisi. Periksa nama, jenis kelamin, dan Anak ke-, lalu lengkapi data pengaju.':'Terisi, tetapi rantai di sistem berbeda dari yang Anda tempel. Periksa lagi kolom rantai.',sama);
+   }else if(cand.length>1){
+    if(mn)mn.checked=false;f.value='';window.__syncOrtu();say('Ada beberapa nama ayah/ibu yang sama. Pilih yang benar dari daftar pada kolom nama ayah/ibu.',false);
+   }else{
+    if(mn)mn.checked=true;f.value=rantai[0];window.__syncOrtu();c.value=rantai.join('\n');
+    say('Nama ayah/ibu belum ada di daftar, jadi diisi mode manual. Admin akan memeriksa rantainya.',true);
+   }
+  }
+  document.addEventListener('click',e=>{if(e.target&&e.target.id==='nasabBinApply')isiBin();});
  })();
  async function loadMembers(){
   const box=$('onlineVerifiedMembers');
