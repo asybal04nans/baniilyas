@@ -2196,8 +2196,9 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  // Kitab: ganti unggah PDF dengan tautan
  (function(){const f=$('bFile');if(!f)return;const w=f.closest('.field');if(w)w.style.display='none';
   const b=$('submitBook');sisipPengirim(b,'bKirimNama','bKirimWa');
+  ['bAuthor','bCategory','bSource'].forEach(i=>{const e=$(i);const f=e&&e.closest('.field');if(f)f.style.display='none';});const wa=$('bKirimWa');if(wa){const f=wa.closest('.field');if(f)f.style.display='none';}
   const d=document.createElement('div');d.className='field';d.style.cssText='grid-column:1/-1';d.innerHTML='<label for="bLink">Tautan file PDF (Google Drive, dll.; atur agar dapat dibuka)</label><input id="bLink" placeholder="https://drive.google.com/...">';w.parentNode.appendChild(d);
-  const n=[...b.parentNode.querySelectorAll('p.note')].pop();if(n)n.textContent='Setiap kiriman diperiksa admin (isi dan hak distribusi) sebelum masuk koleksi. Jangan mengirim buku berhak cipta tanpa izin.';})();
+  const n=[...b.parentNode.querySelectorAll('p.note')].pop();if(n)n.textContent='Isi judul, tempel tautan PDF, dan nama Anda. Admin memeriksa sebelum masuk koleksi.';})();
  // Foto/video: tautan
  (function(){const f=$('mediaFiles');if(!f)return;const w=f.closest('.field');if(w){w.innerHTML='<label for="mediaLink">Tautan foto/video (Google Drive, YouTube, dll.; atur agar dapat dibuka)</label><input id="mediaLink" placeholder="https://drive.google.com/...">';}
   const p=$('mediaContributionPanel');if(p){const pi=p.querySelector('.media-intro');if(pi)pi.textContent='Anak incu Bani Ilyas dapat mengirimkan dokumentasi keluarga berupa tautan. Admin memeriksa kiriman sebelum ditampilkan.';
@@ -2237,9 +2238,9 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   const m=$('umkmMsg');if(!x.name||!x.owner){say(m,'Isi nama usaha dan nama pemilik.',false);return;}
   kirim('umkm',x.owner,x.phone,x,m,()=>clear(['uName','uOwner','uCode','uProduct','uPhone','uAddress','uDesc']));});})();
  (function(){const b=fresh($('submitBook'));if(!b)return;b.addEventListener('click',()=>{
-  const x={title:val('bTitle'),author:val('bAuthor'),category:val('bCategory'),source:val('bSource'),link:val('bLink')};
+  const x={title:val('bTitle'),link:val('bLink')};
   const m=$('bookMsg');if(!x.title||!x.link){say(m,'Isi judul dan tautan file PDF.',false);return;}
-  kirim('buku',val('bKirimNama'),val('bKirimWa'),x,m,()=>clear(['bTitle','bAuthor','bSource','bLink']));});})();
+  kirim('buku',val('bKirimNama'),'',x,m,()=>clear(['bTitle','bLink']));});})();
  (function(){const b=fresh($('submitMedia'));if(!b)return;b.addEventListener('click',()=>{
   const m=$('mediaSubmitMessage');const x={title:val('mediaTitle'),category:val('mediaCategory'),link:val('mediaLink')};
   if(!x.title||!x.link){say(m,'Isi judul dokumentasi dan tautan foto/video.',false);return;}
@@ -2272,7 +2273,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   el.innerHTML=it.length?it.map(x=>'<div class="pesantren-card"><h4>'+esc(x.name)+'</h4><div class="pesantren-meta">'+esc(x.product)+' · '+esc(x.owner)+' · '+esc(x.code)+'</div><div class="pesantren-detail"><b>Alamat:</b> '+esc(x.address)+'<br><b>Kontak:</b> '+esc(x.phone)+'<br>'+esc(x.desc)+'</div></div>').join(''):'<p class="note">Belum ada UMKM yang disetujui admin.</p>';}
  function renderBukuT(){const el=$('bookList');if(!el)return;const q=(val('bookSearch')).toLowerCase();
   const it=T().buku.filter(x=>Object.values(x).join(' ').toLowerCase().includes(q));
-  el.innerHTML=it.length?it.map(x=>'<div class="pesantren-card"><h4>'+esc(x.title)+'</h4><div class="pesantren-meta">'+esc(x.author)+' · '+esc(x.category)+'</div><div class="pesantren-detail">'+esc(x.source)+'</div>'+(safeLink(x.link)?'<div class="pesantren-actions"><a class="donate-link" target="_blank" rel="noopener noreferrer" href="'+esc(safeLink(x.link))+'">Buka / Unduh</a></div>':'')+'</div>').join(''):'<p class="note">Belum ada koleksi yang disahkan admin.</p>';}
+  el.innerHTML=it.length?it.map(x=>'<div class="pesantren-card"><h4>'+esc(x.title)+'</h4><div class="pesantren-meta">Dikirim oleh '+esc(x.pengirim)+'</div>'+(safeLink(x.link)?'<div class="pesantren-actions"><a class="donate-link" target="_blank" rel="noopener noreferrer" href="'+esc(safeLink(x.link))+'">Buka / Unduh</a></div>':'')+'</div>').join(''):'<p class="note">Belum ada koleksi yang disahkan admin.</p>';}
  function renderMediaT(){const el=$('publishedMediaList');if(!el)return;const it=T().media;
   const c=$('publishedMediaCount');if(c)c.textContent=it.length+' dokumentasi';
   el.innerHTML=it.length?it.map(x=>'<div class="kr-card"><h4>'+esc(x.title)+'</h4><div class="kr-meta">'+esc(x.category)+' · dikirim '+esc(x.pengirim)+'</div>'+(x.description?'<div class="kr-data">'+esc(x.description)+'</div>':'')+(safeLink(x.link)?'<div class="kr-actions"><a class="donate-link" target="_blank" rel="noopener noreferrer" href="'+esc(safeLink(x.link))+'">Lihat foto/video</a></div>':'')+'</div>').join(''):'<div class="media-empty">Belum ada foto atau video yang diterbitkan.</div>';}
