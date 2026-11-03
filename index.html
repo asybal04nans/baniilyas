@@ -2813,5 +2813,29 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  document.addEventListener('click',e=>{if(e.target&&e.target.closest&&e.target.closest('button'))IDS.forEach(id=>terapkan(document.getElementById(id)));},true);
 })();
 </script>
+<script>
+/* Kolom tautan kitab: dikenali otomatis + tombol uji agar pengirim bisa memastikan tautan membuka file yang benar */
+(function(){
+ const inp=document.getElementById('bLink');if(!inp||!inp.parentNode)return;
+ const box=document.createElement('div');box.style.cssText='margin-top:6px;font-size:13px';
+ box.innerHTML='<span id="bLinkInfo" class="note" style="display:block;margin:0 0 6px"></span><a id="bLinkUji" class="secondary" target="_blank" rel="noopener noreferrer" style="display:none;padding:6px 12px;border-radius:9px;text-decoration:none;border:1px solid #c9a35a;color:#1d4a38;font-weight:700;background:#fffdf6">Uji tautan: buka file</a>';
+ inp.parentNode.appendChild(box);
+ const info=box.querySelector('#bLinkInfo'),uji=box.querySelector('#bLinkUji');
+ function cek(){
+  const v=inp.value.trim();uji.style.display='none';
+  if(!v){info.textContent='';return;}
+  if(!/^https:\/\//i.test(v)){info.style.color='#a33';info.textContent='Tautan harus diawali https:// (salin langsung dari Google Drive atau situs penyimpanan).';return;}
+  const f=window.arahFile?window.arahFile(v):null;
+  if(!f){info.style.color='#a33';info.textContent='Tautan tidak terbaca. Periksa kembali.';return;}
+  let jenis='tautan biasa';
+  if(/drive\.google\.com/.test(v))jenis='Google Drive';else if(/docs\.google\.com/.test(v))jenis='Google Docs';else if(/dropbox\.com/.test(v))jenis='Dropbox';else if(/\.pdf(\?|#|$)/i.test(v))jenis='file PDF';
+  info.style.color='#1f5f4a';
+  info.textContent='Terbaca: '+jenis+'. Pembaca akan diarahkan langsung ke file'+(f.unduh?' dengan tombol Baca dan Unduh':'')+'. Klik tombol uji di bawah untuk memastikan file terbuka (bukan minta izin akses).';
+  uji.href=f.baca;uji.style.display='inline-block';
+ }
+ inp.addEventListener('input',cek);
+ inp.addEventListener('change',()=>{const f=window.arahFile?window.arahFile(inp.value.trim()):null;if(f&&/drive\.google\.com|docs\.google\.com/.test(inp.value))inp.value=f.baca;cek();});
+})();
+</script>
 </body>
 </html>
