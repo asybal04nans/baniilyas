@@ -1463,20 +1463,21 @@ function printFamilyTree(){
   const field=document.getElementById('printPerson');
   const who=(field && field.value.trim()) || '';
   if(!who){
-    alert('Mangga lebetkeun heula nami atanapi kode silsilah anjeun.');
+    alert('Ketik dulu nama Anda (atau pilih dari hasil pencarian di atas).');
     field && field.focus();
     return;
   }
-  const tree=document.getElementById('tree');
-  const found=tree && Array.from(tree.querySelectorAll('[data-search]')).some(el =>
-    (el.getAttribute('data-search')||'').toLowerCase().includes(who.toLowerCase()) ||
-    el.textContent.toLowerCase().includes(who.toLowerCase())
-  );
-  if(!found){
-    alert('Nami atanapi kode teu kapendak dina data conto. Pariksa deui atanapi hubungi admin kulawarga.');
-    return;
-  }
-  window.print();
+  const nb=document.querySelector('button[data-page="nasab"]');
+  if(nb)nb.click();
+  setTimeout(()=>{
+    const n=document.getElementById('personalDescendantName');
+    if(n){
+      n.value=who;
+      n.dispatchEvent(new Event('input',{bubbles:true}));
+      n.dispatchEvent(new Event('change',{bubbles:true}));
+      try{n.scrollIntoView({behavior:'smooth',block:'center'});n.focus({preventScroll:true});}catch(e){}
+    }
+  },150);
 }
 </script>
 
