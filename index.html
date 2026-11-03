@@ -3066,5 +3066,53 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  });
 })();
 </script>
+<style>
+#logAdminPanel table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+#logAdminPanel th,#logAdminPanel td{border-bottom:1px solid #e6dcc2;padding:6px 8px;text-align:left;vertical-align:top}
+#logAdminPanel th{background:#f4e9c9;color:#1d4a38;position:sticky;top:0}
+#logAdminPanel .lg-masuk{color:#1f5f4a;font-weight:700}#logAdminPanel .lg-ok{color:#2f6b3b}#logAdminPanel .lg-no{color:#a33}
+#logAdminPanel .lg-wrap{max-height:420px;overflow:auto;border:1px solid #e6dcc2;border-radius:10px}
+</style>
+<script>
+/* Log aktivitas untuk admin: semua yang masuk ke website dan keputusan admin */
+(function(){
+ const $=id=>document.getElementById(id);
+ const kp=$('krMuat')&&$('krMuat').closest('.panel');if(!kp||$('logAdminPanel'))return;
+ const p=document.createElement('div');p.className='panel';p.id='logAdminPanel';
+ p.innerHTML='<div class="panelhead"><h3>Log Aktivitas Website</h3><span class="pill">KHUSUS ADMIN</span></div><p class="note">Setiap data yang masuk (pengajuan nama, pesantren, UMKM, kitab, foto/video, agenda, donasi, iuran, chat, dan update) tercatat di sini beserta waktu dan nama pengirim, juga keputusan admin. Alamat dan nomor WhatsApp tidak ditulis di log.</p>'+
+  '<div class="formgrid"><div class="field"><label for="lgFilter">Tampilkan</label><select id="lgFilter"><option value="">Semua</option><option value="MASUK">Yang masuk saja</option><option value="KEPUTUSAN">Keputusan admin saja</option></select></div><div class="field"><label for="lgCari">Cari</label><input id="lgCari" placeholder="Nama pengirim, jenis, kata kunci..."></div></div>'+
+  '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="primary" type="button" id="lgMuat">Muat Log</button><button class="secondary" type="button" id="lgCsv">Unduh CSV</button><label style="display:flex;align-items:center;gap:6px;font-size:13px"><input type="checkbox" id="lgOto"> Segarkan otomatis tiap 1 menit</label></div>'+
+  '<div class="note" id="lgMsg" role="status" style="margin-top:8px"></div><div class="lg-wrap"><table><thead><tr><th>Waktu</th><th>Kejadian</th><th>Rincian</th></tr></thead><tbody id="lgBody"></tbody></table></div>';
+ kp.parentNode.insertBefore(p,kp.nextSibling);
+ let data=[],timer=null;
+ const label=a=>{
+  if(a.indexOf('MASUK_')===0){const j=a.substring(6);const m={PENGAJUAN:'Pengajuan nama silsilah',DUPLIKAT:'Pengajuan nama (sudah ada)',PESANTREN:'Pesantren',UMKM:'UMKM',BUKU:'Kitab/Ebook',MEDIA:'Foto/Video',KALENDER:'Agenda',DONASI:'Donasi',HAUL:'Iuran Haul',CHAT:'Chat',REVISI:'Update nama/urutan/pasangan/alamat',REVISIPESANTREN:'Update data pesantren',REVISIUMKM:'Update data UMKM'};return ['Masuk: '+(m[j]||j),'lg-masuk'];}
+  if(/SETUJU|TERBIT|DITERAPKAN|^UPDATE_/.test(a))return ['Disetujui/diterapkan ('+a+')','lg-ok'];
+  if(/TOLAK/.test(a))return ['Ditolak ('+a+')','lg-no'];
+  return [a,''];
+ };
+ const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ function tampil(){
+  const f=$('lgFilter').value,q=$('lgCari').value.toLowerCase().trim();
+  const rows=data.filter(x=>(!f||(f==='MASUK'?x.aksi.indexOf('MASUK_')===0:x.aksi.indexOf('MASUK_')!==0))&&(!q||(x.aksi+' '+x.detail+' '+x.id).toLowerCase().includes(q)));
+  $('lgBody').innerHTML=rows.length?rows.map(x=>{const l=label(x.aksi);return '<tr><td>'+esc(x.waktu)+'</td><td class="'+l[1]+'">'+esc(l[0])+'</td><td>'+esc(x.detail)+(x.id&&x.id!=='-'?' <small>('+esc(x.id)+')</small>':'')+'</td></tr>';}).join(''):'<tr><td colspan="3">Belum ada catatan.</td></tr>';
+  $('lgMsg').textContent=rows.length+' catatan ditampilkan (maksimal 500 terbaru).';
+ }
+ async function muat(){
+  const tk=$('adminToken')?$('adminToken').value:'';
+  if(!tk){$('lgMsg').style.color='#a33';$('lgMsg').textContent='Isi kata sandi Admin di atas terlebih dahulu.';return;}
+  $('lgMsg').style.color='';$('lgMsg').textContent='Memuat...';
+  try{const r=await window.BaniIlyasApi({action:'logList',token:tk});data=r.log||[];tampil();}catch(e){$('lgMsg').style.color='#a33';$('lgMsg').textContent='Gagal: '+e.message;}
+ }
+ $('lgMuat').addEventListener('click',muat);$('lgFilter').addEventListener('change',tampil);$('lgCari').addEventListener('input',tampil);
+ $('lgOto').addEventListener('change',e=>{if(timer){clearInterval(timer);timer=null;}if(e.target.checked){muat();timer=setInterval(muat,60000);}});
+ $('lgCsv').addEventListener('click',()=>{
+  if(!data.length){$('lgMsg').textContent='Muat log terlebih dahulu.';return;}
+  const c=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+  const csv='\ufeff'+['Waktu,Kejadian,ID,Rincian'].concat(data.map(x=>[x.waktu,x.aksi,x.id,x.detail].map(c).join(','))).join('\r\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='log-aktivitas-bani-ilyas.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+ });
+})();
+</script>
 </body>
 </html>
