@@ -586,7 +586,7 @@ main {
   <div class="formgrid">
    <div class="field"><label>Nama lengkap anggota</label><input id="name" placeholder="Nama lengkap anggota keluarga" maxlength="120"></div>
    <div class="field"><label>Jenis kelamin</label><select id="gender"><option value="">Pilih...</option><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
-   <div class="field"><label>Nama ayah (bin/binti)</label><input id="father" placeholder="Nama lengkap ayah" maxlength="120"></div>
+   <div class="field"><label>Nama ayah (atau nama ibu bila keturunan lewat jalur ibu)</label><input id="father" placeholder="Nama lengkap ayah / ibu" maxlength="120"></div>
    <div class="field" style="grid-column:1/-1"><label>Rantai nasab dari ayah sampai KH. R. Muhamad Ilyas</label><textarea id="chain" rows="5" placeholder="Satu nama per baris, dimulai dari ayah, lalu kakek, dan seterusnya sampai KH. R. Muhamad Ilyas.&#10;Contoh:&#10;R. M. Dimyati&#10;KH. R. Muhamad Ilyas"></textarea><small>Jangan menuliskan nama orang yang diajukan. Mulai dari ayahnya. Jika ada satu nama yang belum pasti, tulis yang diketahui dan Admin akan memeriksanya.</small></div>
    <div class="field"><label>Nama pengaju</label><input id="submitter" placeholder="Nama Anda" maxlength="100"></div>
    <div class="field"><label>Kontak pengaju (WhatsApp/telepon)</label><input id="contact" placeholder="Opsional, hanya dilihat Admin" maxlength="60"></div>
@@ -1639,7 +1639,8 @@ document.getElementById('createDonation')?.addEventListener('click',()=>{
   const d=getRows();
   if(!d.target){preview.innerHTML='<div class="nasab-personal-preview-title">Pratinjau Rundayan Pribadi</div><div class="note">Masukkan nama yang bersangkutan untuk menampilkan rundayan.</div>';return;}
   if(d.ancestors.length===0 && !directChildInput?.checked){preview.innerHTML='<div class="nasab-personal-preview-title">Pratinjau Rundayan Pribadi</div><div class="note">Isi nama ayah/leluhur penghubung, atau centang pilihan anak langsung apabila memang demikian.</div>';return;}
-  const nodes=d.rows.map((x,i)=>`<div class="nasab-preview-node ${i===0?'root':''} ${i===d.rows.length-1?'target':''}">${i+1}. ${escPrint(x)}</div>${i<d.rows.length-1?'<div class="nasab-preview-arrow">↓</div>':''}`).join('');
+  const jc0=x=>{const r=window.__infoNama?window.__infoNama(x):null;return r&&r.color?r.color:'';};
+  const nodes=d.rows.map((x,i)=>`<div class="nasab-preview-node ${i===0?'root':''} ${i===d.rows.length-1?'target':''}"${i&&jc0(x)?` style="border-left:6px solid ${jc0(x)};background:${jc0(x)}22"`:''}>${i+1}. ${escPrint(x)}</div>${i<d.rows.length-1?'<div class="nasab-preview-arrow">↓</div>':''}`).join('');
   preview.innerHTML=`<div class="nasab-personal-preview-title">Rundayan Nasab ${d.code?'· '+escPrint(d.code):''}</div><div class="nasab-preview-list">${nodes}</div>`;
  }
  function makePrintHtml(){
@@ -1647,7 +1648,9 @@ document.getElementById('createDonation')?.addEventListener('click',()=>{
   const posterSrc=document.querySelector('.nasab-poster-image')?.src||'';
   if(!d.target){alert('Masukkan nama lengkap yang bersangkutan terlebih dahulu.');nameInput.focus();return null;}
   if(d.ancestors.length===0 && !directChildInput?.checked){alert('Masukkan urutan nama ayah/leluhur penghubung. Bila yang bersangkutan anak langsung KH. R. Muhamad Ilyas, centang pilihan anak langsung.');chainInput.focus();return null;}
-  const nodes=d.rows.map((x,i)=>`<div class="node ${i===0?'root':''} ${i===d.rows.length-1?'target':''}"><span class="num">${i+1}</span><span class="nm">${escPrint(x)}</span></div>${i<d.rows.length-1?'<div class="arrow">↓</div>':''}`).join('');
+  const jc=x=>{const r=window.__infoNama?window.__infoNama(x):null;return r&&r.color?r.color:'';};
+  const jst=(x,i)=>{const c=i===0?'':jc(x);return c?` style="border-left:2.2mm solid ${c};background:${c}22"`:'';};
+  const nodes=d.rows.map((x,i)=>`<div class="node ${i===0?'root':''} ${i===d.rows.length-1?'target':''}"${jst(x,i)}><span class="num">${i+1}</span><span class="nm">${escPrint(x)}</span></div>${i<d.rows.length-1?'<div class="arrow">↓</div>':''}`).join('');
   const safeTitle=escPrint(d.target);
   const safeCode=d.code?`<div class="code">Kode Silsilah: ${escPrint(d.code)}</div>`:'';
   const source='sumber:Kakancingan Banten, diterbitkan oleh Tim Pancakaki Nasab Bani Ilyas Limbangan';
@@ -1787,6 +1790,23 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
    $('statLine').textContent='BI-0–BI-'+maxGen;
    $('heroPill').textContent='DATA TERVERIFIKASI ADMIN';
    const inTree=treeNames(), byId=new Map(list.map(a=>[a.id,a]));
+   /* Warna jalur: jalur ayah = sama dengan orang tua di atasnya; jalur ibu = warna baru */
+   const PAL=['#b7791f','#6b46c1','#2b6cb0','#c05621','#b83280','#2c7a7b'];
+   const BASE='#287653', info=new Map(); let nIbu=0;
+   const resolve=a=>{
+    if(info.has(a.id)) return info.get(a.id);
+    const p=byId.get(a.ayahId); let r;
+    if(!p){r={color:BASE,jalur:'akar',dari:''};}
+    else{
+     const pi=resolve(p);
+     if(p.jk==='P'){r={color:PAL[nIbu++%PAL.length],jalur:'ibu',dari:p.nama};}
+     else r={color:pi.color,jalur:'ayah',dari:p.nama};
+    }
+    info.set(a.id,r);return r;
+   };
+   [...list].sort((x,y)=>String(x.id).localeCompare(String(y.id),undefined,{numeric:true})).forEach(resolve);
+   const mapInfo=new Map(list.map(a=>[norm(a.nama),info.get(a.id)]));window.__infoNama=n=>mapInfo.get(norm(n));
+   window.__onlineLegend=[...new Map([...info.values()].filter(r=>r.jalur==='ibu').map(r=>[r.color,r.dari])).entries()];
    const extra=list.filter(a=>a.ayahId&&!inTree.has(norm(a.nama)));
    box.textContent='';
    if(!extra.length){
@@ -1794,14 +1814,24 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
     p.textContent='Seluruh '+list.length+' anggota terverifikasi saat ini sudah tampil pada bagan di atas. Anggota baru yang disetujui Admin akan tampil di sini.';
     box.appendChild(p);return;
    }
+   const lg=document.createElement('div');lg.className='legend-jalur';
+   lg.style.cssText='display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin:8px 0;font-size:12px';
+   const chip=(c,t)=>{const x=document.createElement('span');x.style.cssText='display:inline-flex;align-items:center;gap:6px';const k=document.createElement('i');k.style.cssText='width:14px;height:14px;border-radius:3px;display:inline-block;background:'+c;x.appendChild(k);x.appendChild(document.createTextNode(t));return x;};
+   lg.appendChild(chip(BASE,'Jalur ayah (warna sama dengan orang tua)'));
+   window.__onlineLegend.forEach(([c,n])=>lg.appendChild(chip(c,'Jalur ibu: keturunan '+n)));
+   const pb=document.createElement('button');pb.type='button';pb.textContent='Cetak daftar berwarna';pb.style.cssText='margin-left:auto';
+   pb.onclick=()=>{const w=window.open('','_blank');if(!w)return;w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Daftar Anggota Bani Ilyas</title><style>body{font-family:Arial,sans-serif;margin:16mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}.child{border:1px solid #ddd;border-radius:8px;padding:8px 10px;margin:6px 0;break-inside:avoid}.desc{font-size:12px;color:#555}h4{margin:14px 0 4px}.legend-jalur{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:12px;margin-bottom:10px}</style></head><body><h3>Daftar Anggota Terverifikasi - Bani Ilyas</h3>'+lg.outerHTML.replace(/<button.*?<\/button>/,'')+box.innerHTML.replace(/<div class="legend-jalur".*?<\/div>(?=<h4)/s,'')+'</body></html>');w.document.close();setTimeout(()=>w.print(),400);};
+   lg.appendChild(pb);box.appendChild(lg);
    const gens={};extra.forEach(a=>{(gens[a.generasi]=gens[a.generasi]||[]).push(a);});
    Object.keys(gens).sort((x,y)=>x-y).forEach(g=>{
     const t=document.createElement('h4');t.textContent='Generasi '+g+' (BI-'+g+')';box.appendChild(t);
     gens[g].forEach(a=>{
-     const d=document.createElement('div');d.className='child';
+     const ci=info.get(a.id)||{color:BASE,jalur:'ayah'};
+     const d=document.createElement('div');d.className='child jalur-kartu';
+     d.style.cssText='border-left:7px solid '+ci.color+';background:'+ci.color+'1f';
      const s=document.createElement('strong');s.textContent=a.nama;
      const sub=document.createElement('div');sub.className='desc';
-     sub.textContent=(a.jk==='P'?'Putri':'Putra')+' dari '+((byId.get(a.ayahId)||{}).nama||'-');
+     sub.textContent=(a.jk==='P'?'Putri':'Putra')+(ci.jalur==='ibu'?' dari ibu ':' dari ')+((byId.get(a.ayahId)||{}).nama||'-')+(ci.jalur==='ibu'?' (jalur ibu)':' (jalur ayah)');
      d.appendChild(s);d.appendChild(sub);box.appendChild(d);
     });
    });
