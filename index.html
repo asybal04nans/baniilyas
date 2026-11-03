@@ -2613,5 +2613,42 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 })();
 </script>
 
+<style>
+.alamat-saran{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px;align-items:center}
+.alamat-saran small{width:100%;color:#6b7a66;font-size:12px}
+.alamat-saran button{border:1px solid #d8c69b;background:#fffaf0;color:#3b3220;border-radius:999px;padding:5px 12px;font-size:12.5px;cursor:pointer;text-align:left;max-width:100%;white-space:normal;line-height:1.35}
+.alamat-saran button:hover{background:#f4e9c9}
+</style>
+<script>
+/* Alamat yang pernah diisi di perangkat ini tampil sebagai pilihan, supaya tidak mengetik berulang */
+(function(){
+ const KEY='bani_alamat_v1',IDS=['memberAddress','pAddress','uAddress'];
+ const baca=()=>{try{const a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a.filter(x=>typeof x==='string'):[];}catch(e){return [];}};
+ const simpan=v=>{v=String(v||'').replace(/\s+/g,' ').trim();if(v.length<12||v.length>200)return;
+  try{const k=v.toLowerCase();const a=baca().filter(x=>x.toLowerCase()!==k);a.unshift(v);localStorage.setItem(KEY,JSON.stringify(a.slice(0,8)));}catch(e){}
+  IDS.forEach(tampil);};
+ function tampil(id){
+  const el=document.getElementById(id);if(!el)return;
+  let box=document.getElementById('as_'+id);
+  if(!box){box=document.createElement('div');box.id='as_'+id;box.className='alamat-saran';el.insertAdjacentElement('afterend',box);}
+  const cur=el.value.replace(/\s+/g,' ').trim().toLowerCase();
+  const list=baca().filter(x=>x.toLowerCase()!==cur);
+  box.textContent='';
+  if(!list.length){box.style.display='none';return;}
+  box.style.display='flex';
+  const t=document.createElement('small');t.textContent='Alamat yang pernah Anda isi (ketuk untuk memakai):';box.appendChild(t);
+  list.forEach(x=>{const b=document.createElement('button');b.type='button';b.textContent=x;
+   b.addEventListener('click',()=>{el.value=x;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));tampil(id);});
+   box.appendChild(b);});
+ }
+ IDS.forEach(id=>{const el=document.getElementById(id);if(!el)return;
+  el.addEventListener('change',()=>{simpan(el.value);});
+  el.addEventListener('blur',()=>{simpan(el.value);});
+  el.addEventListener('input',()=>tampil(id));
+  tampil(id);});
+ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button');if(!b)return;
+  IDS.forEach(id=>{const el=document.getElementById(id);if(el&&el.value)simpan(el.value);});},true);
+})();
+</script>
 </body>
 </html>
