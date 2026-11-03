@@ -2246,7 +2246,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  const rapi=v=>window.rapikanNama?window.rapikanNama(v):String(v||'').trim();
  const money=n=>'Rp'+new Intl.NumberFormat('id-ID').format(Number(n)||0);
  const safeLink=u=>/^https:\/\/[^\s"'<>]+$/i.test(String(u||''))?String(u):'';
- const LABEL={pasangan:'Istri/suami baru',pasanganLama:'Istri/suami sekarang',target:'Kode data asal',ringkas:'Perubahan',id:'ID orang',namaLama:'Nama sekarang',nama:'Nama baru',ayahNama:'Orang tua',anakKeLama:'Anak ke- sekarang',anakKe:'Anak ke- baru',alasan:'Alasan',catatanSistem:'Catatan sistem',name:'Nama',brand:'Merek',goods:'Barang dijual',founder:'Pendiri',leader:'Pimpinan/pengasuh',relation:'Hubungan dengan KH. R. Muhamad Ilyas',phone:'Telepon/WA',address:'Alamat',web:'Website/medsos',profile:'Profil',owner:'Pemilik',code:'Kode silsilah',product:'Produk',desc:'Keterangan',title:'Judul',author:'Pengarang',category:'Kategori',source:'Sumber/izin',link:'Tautan',description:'Keterangan',date:'Tanggal',time:'Jam',place:'Tempat',amount:'Nominal',purpose:'Peruntukan',note:'Catatan',ref:'Referensi',method:'Metode',proof:'Bukti',room:'Ruang',text:'Isi',key:'Kunci'};
+ const LABEL={alamat:'Alamat rumah baru',alamatLama:'Alamat rumah sekarang',wa:'WhatsApp baru',waLama:'WhatsApp sekarang',pasangan:'Istri/suami baru',pasanganLama:'Istri/suami sekarang',target:'Kode data asal',ringkas:'Perubahan',id:'ID orang',namaLama:'Nama sekarang',nama:'Nama baru',ayahNama:'Orang tua',anakKeLama:'Anak ke- sekarang',anakKe:'Anak ke- baru',alasan:'Alasan',catatanSistem:'Catatan sistem',name:'Nama',brand:'Merek',goods:'Barang dijual',founder:'Pendiri',leader:'Pimpinan/pengasuh',relation:'Hubungan dengan KH. R. Muhamad Ilyas',phone:'Telepon/WA',address:'Alamat',web:'Website/medsos',profile:'Profil',owner:'Pemilik',code:'Kode silsilah',product:'Produk',desc:'Keterangan',title:'Judul',author:'Pengarang',category:'Kategori',source:'Sumber/izin',link:'Tautan',description:'Keterangan',date:'Tanggal',time:'Jam',place:'Tempat',amount:'Nominal',purpose:'Peruntukan',note:'Catatan',ref:'Referensi',method:'Metode',proof:'Bukti',room:'Ruang',text:'Isi',key:'Kunci'};
  const JENIS={revisi:'Update nama/urutan anak',pesantren:'Pesantren',revisipesantren:'Update data pesantren',revisiumkm:'Update data UMKM',umkm:'UMKM',buku:'Kitab/Ebook',media:'Foto/Video',kalender:'Agenda kalender',donasi:'Donasi',haul:'Iuran Haul',chat:'Pesan chat',info:'Informasi'};
  const api=(p)=>window.BaniIlyasApi(p);
  window.__terbit=window.__terbit||{pesantren:[],umkm:[],buku:[],media:[],kalender:[],chat:[],info:{},haul:{terverifikasi:[],menunggu:0,menungguTotal:0}};
@@ -2565,12 +2565,15 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 #pohonModal details:not([open])>summary .pk-node::before{content:"▸"}
 #pohonModal .pk-n{background:#e6efe4;color:#1f5f4a;border-radius:999px;padding:1px 8px;font-size:11px;font-weight:700}
 </style>
-<div id="revisiModal" role="dialog" aria-modal="true" aria-labelledby="rvJudul"><div class="rv-box"><h3 id="rvJudul">Update nama, urutan anak, dan istri/suami</h3><p class="note" id="rvSub" style="margin:0 0 4px"></p>
+<div id="revisiModal" role="dialog" aria-modal="true" aria-labelledby="rvJudul"><div class="rv-box"><h3 id="rvJudul">Update data (nama, urutan, istri/suami, alamat, WhatsApp)</h3><p class="note" id="rvSub" style="margin:0 0 4px"></p>
 <label for="rvNama">Nama yang benar</label><input id="rvNama" maxlength="120" autocomplete="off">
 <label for="rvAnak">Anak ke- (urutan lahir, 1 = tertua)</label><input id="rvAnak" type="number" min="1" max="60" inputmode="numeric">
 <label for="rvHub">Hubungan dengan ayah/ibu</label><select id="rvHub" style="width:100%;box-sizing:border-box;border:1px solid #d8cfbb;border-radius:9px;padding:9px 11px;font:inherit;background:#fff"><option value="kandung">Anak kandung</option><option value="sambung">Anak sambung (bukan anak kandung)</option></select>
 <label for="rvPasangan">Nama istri / suami</label><input id="rvPasangan" maxlength="300" autocomplete="off" placeholder="Kosongkan bila belum ada. Lebih dari satu: pisahkan dengan |">
 <small class="note" style="display:block;margin-top:3px">Isi atau perbarui nama istri/suami orang ini. Contoh: Hj. Siti Aminah. Hapus semua tulisan untuk menghapus nama pasangan.</small>
+<label for="rvAlamat">Alamat rumah sekarang</label><input id="rvAlamat" maxlength="250" autocomplete="off" placeholder="Kampung/jalan, desa, kecamatan, kabupaten (kosongkan bila tidak diubah)">
+<label for="rvWa">Nomor WhatsApp orang ini</label><input id="rvWa" maxlength="30" inputmode="tel" autocomplete="off" placeholder="08xxxxxxxxxx (kosongkan bila tidak diubah)">
+<small class="note" style="display:block;margin-top:3px">Alamat rumah dan nomor WhatsApp <b>hanya dilihat admin</b>, tidak ditampilkan di web. Berguna untuk silaturahmi, undangan, dan pembaruan data bila sudah pindah. Isi tanda <b>-</b> untuk menghapus.</small>
 <label for="rvAlasan">Alasan / keterangan (boleh kosong)</label><textarea id="rvAlasan" rows="2" maxlength="300"></textarea>
 <label for="rvPengirim">Nama Anda</label><input id="rvPengirim" maxlength="100" autocomplete="name">
 <label for="rvKontak">WhatsApp (boleh kosong)</label><input id="rvKontak" maxlength="60" inputmode="tel" autocomplete="tel">
@@ -2640,7 +2643,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   rvOrang=a;
   const ayah=list.find(x=>x.id===a.ayahId);
   $('rvSub').textContent=a.nama+(ayah?' · '+(a.jk==='P'?'putri ':a.jk==='L'?'putra ':'putra/putri ')+ayah.nama:'');
-  $('rvNama').value=a.nama;$('rvAnak').value=a.anakKe||'';$('rvHub').value=a.sambung?'sambung':'kandung';$('rvPasangan').value=(a.pasangan||[]).join(' | ');$('rvAlasan').value='';
+  $('rvNama').value=a.nama;$('rvAnak').value=a.anakKe||'';$('rvHub').value=a.sambung?'sambung':'kandung';$('rvPasangan').value=(a.pasangan||[]).join(' | ');$('rvAlamat').value='';$('rvWa').value='';$('rvAlasan').value='';
   const p=bacaP();$('rvPengirim').value=p.nama||'';$('rvKontak').value=p.kontak||'';
   rvMsg('');$('rvKirim').disabled=false;rvM.classList.add('on');setTimeout(()=>{try{$('rvNama').focus();$('rvNama').select();}catch(e){}},50);
  }
@@ -2652,12 +2655,14 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   const nama=$('rvNama').value.trim(),anak=$('rvAnak').value.trim(),pengirim=$('rvPengirim').value.trim();
   if(!pengirim){rvMsg('Isi nama Anda terlebih dahulu.',false);return;}
   const hub=$('rvHub').value,hubBerubah=hub!==(rvOrang.sambung?'sambung':'kandung');
+  const alamatB=$('rvAlamat').value.trim(),waB=$('rvWa').value.trim();
+  if(waB&&waB!=='-'&&!/^\+?[0-9][0-9 \-]{5,18}$/.test(waB)){rvMsg('Nomor WhatsApp tidak valid. Tulis angka saja, contoh 081234567890.',false);return;}
   const pLama=(rvOrang.pasangan||[]).join(' | '),pBaru=$('rvPasangan').value.trim().replace(/\s*[;\n]\s*/g,' | '),pBerubah=pBaru!==pLama;
-  if(!nama&&!anak&&!hubBerubah&&!pBerubah){rvMsg('Ubah nama, urutan anak, hubungan, atau nama istri/suami terlebih dahulu.',false);return;}
+  if(!nama&&!anak&&!hubBerubah&&!pBerubah&&!alamatB&&!waB){rvMsg('Ubah nama, urutan anak, hubungan, istri/suami, alamat rumah, atau nomor WhatsApp terlebih dahulu.',false);return;}
   if(anak&&!/^\d{1,2}$/.test(anak)){rvMsg('Urutan anak harus angka 1 sampai 60.',false);return;}
   $('rvKirim').disabled=true;rvMsg('Mengirim...');
   try{
-   const r=await window.BaniIlyasApi({action:'kirim',jenis:'revisi',pengirim:window.rapikanNama?window.rapikanNama(pengirim):pengirim,kontak:$('rvKontak').value.trim(),website:'',data:{id:rvOrang.id,nama,anakKe:anak,hubungan:hubBerubah?hub:'',pasangan:pBerubah?(pBaru||'-'):'',alasan:$('rvAlasan').value.trim()}});
+   const r=await window.BaniIlyasApi({action:'kirim',jenis:'revisi',pengirim:window.rapikanNama?window.rapikanNama(pengirim):pengirim,kontak:$('rvKontak').value.trim(),website:'',data:{id:rvOrang.id,nama,anakKe:anak,hubungan:hubBerubah?hub:'',pasangan:pBerubah?(pBaru||'-'):'',alamat:alamatB,wa:waB,alasan:$('rvAlasan').value.trim()}});
    try{localStorage.setItem(PKEY,JSON.stringify({nama:pengirim,kontak:$('rvKontak').value.trim()}));}catch(e){}
    rvMsg(r.pesan||'Update diterima dan menunggu verifikasi admin.');
   }catch(e){rvMsg('Belum terkirim: '+e.message,false);$('rvKirim').disabled=false;}
@@ -2769,7 +2774,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 <script>
 /* Alamat yang pernah diisi di perangkat ini tampil sebagai pilihan, supaya tidak mengetik berulang */
 (function(){
- const KEY='bani_alamat_v1',IDS=['memberAddress','pAddress','uAddress'];
+ const KEY='bani_alamat_v1',IDS=['memberAddress','pAddress','uAddress','rvAlamat'];
  const baca=()=>{try{const a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a.filter(x=>typeof x==='string'):[];}catch(e){return [];}};
  const simpan=v=>{v=String(v||'').replace(/\s+/g,' ').trim();if(v.length<12||v.length>200)return;
   try{const k=v.toLowerCase();const a=baca().filter(x=>x.toLowerCase()!==k);a.unshift(v);localStorage.setItem(KEY,JSON.stringify(a.slice(0,8)));}catch(e){}
