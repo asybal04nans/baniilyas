@@ -2516,6 +2516,17 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 #pohonModal .pk-sp{display:flex;flex-direction:column;gap:4px}
 #pohonModal .pk-spbox{background:#f7efd6;border:1px dashed #b8893b;border-radius:9px;padding:5px 10px;font-size:13px;color:#4a3b17}
 #pohonModal .pk-spbox small{display:block;font-size:10px;color:#8a6d2c;text-transform:uppercase;letter-spacing:.04em}
+#urutModal{position:fixed;inset:0;background:rgba(20,35,28,.7);z-index:10001;display:none;align-items:center;justify-content:center;padding:14px;overflow:auto}
+#urutModal.on{display:flex}
+#urutModal .rv-box{background:#fffdf6;border:2px solid #c9a35a;border-radius:14px;max-width:480px;width:100%;padding:16px 18px;box-shadow:0 20px 50px rgba(0,0,0,.4)}
+#urutModal h3{margin:0 0 4px;color:#1d4a38;font-size:17px}
+#urutModal label{display:block;font-size:12px;font-weight:700;color:#4b5949;margin:10px 0 3px}
+#urutModal input{width:100%;box-sizing:border-box;border:1px solid #d8cfbb;border-radius:9px;padding:9px 11px;font:inherit;background:#fff}
+#urutModal .ut-row{display:flex;align-items:center;gap:8px;margin:6px 0}
+#urutModal .ut-row span{flex:1;font-size:14px}
+#urutModal .ut-row input{width:70px;text-align:center}
+#urutModal .rv-acts{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+#urutModal .rv-msg{font-size:13px;margin-top:8px;min-height:18px}
 #revisiModal{position:fixed;inset:0;background:rgba(20,35,28,.7);z-index:10000;display:none;align-items:center;justify-content:center;padding:14px;overflow:auto}
 #revisiModal.on{display:flex}
 #revisiModal .rv-box{background:#fffdf6;border:2px solid #c9a35a;border-radius:14px;max-width:460px;width:100%;padding:16px 18px;box-shadow:0 20px 50px rgba(0,0,0,.4)}
@@ -2537,6 +2548,12 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 <label for="rvKontak">WhatsApp (boleh kosong)</label><input id="rvKontak" maxlength="60" inputmode="tel" autocomplete="tel">
 <div class="rv-acts"><button type="button" class="primary" id="rvKirim">Kirim revisi</button><button type="button" class="secondary" id="rvBatal">Tutup</button></div>
 <div class="rv-msg" id="rvMsg" aria-live="polite"></div><p class="note" style="margin-top:6px">Revisi tidak langsung berubah. Admin memeriksa dulu, lalu menyetujui atau menolak.</p></div></div>
+<div id="urutModal" role="dialog" aria-modal="true" aria-labelledby="utJudul"><div class="rv-box"><h3 id="utJudul">Revisi urutan anak</h3><p class="note" id="utSub" style="margin:0 0 4px"></p>
+<div id="utDaftar"></div>
+<label for="utPengirim">Nama Anda</label><input id="utPengirim" maxlength="100" autocomplete="name">
+<label for="utKontak">WhatsApp (boleh kosong)</label><input id="utKontak" maxlength="60" inputmode="tel" autocomplete="tel">
+<div class="rv-acts"><button type="button" class="primary" id="utKirim">Kirim urutan</button><button type="button" class="secondary" id="utBatal">Tutup</button></div>
+<div class="rv-msg" id="utMsg" aria-live="polite"></div><p class="note" style="margin-top:6px">Ubah angka "anak ke-" sesuai urutan lahir (1 = tertua). Hanya yang berubah dikirim. Admin memeriksa dulu sebelum urutan berubah.</p></div></div>
 <div id="pohonModal" role="dialog" aria-modal="true" aria-labelledby="pkJudul"><div class="pk-box"><div class="pk-head"><h3 id="pkJudul"></h3><small id="pkSub"></small></div><div class="pk-body"><div class="pk-acts"><button type="button" class="primary" id="pkCetak">Cetak pohon ini</button><button type="button" class="secondary" id="pkBuka">Buka semua</button><button type="button" class="secondary" id="pkTutup">Tutup</button></div><div id="pkIsi"></div></div></div></div>
 <script>
 /* Pohon silsilah per anak KH. R. Muhamad Ilyas */
@@ -2567,6 +2584,8 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   const rv=document.createElement('button');rv.type='button';rv.className='secondary';rv.textContent='Revisi';rv.title='Usulkan perbaikan nama atau urutan anak '+a.nama;
   rv.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();bukaRevisi(a,list);});
   node.appendChild(rv);
+  if(kids.length>1){const ub=document.createElement('button');ub.type='button';ub.className='secondary';ub.textContent='Revisi urutan anak';ub.title='Usulkan perbaikan urutan anak-anak '+a.nama;
+   ub.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();bukaUrutan(a,list);});node.appendChild(ub);}
   row.appendChild(node);
   const sps=(a.pasangan||[]).filter(Boolean);
   if(sps.length){
@@ -2613,6 +2632,46 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   }catch(e){rvMsg('Belum terkirim: '+e.message,false);$('rvKirim').disabled=false;}
  });
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&rvM.classList.contains('on'))tutupRevisi();});
+
+ /* ---------- revisi urutan seluruh anak sekaligus ---------- */
+ const utM=$('urutModal');let utInduk=null,utKids=[];
+ const utMsg=(t,ok)=>{const m=$('utMsg');m.textContent=t;m.style.color=ok===false?'#a33':'#1f5f4a';};
+ function bukaUrutan(a,list){
+  utInduk=a;utKids=anakDari(list,a.id);
+  $('utSub').textContent='Anak-anak '+a.nama;
+  const d=$('utDaftar');d.textContent='';
+  utKids.forEach((k,i)=>{const r=document.createElement('div');r.className='ut-row';const sp=document.createElement('span');sp.textContent=k.nama;const inp=document.createElement('input');inp.type='number';inp.min=1;inp.max=60;inp.inputMode='numeric';inp.value=k.anakKe||'';inp.setAttribute('aria-label','Anak ke- untuk '+k.nama);inp.dataset.i=i;r.appendChild(sp);r.appendChild(inp);d.appendChild(r);});
+  const p=bacaP();$('utPengirim').value=p.nama||'';$('utKontak').value=p.kontak||'';
+  utMsg('');$('utKirim').disabled=false;utM.classList.add('on');
+ }
+ function tutupUrutan(){utM.classList.remove('on');}
+ $('utBatal').addEventListener('click',tutupUrutan);
+ utM.addEventListener('click',e=>{if(e.target===utM)tutupUrutan();});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&utM.classList.contains('on')){tutupUrutan();e.stopImmediatePropagation();}},true);
+ $('utKirim').addEventListener('click',async()=>{
+  const pengirim=$('utPengirim').value.trim();
+  if(!pengirim){utMsg('Isi nama Anda terlebih dahulu.',false);return;}
+  const inputs=[].slice.call($('utDaftar').querySelectorAll('input'));
+  const ubah=[],pakai={};
+  for(const inp of inputs){
+   const v=inp.value.trim();
+   if(v&&!/^\d{1,2}$/.test(v)){utMsg('Urutan harus angka 1 sampai 60.',false);return;}
+   if(v){if(pakai[v]){utMsg('Angka '+v+' dipakai dua kali. Setiap anak harus punya urutan berbeda.',false);return;}pakai[v]=1;}
+   const k=utKids[Number(inp.dataset.i)];
+   if(v&&Number(v)!==Number(k.anakKe||0))ubah.push({k,v});
+  }
+  if(!ubah.length){utMsg('Belum ada urutan yang diubah.',false);return;}
+  $('utKirim').disabled=true;utMsg('Mengirim '+ubah.length+' perubahan...');
+  let ok=0;
+  try{
+   for(const u of ubah){
+    await window.BaniIlyasApi({action:'kirim',jenis:'revisi',pengirim:window.rapikanNama?window.rapikanNama(pengirim):pengirim,kontak:$('utKontak').value.trim(),website:'',data:{id:u.k.id,nama:u.k.nama,anakKe:u.v,alasan:'Revisi urutan anak '+utInduk.nama}});
+    ok++;
+   }
+   try{localStorage.setItem(PKEY,JSON.stringify({nama:pengirim,kontak:$('utKontak').value.trim()}));}catch(e){}
+   utMsg('Terkirim: '+ok+' perubahan urutan menunggu verifikasi admin.');
+  }catch(e){utMsg('Terkirim '+ok+' dari '+ubah.length+'. Belum terkirim: '+e.message,false);$('utKirim').disabled=false;}
+ });
  function buka(label,wife){
   const list=window.__membersList||[];const root=list.find(a=>!a.ayahId);
   $('pkJudul').textContent='Pohon Silsilah · '+label.replace(/^\d+\.\s*/,'');
