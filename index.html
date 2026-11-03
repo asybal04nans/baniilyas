@@ -1347,6 +1347,7 @@ document.getElementById('makeCode').addEventListener('click',async()=>{
  const sel=window.__pilihOrtu?window.__pilihOrtu():null;
  const manual=!!document.getElementById('fatherManual')?.checked;
  const data={action:'submit',nama:v('name'),jk:v('gender'),namaAyah:(sel&&!manual)?sel.nama:v('father'),rantai:(sel&&!manual)?sel.chain:v('chain'),pengaju:v('submitter'),kontak:v('contact'),anakKe:v('anakKe'),ibu:v('mother'),pasangan:v('spouse'),alamat:v('memberAddress'),website:v('hpWebsite')};
+ if(window.rapikanNama){['nama','pengaju','ibu','pasangan'].forEach(k=>{data[k]=window.rapikanNama(data[k]);});data.namaAyah=window.rapikanNama(String(data.namaAyah).split(' — ')[0]);data.rantai=String(data.rantai).split('\n').map(x=>window.rapikanNama(x)).filter(Boolean).join('\n');}
  const warn=t=>{out.classList.remove('hidden');out.textContent=t;};
  if(!data.nama||!data.namaAyah){warn('Isi nama lengkap anggota dan nama ayah (bin/binti) terlebih dahulu.');return;}
  if(!data.jk){warn('Pilih jenis kelamin.');return;}
@@ -1945,6 +1946,29 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   };
   document.addEventListener('input',e=>{if(e.target&&e.target.id==='father')window.__syncOrtu();});
   document.addEventListener('change',e=>{if(e.target&&(e.target.id==='father'||e.target.id==='fatherManual'))window.__syncOrtu();});
+  function rapikanNama(s) {
+    var t = String(s === undefined || s === null ? '' : s).replace(/\s+/g, ' ').trim();
+    if (!t) return '';
+    var lama;
+    do { lama = t; t = t.replace(/(^|[\s(])(kh|hj|h|r|rd|m|k|dr|drs|ir)\.(?=[A-Za-z])/gi, '$1$2. '); } while (t !== lama);
+    var peta = { rd: 'R.', raden: 'R.', r: 'R.', kh: 'KH.', hj: 'Hj.', h: 'H.', dr: 'Dr.', drs: 'Drs.', ir: 'Ir.' };
+    var besar = function (w) {
+      if (!w) return w;
+      return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+    };
+    return t.split(' ').map(function (tok) {
+      if (!tok) return tok;
+      if (/^\(.*\)?$/.test(tok) && tok.charAt(0) === '(') return tok.toLowerCase();
+      var tanpaTitik = tok.replace(/\.+$/, '').toLowerCase();
+      if (peta[tanpaTitik]) return peta[tanpaTitik];
+      if (/^[a-z]$/i.test(tanpaTitik)) return tanpaTitik.toUpperCase() + '.';
+      if (tok.indexOf('.') > 0 && tok.indexOf('.') < tok.length - 1) return tok.split('.').map(besar).join('.');
+      if (tok.indexOf('-') > 0) return tok.split('-').map(besar).join('-');
+      return besar(tok);
+    }).join(' ');
+  }
+  
+  window.rapikanNama=rapikanNama;
   const nkb=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
   function isiBin(){
    const res=$('nasabBinRes'),show=(h,ok)=>{if(res){res.style.display='block';res.style.color=ok?'#1f5f4a':'#a33';res.textContent=h;}};
@@ -1954,8 +1978,8 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
    let anak='';const m=t.match(/\(?\s*anak\s*ke[-\s]*(\d{1,2})\s*\)?/i);if(m){anak=m[1];t=t.replace(m[0],' ').replace(/\s+/g,' ').trim();}
    const p=t.split(/\s+(bin|binti|bnt|bn)\s+/i);
    if(p.length<3)return gagal('Format belum dikenali. Contoh: Nama bin Ayah bin Kakek bin KH. R. Muhamad Ilyas (anak ke-2).');
-   const nama=p[0].trim(),jk=/^bin?t|^bnt/i.test(p[1])?'P':'L',rantai=[];
-   for(let i=2;i<p.length;i+=2)rantai.push(p[i].trim().replace(/[.,;]+$/,''));
+   const nama=rapikanNama(p[0]),jk=/^bin?t|^bnt/i.test(p[1])?'P':'L',rantai=[];
+   for(let i=2;i<p.length;i+=2)rantai.push(rapikanNama(p[i].trim().replace(/[.,;]+$/,'')));
    if(!nama||rantai.some(x=>!x))return gagal('Ada nama yang kosong. Periksa penulisan bin/binti.');
    const rootNama=(window.__membersList||[]).find(a=>!a.ayahId);const rn=rootNama?rootNama.nama:'KH. R. Muhamad Ilyas';
    if(nkb(rantai[rantai.length-1])!==nkb(rn))rantai.push(rn);
@@ -1975,9 +1999,14 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
    }
    if(pick){c.value=pick[1].chain;}
    show('Terbaca: '+nama+' ('+(jk==='P'?'putri':'putra')+', anak ke-'+anak+') · Ayah/ibu: '+rantai[0]+' · Rantai: '+rantai.join(' › ')+'\n'+status,true);
-   return {ok:true,pesan:status};
+   let rapi=nama;for(let i=1;i<p.length;i+=2){rapi+=' '+(/^bin?t|^bnt/i.test(p[i])?'binti':'bin')+' '+rapikanNama(p[i+1].trim().replace(/[.,;]+$/,''));}
+   rapi+=' (anak ke-'+anak+')';
+   return {ok:true,pesan:status,rapi:rapi};
   }
   window.__isiBin=isiBin;
+  const ganti=(e)=>{const el=e.target;if(!el||!['nasabBin','submitter','mother','spouse'].includes(el.id))return;const v=el.value;if(el.selectionStart!==v.length)return;const n=v.replace(/(^|\s)(rd|raden)\.?(\s)/gi,'$1R.$3');if(n!==v)el.value=n;};
+  document.addEventListener('input',ganti);
+  document.addEventListener('change',e=>{const el=e.target;if(!el)return;if(el.id==='nasabBin'){const r=isiBin();if(r.ok&&r.rapi)el.value=r.rapi;}else if(['submitter','mother','spouse'].includes(el.id)){el.value=rapikanNama(el.value);}});
   document.addEventListener('input',e=>{if(e.target&&e.target.id==='nasabBin'){clearTimeout(window.__binT);window.__binT=setTimeout(isiBin,500);}});
   ['name','gender','anakKe','father','chain'].forEach(id=>{const e=$(id);const f=e&&e.closest?e.closest('.field'):null;if(f)f.style.display='none';});
  })();
