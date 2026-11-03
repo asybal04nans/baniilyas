@@ -2530,6 +2530,18 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 #pohonModal .pk-node.d3{background:#e2d3f5;border-color:#8a5cc0}
 #pohonModal .pk-legend{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px;font-size:12px}
 #pohonModal .pk-legend span{border:1px solid;border-radius:999px;padding:2px 10px}
+#profilModal{position:fixed;inset:0;background:rgba(20,35,28,.72);z-index:10003;display:none;align-items:flex-start;justify-content:center;padding:14px;overflow:auto}
+#profilModal.on{display:flex}
+#profilModal .pf-box{background:#fffdf6;border:2px solid #c9a35a;border-radius:14px;max-width:520px;width:100%;margin:auto;padding:16px 18px;box-shadow:0 20px 50px rgba(0,0,0,.4)}
+#profilModal h3{margin:0;color:#1d4a38;font-size:19px}
+#profilModal .pf-sub{color:#6b7a66;font-size:13px;margin:2px 0 10px}
+#profilModal .pf-row{margin:8px 0;font-size:14px;line-height:1.55}
+#profilModal .pf-row b{display:block;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:#8a6a2b}
+#profilModal .pf-nasab{background:#f4e9c9;border:1px solid #e0cf9f;border-radius:10px;padding:8px 10px}
+#profilModal .pf-kontak{margin-top:12px;border:1px dashed #c9a35a;border-radius:10px;padding:10px 12px;background:#fff}
+#profilModal .pf-kontak input{width:100%;box-sizing:border-box;border:1px solid #d8cfbb;border-radius:9px;padding:8px 10px;font:inherit;margin:6px 0}
+#profilModal .pf-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+#pohonModal .pk-node>span:first-child.pk-nama{cursor:pointer;text-decoration:underline dotted #9b752f;text-underline-offset:3px}
 #pohonModal .pk-node.sambung{border-style:dashed;border-width:2px}
 #pohonModal .pk-sambung{background:#fde7c8;color:#8a4b00;border:1px solid #e0a35a;border-radius:999px;padding:1px 8px;font-size:11px;font-weight:700}
 #pohonModal .pk-node.root{background:#f4e9c9;border-color:#c9a35a;font-weight:700}
@@ -2565,6 +2577,13 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 #pohonModal details:not([open])>summary .pk-node::before{content:"▸"}
 #pohonModal .pk-n{background:#e6efe4;color:#1f5f4a;border-radius:999px;padding:1px 8px;font-size:11px;font-weight:700}
 </style>
+<div id="profilModal" role="dialog" aria-modal="true" aria-labelledby="pfNama"><div class="pf-box"><h3 id="pfNama"></h3><div class="pf-sub" id="pfSub"></div>
+<div class="pf-row pf-nasab"><b>Nasab</b><span id="pfNasab"></span></div>
+<div class="pf-row" id="pfPasangan"></div><div class="pf-row" id="pfAnak"></div>
+<div class="pf-kontak"><b style="display:block;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:#8a6a2b">Alamat rumah dan WhatsApp (khusus keluarga)</b>
+<div id="pfHasil"></div><div id="pfKontakIsi"><small class="note">Dilindungi kode keluarga agar data pribadi tidak terbuka untuk umum. Minta kodenya kepada admin atau di grup keluarga.</small>
+<input id="pfKode" type="password" autocomplete="off" placeholder="Kode keluarga"><button type="button" class="primary" id="pfBukaKontak">Tampilkan alamat dan WhatsApp</button></div><div id="pfKontakMsg" style="font-size:13px;margin-top:6px"></div></div>
+<div class="pf-acts"><button type="button" class="secondary" id="pfUpdate">Update data orang ini</button><button type="button" class="secondary" id="pfRundayan">Rundayan</button><button type="button" class="secondary" id="pfTutup">Tutup</button></div></div></div>
 <div id="revisiModal" role="dialog" aria-modal="true" aria-labelledby="rvJudul"><div class="rv-box"><h3 id="rvJudul">Update data (nama, urutan, istri/suami, alamat, WhatsApp)</h3><p class="note" id="rvSub" style="margin:0 0 4px"></p>
 <label for="rvNama">Nama yang benar</label><input id="rvNama" maxlength="120" autocomplete="off">
 <label for="rvAnak">Anak ke- (urutan lahir, 1 = tertua)</label><input id="rvAnak" type="number" min="1" max="60" inputmode="numeric">
@@ -2606,7 +2625,8 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   const li=document.createElement('li');const kids=anakDari(list,a.id);
   const node=document.createElement('span');node.className='pk-node d'+Math.min(depth,3);
   const row=document.createElement('span');row.className='pk-row';
-  const nm=document.createElement('span');nm.textContent=a.nama;node.appendChild(nm);
+  const nm=document.createElement('span');nm.textContent=a.nama;nm.className='pk-nama';nm.title='Klik untuk melihat profil '+a.nama;nm.setAttribute('role','button');nm.tabIndex=0;
+  const bp=e=>{e.stopPropagation();e.preventDefault();bukaProfil(a,list);};nm.addEventListener('click',bp);nm.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')bp(e);});node.appendChild(nm);
   const sm=document.createElement('small');sm.textContent=(a.jk==='P'?'putri':a.jk==='L'?'putra':'putra/putri')+(a.anakKe?' · anak ke-'+a.anakKe:'');node.appendChild(sm);
   if(a.sambung){node.classList.add('sambung');const sb=document.createElement('span');sb.className='pk-sambung';sb.textContent='anak sambung';sb.title='Bukan anak kandung dari ayah/ibu sambungnya';node.appendChild(sb);}
   if(kids.length){const c=document.createElement('span');c.className='pk-n';c.textContent=kids.length+' anak';node.appendChild(c);}
@@ -2708,6 +2728,57 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
    utMsg('Terkirim: '+ok+' perubahan urutan menunggu verifikasi admin.');
   }catch(e){utMsg('Terkirim '+ok+' dari '+ubah.length+'. Belum terkirim: '+e.message,false);$('utKirim').disabled=false;}
  });
+
+ /* ---------- profil orang (klik nama pada pohon) ---------- */
+ const pfM=$('profilModal');let pfOrang=null,pfList=[];
+ function nasabTeks(a,list){
+  const byId=new Map(list.map(x=>[x.id,x]));const out=[];let c=a,g=0;
+  while(c&&g++<100){const p=byId.get(c.ayahId);out.push(c.nama+(p?(c.sambung?' (anak sambung) dari ':(c.jk==='P'?' binti ':' bin ')):''));c=p;}
+  return out.join('');
+ }
+ function bukaProfil(a,list){
+  pfOrang=a;pfList=list;
+  $('pfNama').textContent=a.nama;
+  const ayah=list.find(x=>x.id===a.ayahId);
+  $('pfSub').textContent=(a.jk==='P'?'Putri':a.jk==='L'?'Putra':'Putra/putri')+(ayah?' dari '+ayah.nama:'')+(a.anakKe?' · anak ke-'+a.anakKe:'')+(a.sambung?' · anak sambung':'');
+  $('pfNasab').textContent=nasabTeks(a,list);
+  const sps=(a.pasangan||[]).filter(Boolean);
+  $('pfPasangan').innerHTML='<b>'+(a.jk==='P'?'Suami':a.jk==='L'?'Istri':'Pasangan')+'</b>';
+  $('pfPasangan').appendChild(document.createTextNode(sps.length?sps.join(', '):'Belum dicatat'));
+  const kids=anakDari(list,a.id);
+  $('pfAnak').innerHTML='<b>Anak ('+kids.length+')</b>';
+  $('pfAnak').appendChild(document.createTextNode(kids.length?kids.map((k,i)=>(k.anakKe||i+1)+'. '+k.nama+(k.sambung?' (sambung)':'')).join('; '):'Belum ada anak yang tercatat'));
+  $('pfKontakMsg').textContent='';
+  let kode='';try{kode=sessionStorage.getItem('bani_kode_keluarga')||'';}catch(e){}
+  $('pfKode').value=kode;$('pfKontakIsi').style.display='';$('pfHasil').textContent='';
+  pfM.classList.add('on');
+  if(kode)ambilKontak(true);
+ }
+ async function ambilKontak(diam){
+  if(!pfOrang)return;const kode=$('pfKode').value.trim();
+  const m=$('pfKontakMsg');
+  if(!kode){m.style.color='#a33';m.textContent='Isi kode keluarga terlebih dahulu.';return;}
+  m.style.color='';m.textContent='Memeriksa...';$('pfBukaKontak').disabled=true;
+  try{
+   const r=await window.BaniIlyasApi({action:'kontak',id:pfOrang.id,kode});
+   try{sessionStorage.setItem('bani_kode_keluarga',kode);}catch(e){}
+   const box=$('pfHasil');box.textContent='';$('pfKontakIsi').style.display='none';
+   const baris=(lbl,val,link)=>{const d=document.createElement('div');d.className='pf-row';const b=document.createElement('b');b.textContent=lbl;d.appendChild(b);
+    if(val&&link){const x=document.createElement('a');x.href=link;x.target='_blank';x.rel='noopener noreferrer';x.textContent=val;d.appendChild(x);}else d.appendChild(document.createTextNode(val||'Belum diisi. Klik "Update data orang ini" untuk mengisi.'));box.appendChild(d);};
+   const wa=String(r.wa||'').replace(/[^0-9+]/g,'').replace(/^0/,'62').replace(/^\+/,'');
+   baris('Alamat rumah',r.alamat);baris('WhatsApp',r.wa,wa?'https://wa.me/'+wa:'');
+   m.textContent='';
+  }catch(e){try{sessionStorage.removeItem('bani_kode_keluarga');}catch(er){}m.style.color='#a33';m.textContent=diam?'':('Gagal: '+e.message);}
+  $('pfBukaKontak').disabled=false;
+ }
+ $('pfBukaKontak').addEventListener('click',()=>ambilKontak(false));
+ $('pfKode').addEventListener('keydown',e=>{if(e.key==='Enter')ambilKontak(false);});
+ function tutupProfil(){pfM.classList.remove('on');}
+ $('pfTutup').addEventListener('click',tutupProfil);
+ pfM.addEventListener('click',e=>{if(e.target===pfM)tutupProfil();});
+ $('pfUpdate').addEventListener('click',()=>{const a=pfOrang,l=pfList;tutupProfil();if(a)bukaRevisi(a,l);});
+ $('pfRundayan').addEventListener('click',()=>{const a=pfOrang;tutupProfil();if(!a)return;tutup();const p=$('printPerson');if(p)p.value=a.nama;if(window.printFamilyTree)window.printFamilyTree();});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&pfM.classList.contains('on')){tutupProfil();e.stopImmediatePropagation();}},true);
  function buka(label,wife){
   const list=window.__membersList||[];const root=list.find(a=>!a.ayahId);
   $('pkJudul').textContent='Pohon Silsilah · '+label.replace(/^\d+\.\s*/,'');
