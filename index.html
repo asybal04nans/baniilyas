@@ -2484,5 +2484,118 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 })();
 </script>
 <!-- ===== FITUR TERPUSAT (SELESAI) ===== -->
+<style>
+#tree .childlist>.child{cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px}
+#tree .childlist>.child:focus-visible{outline:2px solid #b8893b;outline-offset:2px}
+#tree .childlist>.child .pk-hint{font-size:11px;color:#9b752f;font-weight:700;white-space:nowrap}
+#pohonModal{position:fixed;inset:0;background:rgba(20,35,28,.62);z-index:9999;display:none;align-items:flex-start;justify-content:center;padding:18px 12px;overflow:auto}
+#pohonModal.on{display:flex}
+#pohonModal .pk-box{background:#fffdf6;border:2px solid #c9a35a;border-radius:16px;max-width:760px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+#pohonModal .pk-head{padding:16px 18px;border-bottom:1px solid #e5dcc8;background:linear-gradient(135deg,#1d4a38,#14352a);color:#f4e3b5;border-radius:14px 14px 0 0}
+#pohonModal .pk-head h3{margin:0;font-size:18px;color:#f4e3b5}
+#pohonModal .pk-head small{color:#d9ccaa}
+#pohonModal .pk-body{padding:14px 16px 18px}
+#pohonModal .pk-acts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+#pohonModal ul.pk{list-style:none;margin:0;padding:0 0 0 18px;border-left:2px solid #d8c69b}
+#pohonModal ul.pk.top{padding-left:0;border-left:0}
+#pohonModal ul.pk li{margin:6px 0;position:relative}
+#pohonModal ul.pk:not(.top)>li::before{content:"";position:absolute;left:-18px;top:14px;width:14px;border-top:2px solid #d8c69b}
+#pohonModal .pk-node{display:inline-flex;flex-wrap:wrap;align-items:center;gap:6px;background:#fff;border:1px solid #d8cfbb;border-radius:9px;padding:6px 10px;font-size:14px}
+#pohonModal .pk-node.root{background:#f4e9c9;border-color:#c9a35a;font-weight:700}
+#pohonModal .pk-node small{color:#6b7a66;font-size:11px}
+#pohonModal .pk-node button{font-size:11px;padding:3px 8px;border-radius:7px}
+#pohonModal summary{cursor:pointer;list-style:none}#pohonModal summary::-webkit-details-marker{display:none}
+#pohonModal summary .pk-node::before{content:"▾";color:#9b752f}
+#pohonModal details:not([open])>summary .pk-node::before{content:"▸"}
+#pohonModal .pk-n{background:#e6efe4;color:#1f5f4a;border-radius:999px;padding:1px 8px;font-size:11px;font-weight:700}
+</style>
+<div id="pohonModal" role="dialog" aria-modal="true" aria-labelledby="pkJudul"><div class="pk-box"><div class="pk-head"><h3 id="pkJudul"></h3><small id="pkSub"></small></div><div class="pk-body"><div class="pk-acts"><button type="button" class="primary" id="pkCetak">Cetak pohon ini</button><button type="button" class="secondary" id="pkBuka">Buka semua</button><button type="button" class="secondary" id="pkTutup">Tutup</button></div><div id="pkIsi"></div></div></div></div>
+<script>
+/* Pohon silsilah per anak KH. R. Muhamad Ilyas */
+(function(){
+ const $=id=>document.getElementById(id);
+ const nk=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/iyah\b/g,'iah').replace(/muhidin/g,'muhyidin').replace(/mahmuddin/g,'mahmudin').replace(/[^a-z0-9]+/g,' ').trim();
+ const GEL=new Set(['r','rd','raden','h','hj','kh','k','ky','nyai','ny','alm','almarhum','almarhumah','ibu','bapak']);
+ const inti=v=>nk(v).split(' ').filter(x=>x&&!GEL.has(x));
+ const mirip=(a,b)=>{const A=inti(a),B=inti(b);if(!A.length||!B.length)return false;return A.every(x=>B.includes(x))||B.every(x=>A.includes(x));};
+ const modal=$('pohonModal');if(!modal)return;
+ let cur=null;
+ const anakDari=(list,id)=>list.filter(a=>a.ayahId===id).sort((x,y)=>(Number(x.anakKe)||999)-(Number(y.anakKe)||999)||String(x.id).localeCompare(String(y.id),undefined,{numeric:true}));
+ function hitung(list,id){let n=0;anakDari(list,id).forEach(c=>{n+=1+hitung(list,c.id);});return n;}
+ function cariAnak(list,root,label){
+  const kids=anakDari(list,root.id);const t=label.replace(/^\d+\.\s*/,'');
+  return kids.find(k=>nk(k.nama)===nk(t))||kids.find(k=>mirip(k.nama,t))||null;
+ }
+ function simpul(list,a,depth){
+  const li=document.createElement('li');const kids=anakDari(list,a.id);
+  const node=document.createElement('span');node.className='pk-node';
+  const nm=document.createElement('span');nm.textContent=a.nama;node.appendChild(nm);
+  const sm=document.createElement('small');sm.textContent=(a.jk==='P'?'putri':'putra')+(a.anakKe?' · anak ke-'+a.anakKe:'');node.appendChild(sm);
+  if(kids.length){const c=document.createElement('span');c.className='pk-n';c.textContent=kids.length+' anak';node.appendChild(c);}
+  const rb=document.createElement('button');rb.type='button';rb.className='secondary';rb.textContent='Rundayan';rb.title='Buat rundayan atas nama '+a.nama;
+  rb.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();tutup();const p=$('printPerson');if(p)p.value=a.nama;if(window.printFamilyTree)window.printFamilyTree();});
+  node.appendChild(rb);
+  if(kids.length){
+   const d=document.createElement('details');d.open=true;const s=document.createElement('summary');s.appendChild(node);d.appendChild(s);
+   const ul=document.createElement('ul');ul.className='pk';kids.forEach(k=>ul.appendChild(simpul(list,k,depth+1)));d.appendChild(ul);li.appendChild(d);
+  }else li.appendChild(node);
+  return li;
+ }
+ function buka(label,wife){
+  const list=window.__membersList||[];const root=list.find(a=>!a.ayahId);
+  $('pkJudul').textContent='Pohon Silsilah · '+label.replace(/^\d+\.\s*/,'');
+  const isi=$('pkIsi');isi.textContent='';cur=null;
+  if(!root){$('pkSub').textContent='';isi.innerHTML='<p class="note">Data silsilah online belum termuat. Muat ulang halaman, lalu coba lagi.</p>';modal.classList.add('on');return;}
+  const a=cariAnak(list,root,label);
+  if(!a){$('pkSub').textContent='Putra/putri KH. R. Muhamad Ilyas'+(wife?' dari '+wife:'');isi.innerHTML='<p class="note">Belum ada keturunan beliau yang tercatat di basis data silsilah. Keturunan akan tampil di sini setelah didaftarkan lewat menu <b>Tambah Data Kulawarga</b> dan disetujui Admin.</p>';modal.classList.add('on');return;}
+  cur=a;const n=hitung(list,a.id);
+  $('pkSub').textContent='Putra/putri KH. R. Muhamad Ilyas'+(wife?' dari '+wife:'')+' · '+(n?n+' keturunan tercatat (anak, cucu, cicit dan seterusnya)':'belum ada keturunan tercatat');
+  const ul=document.createElement('ul');ul.className='pk top';ul.appendChild(simpul(list,a,0));
+  const first=ul.querySelector('.pk-node');if(first)first.classList.add('root');
+  isi.appendChild(ul);
+  if(!n){const p=document.createElement('p');p.className='note';p.textContent='Belum ada keturunan yang tercatat. Daftarkan lewat menu Tambah Data Kulawarga.';isi.appendChild(p);}
+  modal.classList.add('on');modal.scrollTop=0;
+ }
+ function tutup(){modal.classList.remove('on');}
+ $('pkTutup').addEventListener('click',tutup);
+ modal.addEventListener('click',e=>{if(e.target===modal)tutup();});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')tutup();});
+ let semua=true;
+ $('pkBuka').addEventListener('click',()=>{semua=!semua;modal.querySelectorAll('details').forEach(d=>d.open=semua);$('pkBuka').textContent=semua?'Tutup semua':'Buka semua';});
+ $('pkBuka').textContent='Tutup semua';
+ $('pkCetak').addEventListener('click',()=>{
+  if(!cur)return;
+  const w=window.open('','_blank');if(!w){alert('Jendela cetak diblokir browser. Izinkan pop-up untuk situs ini.');return;}
+  const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const clone=$('pkIsi').cloneNode(true);clone.querySelectorAll('button').forEach(b=>b.remove());clone.querySelectorAll('details').forEach(d=>d.open=true);
+  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Pohon Silsilah '+esc(cur.nama)+'</title><style>body{font-family:Arial,sans-serif;margin:14mm;color:#1c2b22;-webkit-print-color-adjust:exact;print-color-adjust:exact}h2{margin:0 0 2mm;color:#1d4a38}p.s{margin:0 0 6mm;color:#6b5a2e;font-size:12px}ul{list-style:none;margin:0;padding:0 0 0 7mm;border-left:1.5px solid #c9a35a}ul.top{border:0;padding:0}li{margin:2mm 0;break-inside:avoid}.pk-node{display:inline-block;border:1px solid #c9a35a;border-radius:6px;padding:1.2mm 3mm;font-size:12px}.pk-node.root{background:#f4e9c9;font-weight:700}small{color:#667;font-size:10px;margin-left:4px}.pk-n{font-size:10px;color:#1f5f4a;margin-left:4px}summary{list-style:none}summary::-webkit-details-marker{display:none}</style></head><body><h2>Pohon Silsilah '+esc(cur.nama)+'</h2><p class="s">'+esc($('pkSub').textContent)+' · Keluarga Besar Seweu Siwi Bani Ilyas Limbangan</p>'+clone.innerHTML+'</body></html>');
+  w.document.close();setTimeout(()=>w.print(),400);
+ });
+ /* aktifkan nama anak */
+ function pasang(){
+  document.querySelectorAll('#tree .branch').forEach(br=>{
+   const wife=(br.querySelector('.person b')||{}).textContent||'';
+   br.querySelectorAll('.childlist>.child').forEach(c=>{
+    if(c.dataset.pk)return;c.dataset.pk='1';
+    const st=c.querySelector('strong');const label=st?st.textContent:c.textContent;
+    c.tabIndex=0;c.setAttribute('role','button');c.title='Klik untuk melihat pohon silsilah';
+    const h=document.createElement('span');h.className='pk-hint';h.textContent='Lihat pohon ›';c.appendChild(h);
+    const go=()=>buka(label,wife);
+    c.addEventListener('click',go);
+    c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}});
+   });
+  });
+ }
+ pasang();
+ /* jumlah keturunan setelah data termuat */
+ let tries=0;const iv=setInterval(()=>{
+  const list=window.__membersList||[];
+  if(list.length||++tries>60){clearInterval(iv);if(!list.length)return;const root=list.find(a=>!a.ayahId);if(!root)return;
+   document.querySelectorAll('#tree .childlist>.child').forEach(c=>{const st=c.querySelector('strong');const a=cariAnak(list,root,st?st.textContent:'');const n=a?hitung(list,a.id):0;const h=c.querySelector('.pk-hint');if(h&&n)h.textContent=n+' keturunan ›';});}
+ },1000);
+ window.__pohonBuka=buka;
+})();
+</script>
+
 </body>
 </html>
