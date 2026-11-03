@@ -2332,6 +2332,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
     msg(w.length+' kiriman menunggu verifikasi.');}
    catch(e){msg(e.message,false);}}
   $('krMuat').addEventListener('click',muatAdmin);
+  const al=$('adminLoad');if(al)al.addEventListener('click',()=>{if(token())muatAdmin();});
   $('krInfoKirim').addEventListener('click',async()=>{const text=($('krInfoText').value||'').trim();if(!text){msg('Isi informasi terlebih dahulu.',false);return;}
    try{const r=await api({action:'kirimanTerbitkan',token:token(),jenis:'info',data:{key:$('krInfoKey').value,text}});msg(r.pesan);$('krInfoText').value='';await muatAdmin();window.__muatTerbit&&window.__muatTerbit(true);}catch(e){msg(e.message,false);}});
  })();
