@@ -1055,29 +1055,33 @@ main {
 
 
 <section id="kartu" class="hidden">
- <div class="hero"><div><h2>Kartu Bani Ilyas</h2><p>Kartu identitas digital bagi anggota keluarga yang tercatat dalam Keluarga Besar Seweu Siwi Bani Ilyas Limbangan. Setiap anggota memperoleh satu kali unduhan gratis; permohonan unduh ulang memerlukan donasi sukarela dan persetujuan Admin. Superadmin dapat mengunduh tanpa batas untuk keperluan pengelolaan website. Kartu fisik dapat diajukan pencetakannya kepada Admin.</p></div><span class="pill">DIGITAL GRATIS</span></div>
+ <div class="hero"><div><h2>Kartu Bani Ilyas</h2><p>Kartu identitas digital bagi anggota keluarga yang tercatat dalam Keluarga Besar Seweu Siwi Bani Ilyas Limbangan. Setiap anggota memperoleh dua kali kesempatan mengunduh gratis; unduhan ketiga dan seterusnya dilakukan dengan menghubungi Admin. Superadmin dapat mengunduh tanpa batas untuk keperluan pengelolaan website. Kartu fisik dapat diajukan pencetakannya kepada Admin.</p></div><span class="pill">DIGITAL GRATIS</span></div>
  <div class="panel">
   <h3>Buat dan Unduh Kartu Digital</h3>
-  <p class="note">Setiap anggota keluarga memperoleh satu kesempatan mengunduh kartu digital secara gratis. Setelah kesempatan itu digunakan, unduh ulang memerlukan donasi sukarela tanpa nominal minimum sesuai kemampuan, serta verifikasi dan persetujuan Admin. Superadmin dikecualikan dari batas ini dan dapat mengunduh berulang kali untuk keperluan pengelolaan website.</p>
+  <p class="note">Setiap anggota keluarga memperoleh dua kesempatan mengunduh kartu digital secara gratis. Untuk unduhan ketiga, silakan menghubungi Admin. Superadmin dikecualikan dari batas ini dan dapat mengunduh berulang kali untuk keperluan pengelolaan website.</p>
   <div class="formgrid" style="margin-top:14px">
    <div class="field" style="grid-column:1/-1"><label for="memberCardName">Nama anggota (pilih dari silsilah)</label><input id="memberCardName" list="kartuNamaList" autocomplete="off" placeholder="Ketik nama, lalu pilih dari daftar" maxlength="120"><datalist id="kartuNamaList"></datalist></div>
    <div class="field"><label for="memberCardCode">Kode silsilah (otomatis)</label><input id="memberCardCode" readonly placeholder="Terisi otomatis setelah memilih nama"></div>
   </div>
   <div class="note" id="kartuInfo" style="display:none;margin-top:10px"></div>
   <label style="display:flex;gap:9px;align-items:flex-start;margin-top:14px;font-size:13px"><input id="memberCardConfirm" type="checkbox" style="margin-top:2px"> Saya menyatakan data yang dimasukkan benar dan sesuai dengan data keanggotaan Pancakaki yang telah diverifikasi Admin.</label>
-  <label style="display:flex;gap:9px;align-items:flex-start;margin-top:12px;font-size:13px"><input id="memberCardDonationConfirm" type="checkbox" style="margin-top:2px"> Khusus unduh ulang setelah jatah gratis digunakan: saya telah menyalurkan donasi sukarela sesuai kemampuan dan akan menghubungi Admin untuk verifikasi.</label>
-  <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:14px"><button class="primary" type="button" id="previewMemberCard">Tampilkan Pratinjau Kartu</button><button class="secondary" type="button" id="downloadMemberCard" disabled>Unduh Kartu Digital Gratis (1 Kali)</button><button class="secondary" type="button" id="requestPrintedMemberCard">Ajukan Kartu Cetak ke Admin</button></div>
+  <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:14px"><button class="primary" type="button" id="previewMemberCard">Tampilkan Pratinjau Kartu</button><button class="secondary" type="button" id="downloadMemberCard" disabled>Unduh Kartu Digital (2 Kali Gratis)</button><button class="secondary" type="button" id="requestPrintedMemberCard">Ajukan Kartu Cetak ke Admin</button></div>
   <div class="note" id="memberCardMessage" role="status"></div>
   <div id="memberCardPreview" style="margin-top:18px"></div>
  </div>
  <div class="panel">
+  <h3>Contoh Kartu Bani Ilyas</h3>
+  <p class="note">Contoh tampilan depan dan belakang kartu (nama contoh: R. Denden Nur Musoffa). Kartu Anda sendiri dibuat lewat formulir di atas.</p>
+  <div id="kartuContoh" style="margin-top:12px"><div class="note" style="margin:0 0 6px;font-weight:700">Tampilan depan</div><div id="kcDepan"></div><div class="note" style="margin:0 0 6px;font-weight:700">Tampilan belakang</div><div id="kcBelakang"></div></div>
+ </div>
+ <div class="panel">
   <h3>Ketentuan Kartu Bani Ilyas</h3>
   <ul style="line-height:1.8;font-size:14px;padding-left:20px">
-   <li><b>Kartu digital:</b> setiap anggota keluarga memperoleh satu kali unduhan gratis. Untuk unduh ulang, anggota menyalurkan donasi sukarela tanpa nominal minimum sesuai kemampuan dan menghubungi Admin untuk verifikasi serta persetujuan. Superadmin dapat mengunduh tanpa batas untuk keperluan pengelolaan website.</li>
+   <li><b>Kartu digital:</b> setiap anggota keluarga memperoleh dua kali unduhan gratis. Untuk unduhan ketiga dan seterusnya, anggota menghubungi Admin untuk verifikasi dan persetujuan. Tidak ada syarat donasi. Superadmin dapat mengunduh tanpa batas untuk keperluan pengelolaan website.</li>
    <li><b>Kartu cetak:</b> keluarga yang menginginkan kartu fisik dapat mengajukan permohonan kepada Admin melalui WhatsApp. Biaya pencetakan dan pengiriman, apabila ada, akan diinformasikan terlebih dahulu oleh Admin.</li>
    <li><b>Validasi:</b> kartu hanya menjadi identitas anggota yang sah setelah nama, nama ayah, dan kode silsilah cocok dengan data Pancakaki yang telah diverifikasi Admin.</li>
   </ul>
-  <p class="note"><b>Catatan teknis dan keamanan:</b> prototipe ini mencatat penggunaan unduh di browser/perangkat. Agar batas satu kali berlaku lintas perangkat dan hak superadmin tidak dapat dipalsukan, website produksi wajib memakai database/server terpusat. Status superadmin harus berasal dari sesi login yang diverifikasi server, bukan pilihan pengguna atau variabel JavaScript di browser. Admin biasa dan seluruh anggota keluarga tetap mengikuti batas satu kali unduh.</p>
+  <p class="note"><b>Catatan teknis dan keamanan:</b> prototipe ini mencatat penggunaan unduh di browser/perangkat. Agar batas dua kali berlaku lintas perangkat dan hak superadmin tidak dapat dipalsukan, website produksi wajib memakai database/server terpusat. Status superadmin harus berasal dari sesi login yang diverifikasi server, bukan pilihan pengguna atau variabel JavaScript di browser. Admin biasa dan seluruh anggota keluarga tetap mengikuti batas dua kali unduh.</p>
  </div>
 </section>
 
@@ -1088,8 +1092,9 @@ window.PancakakiDownloadGate = {
   // Tidak ada tombol/checkbox publik untuk mengangkat akun menjadi superadmin.
   isSuperAdmin: () => window.PancakakiAuth?.isSuperAdmin?.() === true,
   key: (kind, code) => 'pancakaki_once_' + kind + '_' + String(code||'').trim().toUpperCase().replace(/[^A-Z0-9._-]/g,'_'),
-  used: (kind, code) => !window.PancakakiDownloadGate.isSuperAdmin() && !!localStorage.getItem(window.PancakakiDownloadGate.key(kind, code)),
-  mark: (kind, code) => { if(!window.PancakakiDownloadGate.isSuperAdmin()) localStorage.setItem(window.PancakakiDownloadGate.key(kind, code), new Date().toISOString()); },
+  count: (kind, code) => { try{ const v=localStorage.getItem(window.PancakakiDownloadGate.key(kind, code)); if(!v) return 0; const n=parseInt(v,10); return /^\d+$/.test(v)&&n>0 ? n : 1; }catch(e){ return 0; } },
+  used: (kind, code, max) => !window.PancakakiDownloadGate.isSuperAdmin() && window.PancakakiDownloadGate.count(kind, code) >= (max||1),
+  mark: (kind, code) => { try{ if(!window.PancakakiDownloadGate.isSuperAdmin()) localStorage.setItem(window.PancakakiDownloadGate.key(kind, code), String(window.PancakakiDownloadGate.count(kind, code)+1)); }catch(e){} },
   admin: (message) => window.open('https://wa.me/6282117034277?text='+encodeURIComponent(message), '_blank', 'noopener')
 };
 </script>
@@ -1921,6 +1926,9 @@ const KARTU_DEPAN='data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAQDAw
   const nasabText=chain.slice(1).map((x,i)=>(chain[i].jk==='P'?'binti ':'bin ')+x.nama).join(' ');
   const father=(chain[1]||{}).nama||'',gen='Generasi '+selA.generasi,spouse='',address='';
   cardData={name,father,code,gen,spouse,address};
+  return renderKartu(name,nasabText,code);
+ }
+ function renderKartu(name,nasabText,code){
   const gold='#e9c872',cream='#fbf3dc';
   const cs=(extra)=>`position:relative;width:min(100%,560px);aspect-ratio:1368/858;margin:0 auto 14px;border-radius:4.4%/7%;overflow:hidden;container-type:inline-size;background-size:100% 100%;box-shadow:0 12px 28px #0b2a1c44;font-family:Georgia,'Times New Roman',serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;${extra}`;
   const lab=(t)=>`<div style="font:700 1.55cqw Arial,sans-serif;letter-spacing:.18em;color:#d9b45e">${t}</div>`;
@@ -1934,27 +1942,38 @@ const KARTU_DEPAN='data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAQDAw
  function updateCardGate(){
   const btn=$('downloadMemberCard');if(!btn)return;
   const code=$('memberCardCode').value.trim();
-  const used=code && window.PancakakiDownloadGate.used('card',code);
-  btn.textContent=used?'Ajukan Unduh Ulang kepada Admin':(window.PancakakiDownloadGate.isSuperAdmin()?'Unduh Kartu (Superadmin · Tanpa Batas)':'Unduh Kartu Digital Gratis (1 Kali)');
-  btn.disabled=!cardData || !code || (used && !$('memberCardDonationConfirm').checked);
+  const G=window.PancakakiDownloadGate,MAX=2;
+  const n=code?G.count('card',code):0,used=code&&G.used('card',code,MAX);
+  btn.textContent=used?'Hubungi Admin untuk Unduhan Ketiga':(G.isSuperAdmin()?'Unduh Kartu (Superadmin · Tanpa Batas)':'Unduh Kartu Digital ('+Math.max(0,MAX-n)+' Kesempatan Gratis Tersisa)');
+  btn.disabled=!cardData || !code;
  }
  $('memberCardCode')?.addEventListener('input',updateCardGate);
- $('memberCardDonationConfirm')?.addEventListener('change',updateCardGate);
- $('previewMemberCard')?.addEventListener('click',()=>{const html=buildCard();if(!html)return;$('memberCardPreview').innerHTML=html;updateCardGate();message('Pratinjau berhasil dibuat. Periksa kembali data sebelum mengunduh.');});
+  $('previewMemberCard')?.addEventListener('click',()=>{const html=buildCard();if(!html)return;$('memberCardPreview').innerHTML=html;updateCardGate();message('Pratinjau berhasil dibuat. Periksa kembali data sebelum mengunduh.');});
  $('downloadMemberCard')?.addEventListener('click',()=>{
   if(!cardData){message('Tampilkan pratinjau kartu terlebih dahulu.');return;}
-  const code=cardData.code;const isSuperAdmin=window.PancakakiDownloadGate.isSuperAdmin();const used=window.PancakakiDownloadGate.used('card',code);
+  const code=cardData.code;const G=window.PancakakiDownloadGate;const isSuperAdmin=G.isSuperAdmin();const used=G.used('card',code,2);
   if(used && !isSuperAdmin){
-   if(!$('memberCardDonationConfirm').checked){message('Kesempatan unduh gratis sudah digunakan. Untuk unduh ulang, donasi sukarela dan hubungi Admin.');return;}
-   window.PancakakiDownloadGate.admin('Assalamu’alaikum Admin Keluarga Besar Seweu Siwi Bani Ilyas Limbangan. Saya mengajukan persetujuan unduh ulang Kartu Bani Ilyas.\nNama: '+cardData.name+'\nNama ayah: '+cardData.father+'\nKode silsilah: '+code+'\nSaya telah menyalurkan donasi sukarela dan siap mengirim bukti. Mohon verifikasi dan petunjuk unduh ulang.');
-   message('Permohonan unduh ulang dikirim ke Admin. Kartu akan dapat diunduh kembali setelah Admin melakukan verifikasi.');return;
+   G.admin('Assalamu’alaikum Admin Keluarga Besar Seweu Siwi Bani Ilyas Limbangan. Dua kesempatan unduh gratis Kartu Bani Ilyas saya sudah terpakai. Mohon bantuan untuk unduhan berikutnya.\nNama: '+cardData.name+'\nNama ayah: '+cardData.father+'\nKode silsilah: '+code);
+   message('Permintaan unduhan ketiga dikirim ke Admin lewat WhatsApp. Kartu dapat diunduh kembali setelah Admin menyetujui.');return;
   }
   const card=$('memberCardPreview').innerHTML;
   const w=window.open('','_blank');if(!w){message('Pop-up diblokir browser. Izinkan pop-up lalu coba kembali.');return;}
-  if(!isSuperAdmin) window.PancakakiDownloadGate.mark('card',code);
-  w.document.open();w.document.write(`<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Kartu Bani Ilyas - Keluarga Besar Seweu Siwi Bani Ilyas Limbangan</title><style>@page{size:A4 landscape;margin:10mm}*{box-sizing:border-box}body{font-family:Arial,sans-serif;background:#fff;padding:20px}.member-id-card{width:500px!important;max-width:100%;-webkit-print-color-adjust:exact;print-color-adjust:exact}@media print{body{padding:0}.member-id-card{margin:0 auto 10px}}</style></head><body>${card}<p style="text-align:center;font:11px Arial;color:#777;margin-top:18px">Kesempatan unduh gratis satu kali untuk kode anggota ini. Simpan file PDF dengan baik.</p><script>window.addEventListener('load',()=>setTimeout(()=>window.print(),300));<\/script></body></html>`);w.document.close();updateCardGate();
+  if(!isSuperAdmin) G.mark('card',code);
+  w.document.open();w.document.write(`<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Kartu Bani Ilyas - Keluarga Besar Seweu Siwi Bani Ilyas Limbangan</title><style>@page{size:A4 landscape;margin:10mm}*{box-sizing:border-box}body{font-family:Arial,sans-serif;background:#fff;padding:20px}.member-id-card{width:500px!important;max-width:100%;-webkit-print-color-adjust:exact;print-color-adjust:exact}@media print{body{padding:0}.member-id-card{margin:0 auto 10px}}</style></head><body>${card}<p style="text-align:center;font:11px Arial;color:#777;margin-top:18px">Kesempatan unduh gratis dua kali untuk kode anggota ini. Simpan file PDF dengan baik.</p><script>window.addEventListener('load',()=>setTimeout(()=>window.print(),300));<\/script></body></html>`);w.document.close();updateCardGate();
  });
- $('requestPrintedMemberCard')?.addEventListener('click',()=>{
+ function contoh(){
+  const d=$('kcDepan');if(!d)return;
+  const list=window.__membersList||[],byId=new Map(list.map(x=>[x.id,x]));
+  const a=list.find(x=>nk(x.nama).indexOf('denden nur')===0);
+  let nm='R. Denden Nur Musoffa',ns='bin KH. R. Aceng Sambas',kd='BI-0000';
+  if(a){const ch=nasab(a);ns=ch.slice(1).map((x,i)=>(ch[i].jk==='P'?'binti ':'bin ')+x.nama).join(' ');kd=window.__kodeOf?window.__kodeOf(a):'BI-'+a.generasi;}
+  const h=renderKartu(nm,ns,kd),t=document.createElement('div');t.innerHTML=h;
+  const c=t.querySelectorAll('.member-id-card');d.innerHTML='';$('kcBelakang').innerHTML='';
+  if(c[0])d.appendChild(c[0]);if(c[1])$('kcBelakang').appendChild(c[1]);
+ }
+ contoh();
+ const oldBuild=window.__buildKartu;window.__buildKartu=function(){oldBuild();contoh();};
+$('requestPrintedMemberCard')?.addEventListener('click',()=>{
   if(!selA){message('Pilih nama anggota dari daftar silsilah sebelum mengajukan kartu cetak.');return;}
   const name=selA.nama,code=$('memberCardCode').value.trim(),father=((nasab(selA)[1])||{}).nama||'-';
   const msg=`Assalamu’alaikum Admin Keluarga Besar Seweu Siwi Bani Ilyas Limbangan. Saya mengajukan pencetakan Kartu Bani Ilyas.\nNama: ${name}\nNama ayah: ${father}\nKode silsilah: ${code}\nMohon informasi proses, biaya cetak, dan pengiriman (jika ada). Terima kasih.`;
