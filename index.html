@@ -879,7 +879,7 @@ main {
    <div class="field"><label>Nama pesantren</label><input id="pName" placeholder="Nama resmi pesantren"></div>
    <div class="field"><label>Nama pendiri</label><input id="pFounder" placeholder="Nama pendiri pesantren"></div>
    <div class="field"><label>Nama pimpinan / pengasuh saat ini</label><input id="pLeader" placeholder="Nama pimpinan atau pengasuh"></div>
-   <div class="field"><label>Generasi / hubungan keluarga</label><select id="pRelation"><option value="">Pilih hubungan</option><option>Anak</option><option>Incu</option><option>Buyut</option><option>Cicit</option><option>Canggah</option><option>Menantu</option><option>Keturunan lainnya</option></select></div>
+   <div class="field"><label for="pRelation">Hubungan dengan KH. R. Muhamad Ilyas</label><select id="pRelation"><option value="">Pilih hubungan dengan KH. R. Muhamad Ilyas</option><option value="Anak">Anak (putra/putri beliau)</option><option value="Incu">Incu / cucu</option><option value="Buyut">Buyut / cicit</option><option value="Canggah">Canggah (cicit dari cicit)</option><option value="Menantu">Menantu</option><option value="Keturunan lainnya">Keturunan lainnya</option></select><small class="note">Pilih sebagai apa pengasuh/pimpinan pesantren ini bagi KH. R. Muhamad Ilyas.</small></div>
    <div class="field"><label>Nomor telepon / WhatsApp pesantren</label><input id="pPhone" placeholder="Nomor resmi pesantren"></div>
    <div class="field" style="grid-column:1/-1"><label>Alamat lengkap pesantren</label><input id="pAddress" placeholder="Kampung, desa, kecamatan, kabupaten, provinsi"></div>
    <div class="field" style="grid-column:1/-1"><label>Website / media sosial (opsional)</label><input id="pWeb" placeholder="Alamat website atau akun resmi"></div>
@@ -1498,7 +1498,7 @@ function renderPesantren(){
  if(!items.length){list.innerHTML='<p class="note">Teu acan aya data anu cocog. Data pesantren bakal dipidangkeun di dieu sanggeus diasupkeun jeung diverifikasi ku admin.</p>';return;}
  list.innerHTML=items.map((x,i)=>`<article class="pesantren-card">
   <h4>${safePesantren(x.name)}</h4>
-  <div class="pesantren-meta">Pimpinan/pengasuh: ${safePesantren(x.leader||'Belum diisi')} · ${safePesantren(x.relation||'Hubungan belum diisi')}</div>
+  <div class="pesantren-meta">Pimpinan/pengasuh: ${safePesantren(x.leader||'Belum diisi')} · ${(x.relation?'Hubungan ke KH. R. Muhamad Ilyas: '+safePesantren(x.relation):'Hubungan belum diisi')}</div>
   <div class="pesantren-actions"><button class="secondary" type="button" data-pdetail="${i}">Lihat Profil Lengkap</button></div>
   <div class="pesantren-detail" id="pdetail-${i}" hidden>
    <b>Alamat:</b> ${safePesantren(x.address)}<br>
@@ -2245,7 +2245,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  const rapi=v=>window.rapikanNama?window.rapikanNama(v):String(v||'').trim();
  const money=n=>'Rp'+new Intl.NumberFormat('id-ID').format(Number(n)||0);
  const safeLink=u=>/^https:\/\/[^\s"'<>]+$/i.test(String(u||''))?String(u):'';
- const LABEL={id:'ID orang',namaLama:'Nama sekarang',nama:'Nama baru',ayahNama:'Orang tua',anakKeLama:'Anak ke- sekarang',anakKe:'Anak ke- baru',alasan:'Alasan',catatanSistem:'Catatan sistem',name:'Nama',brand:'Merek',goods:'Barang dijual',founder:'Pendiri',leader:'Pimpinan/pengasuh',relation:'Hubungan',phone:'Telepon/WA',address:'Alamat',web:'Website/medsos',profile:'Profil',owner:'Pemilik',code:'Kode silsilah',product:'Produk',desc:'Keterangan',title:'Judul',author:'Pengarang',category:'Kategori',source:'Sumber/izin',link:'Tautan',description:'Keterangan',date:'Tanggal',time:'Jam',place:'Tempat',amount:'Nominal',purpose:'Peruntukan',note:'Catatan',ref:'Referensi',method:'Metode',proof:'Bukti',room:'Ruang',text:'Isi',key:'Kunci'};
+ const LABEL={id:'ID orang',namaLama:'Nama sekarang',nama:'Nama baru',ayahNama:'Orang tua',anakKeLama:'Anak ke- sekarang',anakKe:'Anak ke- baru',alasan:'Alasan',catatanSistem:'Catatan sistem',name:'Nama',brand:'Merek',goods:'Barang dijual',founder:'Pendiri',leader:'Pimpinan/pengasuh',relation:'Hubungan dengan KH. R. Muhamad Ilyas',phone:'Telepon/WA',address:'Alamat',web:'Website/medsos',profile:'Profil',owner:'Pemilik',code:'Kode silsilah',product:'Produk',desc:'Keterangan',title:'Judul',author:'Pengarang',category:'Kategori',source:'Sumber/izin',link:'Tautan',description:'Keterangan',date:'Tanggal',time:'Jam',place:'Tempat',amount:'Nominal',purpose:'Peruntukan',note:'Catatan',ref:'Referensi',method:'Metode',proof:'Bukti',room:'Ruang',text:'Isi',key:'Kunci'};
  const JENIS={revisi:'Revisi nama/urutan anak',pesantren:'Pesantren',umkm:'UMKM',buku:'Kitab/Ebook',media:'Foto/Video',kalender:'Agenda kalender',donasi:'Donasi',haul:'Iuran Haul',chat:'Pesan chat',info:'Informasi'};
  const api=(p)=>window.BaniIlyasApi(p);
  window.__terbit=window.__terbit||{pesantren:[],umkm:[],buku:[],media:[],kalender:[],chat:[],info:{},haul:{terverifikasi:[],menunggu:0,menungguTotal:0}};
