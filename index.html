@@ -2027,6 +2027,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
       if (!tok) return tok;
       if (/^\(.*\)?$/.test(tok) && tok.charAt(0) === '(') return tok.toLowerCase();
       var tanpaTitik = tok.replace(/\.+$/, '').toLowerCase();
+      if (tanpaTitik === 'bin' || tanpaTitik === 'binti' || tanpaTitik === 'bint' || tanpaTitik === 'ibnu') return tanpaTitik;
       if (peta[tanpaTitik]) return peta[tanpaTitik];
       if (/^[a-z]$/i.test(tanpaTitik)) return tanpaTitik.toUpperCase() + '.';
       if (tok.indexOf('.') > 0 && tok.indexOf('.') < tok.length - 1) return tok.split('.').map(besar).join('.');
@@ -2775,6 +2776,26 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   tampil(id);});
  document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button');if(!b)return;
   IDS.forEach(id=>{const el=document.getElementById(id);if(el&&el.value)simpan(el.value);});},true);
+})();
+</script>
+<script>
+/* Huruf awal nama otomatis kapital pada semua kolom nama orang (saat selesai mengetik) */
+(function(){
+ const IDS=['name','submitter','mother','spouse','fatherManual','chatName','mediaContributor','verifiedDescendantName','pFounder','pLeader','uOwner','bAuthor','calName','dName','haulName','rvNama','rvPengirim','utPengirim','chain','personalDescendantChain'];
+ const KECIL=new Set(['bin','binti','bint','bt','ibnu']);
+ const rapi=t=>{
+  const r=window.rapikanNama?window.rapikanNama(t):String(t||'');
+  return r.split(' ').map(w=>KECIL.has(w.toLowerCase())?w.toLowerCase():w).join(' ');
+ };
+ function terapkan(el){
+  if(!el||IDS.indexOf(el.id)<0||!el.value)return;
+  const lama=el.value;
+  const baru=el.tagName==='TEXTAREA'?lama.split('\n').map(l=>rapi(l)).join('\n'):rapi(lama);
+  if(baru!==lama)el.value=baru;
+ }
+ document.addEventListener('change',e=>terapkan(e.target),true);
+ document.addEventListener('focusout',e=>terapkan(e.target),true);
+ document.addEventListener('click',e=>{if(e.target&&e.target.closest&&e.target.closest('button'))IDS.forEach(id=>terapkan(document.getElementById(id)));},true);
 })();
 </script>
 </body>
