@@ -535,7 +535,7 @@ main {
   <div class="stat"><strong id="statLine">BI-0</strong><span>Runtuyan turunan</span></div>
  </div>
  <div class="panel">
-  <div class="panelhead"><h3>Silsilah Keluarga Besar Seweu Siwi Bani Ilyas Limbangan</h3><input id="search" placeholder="Cari nama panggilan, sebagian nama, bin/binti, atau kode..." aria-label="Cari nama anggota"></div>
+  <div class="panelhead"><h3>Silsilah Keluarga Besar Seweu Siwi Bani Ilyas Limbangan</h3><input id="search" placeholder="Cek nasab: ketik beberapa huruf nama, bin/binti, atau kode..." aria-label="Cari nama anggota"></div>
   <div id="searchResults" class="panel" style="display:none;margin:12px 0;background:#fffdf6;border:1px solid #d8c69b;border-radius:12px;padding:14px" aria-live="polite"></div>
   <div class="print-tools">
    <div><b>Cetak Rundayan Pancakaki</b><small>Pilih nama atau kode silsilah untuk menyiapkan cetakan keluarga.</small></div>
@@ -1295,15 +1295,37 @@ navButtons.forEach(btn=>btn.addEventListener('click',()=>{
   const own=labelOf(el);if(own&&!norm(own).includes('kh r muhamad ilyas'))parts.push(own);
   return parts.filter(Boolean).join('  ›  ');
  }
+ function nasabOnline(a,byId){
+  const out=[];let c=a,g=0;
+  while(c&&g++<100){const p=byId.get(c.ayahId);out.push(c.nama+(p?(c.jk==='P'?' binti ':' bin '):''));c=p;}
+  return out.join('');
+ }
  function run(){
   const raw=input.value.trim(), q=norm(raw);box.innerHTML='';
   tree.querySelectorAll('[data-search]').forEach(el=>{el.style.opacity='1';el.style.outline='none';});
   if(!q){box.style.display='none';return;}
   const nodes=[...tree.querySelectorAll('[data-search]')];
   const matches=nodes.filter(el=>norm((el.dataset.search||'')+' '+el.innerText).includes(q));
+  const list=window.__membersList||[],byId=new Map(list.map(a=>[a.id,a]));
+  const treeLabels=matches.map(el=>norm(labelOf(el)));
+  const online=list.filter(a=>a.ayahId&&(norm(a.nama).includes(q)||(window.__kodeOf&&norm(window.__kodeOf(a)).includes(q)))&&!treeLabels.some(l=>l.includes(norm(a.nama))));
   box.style.display='block';
-  if(!matches.length){box.innerHTML='<b>Tidak ditemukan.</b><p class="note">Coba nama panggilan, beberapa huruf dari nama, nama ayah, atau kode silsilah.</p>';return;}
-  const heading=document.createElement('div');heading.innerHTML='<b>Ditemukan '+matches.length+' hasil yang sesuai</b><p class="note">Pilih nama yang tepat dan periksa jalur nasabnya hingga KH. R. Muhamad Ilyas.</p>';box.appendChild(heading);
+  const total=matches.length+online.length;
+  if(!total){
+   const nf=document.createElement('div');
+   nf.innerHTML='<b>Belum terdaftar.</b><p class="note">'+(list.length?'Nama tersebut belum ada di silsilah. Daftarkan dulu lewat menu <b>Tambah Data Kulawarga</b>, lalu tunggu Admin membenarkan.':'Daftar silsilah online belum termuat. Muat ulang halaman, atau daftarkan nama lewat menu <b>Tambah Data Kulawarga</b>.')+'</p>';
+   const bt=document.createElement('button');bt.type='button';bt.className='primary';bt.textContent='Daftar sekarang';
+   bt.addEventListener('click',()=>{const b=document.querySelector('button[data-page="add"]');if(b)b.click();});
+   nf.appendChild(bt);box.appendChild(nf);return;
+  }
+  const heading=document.createElement('div');heading.innerHTML='<b>✓ Terdaftar: '+total+' hasil yang sesuai</b><p class="note">Pilih nama yang tepat dan periksa jalur nasabnya hingga KH. R. Muhamad Ilyas.</p>';box.appendChild(heading);
+  online.forEach(a=>{
+   const card=document.createElement('div');card.style.cssText='padding:10px 0;border-top:1px solid #e5dcc8';
+   const title=document.createElement('b');title.textContent=a.nama;card.appendChild(title);
+   const ok=document.createElement('span');ok.className='pill';ok.style.marginLeft='8px';ok.textContent='TERDAFTAR';card.appendChild(ok);
+   const path=document.createElement('div');path.className='note';path.style.cssText='margin-top:5px;line-height:1.7';path.textContent='Nasab: '+nasabOnline(a,byId)+(window.__kodeOf?' · Kode: '+window.__kodeOf(a):'');card.appendChild(path);
+   box.appendChild(card);
+  });
   matches.forEach(el=>{
    el.style.opacity='1';el.style.outline='2px solid #c99b4b';
    const card=document.createElement('div');card.style.cssText='padding:10px 0;border-top:1px solid #e5dcc8';
