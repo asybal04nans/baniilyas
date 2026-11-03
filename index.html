@@ -2247,7 +2247,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  const money=n=>'Rp'+new Intl.NumberFormat('id-ID').format(Number(n)||0);
  const safeLink=u=>/^https:\/\/[^\s"'<>]+$/i.test(String(u||''))?String(u):'';
  const LABEL={target:'Kode data asal',ringkas:'Perubahan',id:'ID orang',namaLama:'Nama sekarang',nama:'Nama baru',ayahNama:'Orang tua',anakKeLama:'Anak ke- sekarang',anakKe:'Anak ke- baru',alasan:'Alasan',catatanSistem:'Catatan sistem',name:'Nama',brand:'Merek',goods:'Barang dijual',founder:'Pendiri',leader:'Pimpinan/pengasuh',relation:'Hubungan dengan KH. R. Muhamad Ilyas',phone:'Telepon/WA',address:'Alamat',web:'Website/medsos',profile:'Profil',owner:'Pemilik',code:'Kode silsilah',product:'Produk',desc:'Keterangan',title:'Judul',author:'Pengarang',category:'Kategori',source:'Sumber/izin',link:'Tautan',description:'Keterangan',date:'Tanggal',time:'Jam',place:'Tempat',amount:'Nominal',purpose:'Peruntukan',note:'Catatan',ref:'Referensi',method:'Metode',proof:'Bukti',room:'Ruang',text:'Isi',key:'Kunci'};
- const JENIS={revisi:'Revisi nama/urutan anak',pesantren:'Pesantren',revisipesantren:'Update data pesantren',revisiumkm:'Update data UMKM',umkm:'UMKM',buku:'Kitab/Ebook',media:'Foto/Video',kalender:'Agenda kalender',donasi:'Donasi',haul:'Iuran Haul',chat:'Pesan chat',info:'Informasi'};
+ const JENIS={revisi:'Update nama/urutan anak',pesantren:'Pesantren',revisipesantren:'Update data pesantren',revisiumkm:'Update data UMKM',umkm:'UMKM',buku:'Kitab/Ebook',media:'Foto/Video',kalender:'Agenda kalender',donasi:'Donasi',haul:'Iuran Haul',chat:'Pesan chat',info:'Informasi'};
  const api=(p)=>window.BaniIlyasApi(p);
  window.__terbit=window.__terbit||{pesantren:[],umkm:[],buku:[],media:[],kalender:[],chat:[],info:{},haul:{terverifikasi:[],menunggu:0,menungguTotal:0}};
  const say=(el,t,ok)=>{if(!el)return;el.classList.remove('hidden');el.textContent=t;el.style.color=ok===false?'#a33':'';};
@@ -2565,16 +2565,16 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 #pohonModal details:not([open])>summary .pk-node::before{content:"▸"}
 #pohonModal .pk-n{background:#e6efe4;color:#1f5f4a;border-radius:999px;padding:1px 8px;font-size:11px;font-weight:700}
 </style>
-<div id="revisiModal" role="dialog" aria-modal="true" aria-labelledby="rvJudul"><div class="rv-box"><h3 id="rvJudul">Revisi nama / urutan anak</h3><p class="note" id="rvSub" style="margin:0 0 4px"></p>
+<div id="revisiModal" role="dialog" aria-modal="true" aria-labelledby="rvJudul"><div class="rv-box"><h3 id="rvJudul">Update nama / urutan anak</h3><p class="note" id="rvSub" style="margin:0 0 4px"></p>
 <label for="rvNama">Nama yang benar</label><input id="rvNama" maxlength="120" autocomplete="off">
 <label for="rvAnak">Anak ke- (urutan lahir, 1 = tertua)</label><input id="rvAnak" type="number" min="1" max="60" inputmode="numeric">
 <label for="rvHub">Hubungan dengan ayah/ibu</label><select id="rvHub" style="width:100%;box-sizing:border-box;border:1px solid #d8cfbb;border-radius:9px;padding:9px 11px;font:inherit;background:#fff"><option value="kandung">Anak kandung</option><option value="sambung">Anak sambung (bukan anak kandung)</option></select>
 <label for="rvAlasan">Alasan / keterangan (boleh kosong)</label><textarea id="rvAlasan" rows="2" maxlength="300"></textarea>
 <label for="rvPengirim">Nama Anda</label><input id="rvPengirim" maxlength="100" autocomplete="name">
 <label for="rvKontak">WhatsApp (boleh kosong)</label><input id="rvKontak" maxlength="60" inputmode="tel" autocomplete="tel">
-<div class="rv-acts"><button type="button" class="primary" id="rvKirim">Kirim revisi</button><button type="button" class="secondary" id="rvBatal">Tutup</button></div>
-<div class="rv-msg" id="rvMsg" aria-live="polite"></div><p class="note" style="margin-top:6px">Revisi tidak langsung berubah. Admin memeriksa dulu, lalu menyetujui atau menolak.</p></div></div>
-<div id="urutModal" role="dialog" aria-modal="true" aria-labelledby="utJudul"><div class="rv-box"><h3 id="utJudul">Revisi urutan anak</h3><p class="note" id="utSub" style="margin:0 0 4px"></p>
+<div class="rv-acts"><button type="button" class="primary" id="rvKirim">Kirim update</button><button type="button" class="secondary" id="rvBatal">Tutup</button></div>
+<div class="rv-msg" id="rvMsg" aria-live="polite"></div><p class="note" style="margin-top:6px">Update tidak langsung berubah. Admin memeriksa dulu, lalu menyetujui atau menolak.</p></div></div>
+<div id="urutModal" role="dialog" aria-modal="true" aria-labelledby="utJudul"><div class="rv-box"><h3 id="utJudul">Update urutan anak</h3><p class="note" id="utSub" style="margin:0 0 4px"></p>
 <div id="utDaftar"></div>
 <label for="utPengirim">Nama Anda</label><input id="utPengirim" maxlength="100" autocomplete="name">
 <label for="utKontak">WhatsApp (boleh kosong)</label><input id="utKontak" maxlength="60" inputmode="tel" autocomplete="tel">
@@ -2608,10 +2608,10 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   const rb=document.createElement('button');rb.type='button';rb.className='secondary';rb.textContent='Rundayan';rb.title='Buat rundayan atas nama '+a.nama;
   rb.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();tutup();const p=$('printPerson');if(p)p.value=a.nama;if(window.printFamilyTree)window.printFamilyTree();});
   node.appendChild(rb);
-  const rv=document.createElement('button');rv.type='button';rv.className='secondary';rv.textContent='Revisi';rv.title='Usulkan perbaikan nama atau urutan anak '+a.nama;
+  const rv=document.createElement('button');rv.type='button';rv.className='secondary';rv.textContent='Update';rv.title='Usulkan update nama atau urutan anak '+a.nama;
   rv.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();bukaRevisi(a,list);});
   node.appendChild(rv);
-  if(kids.length>1){const ub=document.createElement('button');ub.type='button';ub.className='secondary';ub.textContent='Revisi urutan anak';ub.title='Usulkan perbaikan urutan anak-anak '+a.nama;
+  if(kids.length>1){const ub=document.createElement('button');ub.type='button';ub.className='secondary';ub.textContent='Update urutan anak';ub.title='Usulkan update urutan anak-anak '+a.nama;
    ub.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();bukaUrutan(a,list);});node.appendChild(ub);}
   row.appendChild(node);
   const sps=(a.pasangan||[]).filter(Boolean);
@@ -2656,7 +2656,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   try{
    const r=await window.BaniIlyasApi({action:'kirim',jenis:'revisi',pengirim:window.rapikanNama?window.rapikanNama(pengirim):pengirim,kontak:$('rvKontak').value.trim(),website:'',data:{id:rvOrang.id,nama,anakKe:anak,hubungan:hubBerubah?hub:'',alasan:$('rvAlasan').value.trim()}});
    try{localStorage.setItem(PKEY,JSON.stringify({nama:pengirim,kontak:$('rvKontak').value.trim()}));}catch(e){}
-   rvMsg(r.pesan||'Revisi diterima dan menunggu verifikasi admin.');
+   rvMsg(r.pesan||'Update diterima dan menunggu verifikasi admin.');
   }catch(e){rvMsg('Belum terkirim: '+e.message,false);$('rvKirim').disabled=false;}
  });
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&rvM.classList.contains('on'))tutupRevisi();});
@@ -2693,7 +2693,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   let ok=0;
   try{
    for(const u of ubah){
-    await window.BaniIlyasApi({action:'kirim',jenis:'revisi',pengirim:window.rapikanNama?window.rapikanNama(pengirim):pengirim,kontak:$('utKontak').value.trim(),website:'',data:{id:u.k.id,nama:u.k.nama,anakKe:u.v,alasan:'Revisi urutan anak '+utInduk.nama}});
+    await window.BaniIlyasApi({action:'kirim',jenis:'revisi',pengirim:window.rapikanNama?window.rapikanNama(pengirim):pengirim,kontak:$('utKontak').value.trim(),website:'',data:{id:u.k.id,nama:u.k.nama,anakKe:u.v,alasan:'Update urutan anak '+utInduk.nama}});
     ok++;
    }
    try{localStorage.setItem(PKEY,JSON.stringify({nama:pengirim,kontak:$('utKontak').value.trim()}));}catch(e){}
@@ -2894,7 +2894,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 <label for="prAddress">Alamat lengkap pesantren</label><input id="prAddress" maxlength="250">
 <label for="prWeb">Website / media sosial</label><input id="prWeb" maxlength="200">
 <label for="prProfile">Profil singkat dan keterangan</label><textarea id="prProfile" rows="3" maxlength="800"></textarea>
-<label for="prAlasan">Alasan / keterangan revisi (boleh kosong)</label><input id="prAlasan" maxlength="300">
+<label for="prAlasan">Alasan / keterangan update (boleh kosong)</label><input id="prAlasan" maxlength="300">
 <label for="prPengirim">Nama Anda</label><input id="prPengirim" maxlength="100" autocomplete="name">
 <label for="prKontak">WhatsApp (boleh kosong)</label><input id="prKontak" maxlength="60" inputmode="tel" autocomplete="tel">
 <div class="rv-acts"><button type="button" class="primary" id="prKirim">Kirim update</button><button type="button" class="secondary" id="prBatal">Tutup</button></div>
