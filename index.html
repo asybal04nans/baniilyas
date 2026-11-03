@@ -586,6 +586,7 @@ main {
   <div class="formgrid">
    <div class="field"><label>Nama lengkap anggota</label><input id="name" placeholder="Nama lengkap anggota keluarga" maxlength="120"></div>
    <div class="field"><label>Jenis kelamin</label><select id="gender"><option value="">Pilih...</option><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
+   <div class="field"><label>Anak ke- (urutan lahir dari saudara seayah/seibu)</label><input id="anakKe" type="number" inputmode="numeric" min="1" max="60" step="1" placeholder="Contoh: 3"><small>Hitung dari anak tertua = 1. Dipakai untuk urutan dan kode silsilah.</small></div>
    <div class="field"><label>Nama ayah (atau ibu bila keturunan lewat jalur ibu)</label><input id="father" list="fatherList" autocomplete="off" placeholder="Ketik beberapa huruf, lalu pilih dari daftar" maxlength="160"><datalist id="fatherList"></datalist><small id="fatherHint">Daftar memuat anggota yang sudah terverifikasi.</small><label style="display:flex;gap:6px;align-items:center;margin-top:6px;font-weight:normal"><input type="checkbox" id="fatherManual"> Orang tua saya belum ada di daftar (isi rantai manual, diperiksa Admin)</label></div>
    <div class="field" style="grid-column:1/-1"><label>Rantai nasab dari ayah sampai KH. R. Muhamad Ilyas</label><textarea id="chain" rows="5" placeholder="Satu nama per baris, dimulai dari ayah, lalu kakek, dan seterusnya sampai KH. R. Muhamad Ilyas.&#10;Contoh:&#10;R. M. Dimyati&#10;KH. R. Muhamad Ilyas"></textarea><small>Jangan menuliskan nama orang yang diajukan. Mulai dari ayahnya. Jika ada satu nama yang belum pasti, tulis yang diketahui dan Admin akan memeriksanya.</small></div>
    <div class="field"><label>Nama pengaju</label><input id="submitter" placeholder="Nama Anda" maxlength="100"></div>
@@ -600,7 +601,7 @@ main {
    <b>Pituduh / Cara memasukkan nama:</b>
    <ol>
     <li>Isi <b>Nama lengkap anggota</b> dengan nama orang yang diusulkan, termasuk gelar bila memang digunakan dalam dokumen keluarga (gunakan bentuk <b>R.</b> untuk Raden, misalnya R. Siti Aisyah).</li>
-    <li>Pilih <b>Jenis kelamin</b>, lalu ketik beberapa huruf <b>nama ayah</b> (atau ibu) dan pilih dari daftar yang muncul.</li>
+    <li>Isi <b>Anak ke-</b> dengan urutan lahir (anak tertua = 1). Pilih <b>Jenis kelamin</b>, lalu ketik beberapa huruf <b>nama ayah</b> (atau ibu) dan pilih dari daftar yang muncul.</li>
     <li><b>Rantai nasab</b> sampai <b>KH. R. Muhamad Ilyas</b> terisi otomatis. Bila orang tua Anda belum ada di daftar, minta orang tua atau kakek Anda didaftarkan lebih dulu, atau centang pilihan manual agar Admin yang memeriksa.</li>
     <li>Nama ibu, istri/suami, dan alamat bersifat opsional. Nama ibu dicatat sebagai informasi hubungan keluarga, bukan penentu garis keturunan.</li>
     <li>Tekan <b>Kirim Pengajuan</b>. Anda akan mendapat nomor pengajuan. Data belum masuk silsilah resmi sampai Admin memeriksa dan menyetujuinya.</li>
@@ -1325,10 +1326,11 @@ document.getElementById('makeCode').addEventListener('click',async()=>{
  const out=document.getElementById('formResult'), btn=document.getElementById('makeCode');
  const sel=window.__pilihOrtu?window.__pilihOrtu():null;
  const manual=!!document.getElementById('fatherManual')?.checked;
- const data={action:'submit',nama:v('name'),jk:v('gender'),namaAyah:(sel&&!manual)?sel.nama:v('father'),rantai:(sel&&!manual)?sel.chain:v('chain'),pengaju:v('submitter'),kontak:v('contact'),ibu:v('mother'),pasangan:v('spouse'),alamat:v('memberAddress'),website:v('hpWebsite')};
+ const data={action:'submit',nama:v('name'),jk:v('gender'),namaAyah:(sel&&!manual)?sel.nama:v('father'),rantai:(sel&&!manual)?sel.chain:v('chain'),pengaju:v('submitter'),kontak:v('contact'),anakKe:v('anakKe'),ibu:v('mother'),pasangan:v('spouse'),alamat:v('memberAddress'),website:v('hpWebsite')};
  const warn=t=>{out.classList.remove('hidden');out.textContent=t;};
  if(!data.nama||!data.namaAyah){warn('Isi nama lengkap anggota dan nama ayah (bin/binti) terlebih dahulu.');return;}
  if(!data.jk){warn('Pilih jenis kelamin.');return;}
+ if(!/^\d{1,2}$/.test(data.anakKe)||Number(data.anakKe)<1){warn('Isi "Anak ke-" dengan angka urutan lahir (1 untuk anak tertua).');return;}
  if(window.__membersReady&&!manual&&!sel){warn('Pilih nama ayah/ibu dari daftar yang muncul. Bila belum ada di daftar, centang "Orang tua saya belum ada di daftar".');return;}
  if(!data.rantai){warn('Isi rantai nasab dari ayah sampai KH. R. Muhamad Ilyas, satu nama per baris.');return;}
  if(!data.pengaju){warn('Isi nama pengaju.');return;}
@@ -1341,7 +1343,7 @@ document.getElementById('makeCode').addEventListener('click',async()=>{
   const wa='Assalamu’alaikum Admin Keluarga Besar Seweu Siwi Bani Ilyas Limbangan. Saya telah mengirim pengajuan data anggota dengan nomor '+(j.idPengajuan||'-')+' atas nama '+data.nama+'. Mohon diperiksa dan diverifikasi.';
   const link=document.createElement('a');link.href='https://wa.me/6282117034277?text='+encodeURIComponent(wa);link.target='_blank';link.rel='noopener';link.className='primary';link.style.display='inline-block';link.style.marginTop='12px';link.textContent='Beri tahu Admin melalui WhatsApp (opsional)';
   out.appendChild(document.createElement('br'));out.appendChild(link);
-  ['name','gender','father','chain','submitter','contact','mother','spouse','memberAddress'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  ['name','gender','anakKe','father','chain','submitter','contact','mother','spouse','memberAddress'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   if(window.__syncOrtu)window.__syncOrtu();
  }catch(e){warn('Pengajuan belum terkirim: '+e.message);}
  btn.disabled=false;
@@ -1840,6 +1842,18 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
    };
    [...list].sort((x,y)=>String(x.id).localeCompare(String(y.id),undefined,{numeric:true})).forEach(resolve);
    const mapInfo=new Map(list.map(a=>[norm(a.nama),info.get(a.id)]));window.__infoNama=n=>mapInfo.get(norm(n));
+   /* Kode silsilah dari urutan anak: BI-<generasi>.<urutan anak 1>.<urutan anak 2>... (hanya bila semua leluhur punya urutan) */
+   const pathMemo=new Map();
+   const pathOf=a=>{
+    if(pathMemo.has(a.id))return pathMemo.get(a.id);
+    let r=null;
+    if(!a.ayahId)r='';
+    else{const p=byId.get(a.ayahId);const pp=p?pathOf(p):null;
+     if(pp!==null&&Number(a.anakKe)>0)r=pp+'.'+String(a.anakKe).padStart(2,'0');}
+    pathMemo.set(a.id,r);return r;
+   };
+   const kodeOf=a=>{const r=pathOf(a);return (r&&a.ayahId)?'BI-'+a.generasi+r:(a.ayahId?'':'BI-0');};
+   const sortKey=a=>{const r=pathOf(a);return r===null?'~'+String(a.id):r;};
    window.__onlineLegend=[...new Map([...info.values()].filter(r=>r.jalur==='ibu').map(r=>[r.color,r.dari])).entries()];
    const extra=list.filter(a=>a.ayahId&&!inTree.has(norm(a.nama)));
    box.textContent='';
@@ -1856,6 +1870,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
    const pb=document.createElement('button');pb.type='button';pb.textContent='Cetak daftar berwarna';pb.style.cssText='margin-left:auto';
    pb.onclick=()=>{const w=window.open('','_blank');if(!w)return;w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Daftar Anggota Bani Ilyas</title><style>body{font-family:Arial,sans-serif;margin:16mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}.child{border:1px solid #ddd;border-radius:8px;padding:8px 10px;margin:6px 0;break-inside:avoid}.desc{font-size:12px;color:#555}h4{margin:14px 0 4px}.legend-jalur{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:12px;margin-bottom:10px}</style></head><body><h3>Daftar Anggota Terverifikasi - Bani Ilyas</h3>'+lg.outerHTML.replace(/<button.*?<\/button>/,'')+box.innerHTML.replace(/<div class="legend-jalur".*?<\/div>(?=<h4)/s,'')+'</body></html>');w.document.close();setTimeout(()=>w.print(),400);};
    lg.appendChild(pb);box.appendChild(lg);
+   extra.sort((x,y)=>sortKey(x)<sortKey(y)?-1:sortKey(x)>sortKey(y)?1:0);
    const gens={};extra.forEach(a=>{(gens[a.generasi]=gens[a.generasi]||[]).push(a);});
    Object.keys(gens).sort((x,y)=>x-y).forEach(g=>{
     const t=document.createElement('h4');t.textContent='Generasi '+g+' (BI-'+g+')';box.appendChild(t);
@@ -1865,7 +1880,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
      d.style.cssText='border-left:7px solid '+ci.color+';background:'+ci.color+'1f';
      const s=document.createElement('strong');s.textContent=a.nama;
      const sub=document.createElement('div');sub.className='desc';
-     sub.textContent=(a.jk==='P'?'Putri':'Putra')+(ci.jalur==='ibu'?' dari ibu ':' dari ')+((byId.get(a.ayahId)||{}).nama||'-')+(ci.jalur==='ibu'?' (jalur ibu)':' (jalur ayah)');
+     sub.textContent=(a.jk==='P'?'Putri':'Putra')+(ci.jalur==='ibu'?' dari ibu ':' dari ')+((byId.get(a.ayahId)||{}).nama||'-')+(ci.jalur==='ibu'?' (jalur ibu)':' (jalur ayah)')+(a.anakKe?' · anak ke-'+a.anakKe:'')+(kodeOf(a)?' · kode '+kodeOf(a):'');
      d.appendChild(s);d.appendChild(sub);box.appendChild(d);
     });
    });
@@ -1902,19 +1917,23 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   const extra=[p.ibu?'Ibu: '+p.ibu:'',p.pasangan?'Pasangan: '+p.pasangan:'',p.alamat?'Alamat: '+p.alamat:''].filter(Boolean);
   if(extra.length)k.appendChild(el('div','note',extra.join(' · ')));
   const g=el('div','formgrid');
+  const fk=el('div','field');fk.appendChild(el('label',null,'Anak ke- (boleh dibetulkan Admin)'));
+  const iK=el('input');iK.type='number';iK.min='1';iK.max='60';iK.value=p.anakKe||'';fk.appendChild(iK);
+  if(p.bentrokAnakKe)fk.appendChild(el('small',null,'Perhatian: urutan ini sudah dipakai '+p.bentrokAnakKe+'. Betulkan angkanya atau isi catatan.'));
+  else if(!p.anakKe)fk.appendChild(el('small',null,'Belum diisi pengaju.'));
   const f1=el('div','field');f1.appendChild(el('label',null,'ID ayah di silsilah resmi (diperiksa Admin)'));
   const iA=el('input');iA.maxLength=20;iA.value=p.ayahDisarankan||'';f1.appendChild(iA);
   f1.appendChild(el('small',null,p.ayahDisarankan?'Disarankan sistem: '+(names.get(p.ayahDisarankan)||p.ayahDisarankan):'Belum ada saran. Isi ID ayah setelah memeriksa silsilah.'));
   const f2=el('div','field');f2.appendChild(el('label',null,'Catatan Admin (wajib bila perlu periksa manual atau menolak)'));
   const iC=el('input');iC.maxLength=300;f2.appendChild(iC);
-  g.appendChild(f1);g.appendChild(f2);k.appendChild(g);
+  g.appendChild(fk);g.appendChild(f1);g.appendChild(f2);k.appendChild(g);
   const msg=el('div','note');msg.style.marginTop='8px';
   const row=el('div');row.style.cssText='display:flex;gap:9px;flex-wrap:wrap;margin-top:12px';
   const bS=el('button','primary','Setujui'),bT=el('button','secondary','Tolak');bS.type=bT.type='button';
   async function send(action){
    bS.disabled=bT.disabled=true;
    try{
-    const j=await api({action,token,idPengajuan:p.id,ayahId:iA.value,catatan:iC.value});
+    const j=await api({action,token,idPengajuan:p.id,ayahId:iA.value,catatan:iC.value,anakKe:iK.value});
     msg.style.color='#1f5f4a';msg.textContent=j.pesan;
     setTimeout(()=>{loadAdmin();loadMembers();},1200);
    }catch(e){msg.style.color='#a33';msg.textContent=e.message;bS.disabled=bT.disabled=false;}
