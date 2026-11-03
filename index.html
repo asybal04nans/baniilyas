@@ -583,7 +583,12 @@ main {
  <div class="panel">
   <div class="panelhead"><h3>Formulir Data Anggota Kulawarga</h3><span class="pill">PENGAJUAN DATA</span></div>
   <p class="note">Tempel satu baris nasab dengan format <b>bin/binti</b>, isi nama pengaju dan kontak Anda, lalu kirim. Sistem membaca nama, jenis kelamin, urutan anak, dan rantai nasab sampai KH. R. Muhamad Ilyas, lalu memeriksanya. Nama ibu, nama istri/suami, dan alamat bersifat opsional; alamat hanya dapat dilihat Admin. Data baru masuk silsilah resmi setelah dibenarkan Admin.</p>
-  <div class="field" style="margin:14px 0 6px"><label for="nasabBin">Tempel nasab dengan format &quot;bin&quot; (satu baris)</label><textarea id="nasabBin" rows="3" placeholder="Contoh: R. Nanan Mutoharul Janan bin KH. R. Memed Mahmudin bin KH. R. Muhamad Ilyas (anak ke-2)"></textarea><small>Tulis: Nama <b>bin</b> (putra) atau <b>binti</b> (putri) Ayah <b>bin</b> Kakek ... sampai KH. R. Muhamad Ilyas, lalu urutan anak di akhir: <b>(anak ke-2)</b>. Sistem membaca dan memeriksa otomatis.</small><div id="nasabBinRes" class="note" style="display:none;margin-top:8px;line-height:1.6"></div></div>
+  <div class="field" style="margin:14px 0 6px"><label for="nasabBin">Tempel nasab dengan format &quot;bin&quot; (satu baris)</label>
+   <div class="nasab-baris" style="display:flex;gap:10px;align-items:stretch;flex-wrap:wrap">
+    <textarea id="nasabBin" rows="3" style="flex:1 1 280px;min-width:0" placeholder="Contoh: R. Nanan Mutoharul Janan bin KH. R. Memed Mahmudin bin KH. R. Muhamad Ilyas"></textarea>
+    <div style="flex:0 0 150px;display:flex;flex-direction:column;gap:4px"><label for="nasabAnakKe" style="font-size:12px;font-weight:700;margin:0">Anak ke- (wajib)</label><select id="nasabAnakKe" aria-label="Anak ke berapa"><option value="">Pilih...</option></select><small style="margin:0">Urutan lahir, anak tertua = 1.</small></div>
+   </div>
+   <small>Tulis: Nama <b>bin</b> (putra) atau <b>binti</b> (putri) Ayah <b>bin</b> Kakek ... sampai KH. R. Muhamad Ilyas. Urutan anak dipilih di sebelah kanan. Sistem membaca dan memeriksa otomatis.</small><div id="nasabBinRes" class="note" style="display:none;margin-top:8px;line-height:1.6"></div></div>
   <div class="formgrid">
    <div class="field"><label>Nama lengkap anggota</label><input id="name" placeholder="Nama lengkap anggota keluarga" maxlength="120"></div>
    <div class="field"><label>Jenis kelamin</label><select id="gender"><option value="">Pilih...</option><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
@@ -600,7 +605,7 @@ main {
   </div>
   <div class="note" style="margin-top:16px">
    <b>Pituduh / Cara memasukkan nama:</b>
-   <ol style="line-height:1.8;font-size:14px;padding-left:20px"><li>Tulis satu baris nasab dengan format <b>Nama bin/binti Ayah bin Kakek ... bin KH. R. Muhamad Ilyas (anak ke-N)</b>. Gunakan bentuk <b>R.</b> untuk Raden, misalnya R. Siti Aisyah.</li><li>Tempel di kotak nasab. Sistem langsung membaca nama, jenis kelamin, urutan anak, dan rantai nasab.</li><li>Isi <b>nama pengaju</b> dan kontak. Nama ibu, istri/suami, dan alamat bersifat opsional; alamat hanya dapat dilihat Admin.</li><li>Tekan <b>Kirim Pengajuan</b>. Anda mendapat nomor pengajuan. Sistem memeriksa rantai dan menandai nama yang sudah ada atau belum.</li><li>Admin membenarkan pengajuan. Setelah itu sistem hanya menambahkan nama yang belum ada ke silsilah resmi.</li></ol>
+   <ol style="line-height:1.8;font-size:14px;padding-left:20px"><li>Tulis satu baris nasab dengan format <b>Nama bin/binti Ayah bin Kakek ... bin KH. R. Muhamad Ilyas</b>, lalu pilih <b>Anak ke-</b> di kanan kotak. Gunakan bentuk <b>R.</b> untuk Raden, misalnya R. Siti Aisyah.</li><li>Tempel di kotak nasab. Sistem langsung membaca nama, jenis kelamin, urutan anak, dan rantai nasab.</li><li>Isi <b>nama pengaju</b> dan kontak. Nama ibu, istri/suami, dan alamat bersifat opsional; alamat hanya dapat dilihat Admin.</li><li>Tekan <b>Kirim Pengajuan</b>. Anda mendapat nomor pengajuan. Sistem memeriksa rantai dan menandai nama yang sudah ada atau belum.</li><li>Admin membenarkan pengajuan. Setelah itu sistem hanya menambahkan nama yang belum ada ke silsilah resmi.</li></ol>
    <b>Conto format kode:</b>
    <ul>
     <li><b>BI-0</b> = leluhur utama, KH. R. Muhamad Ilyas.</li>
@@ -1370,7 +1375,7 @@ document.getElementById('makeCode').addEventListener('click',async()=>{
   const wa='Assalamu’alaikum Admin Keluarga Besar Seweu Siwi Bani Ilyas Limbangan. Saya telah mengirim pengajuan data anggota dengan nomor '+(j.idPengajuan||'-')+' atas nama '+data.nama+'. Mohon diperiksa dan diverifikasi.';
   const link=document.createElement('a');link.href='https://wa.me/6282117034277?text='+encodeURIComponent(wa);link.target='_blank';link.rel='noopener';link.className='primary';link.style.display='inline-block';link.style.marginTop='12px';link.textContent='Beri tahu Admin melalui WhatsApp (opsional)';
   out.appendChild(document.createElement('br'));out.appendChild(link);
-  ['name','gender','anakKe','father','chain','submitter','contact','mother','spouse','memberAddress'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  ['name','gender','anakKe','father','chain','submitter','contact','mother','spouse','memberAddress','nasabBin','nasabAnakKe'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});const nbr=document.getElementById('nasabBinRes');if(nbr)nbr.style.display='none';
   if(window.__syncOrtu)window.__syncOrtu();
  }catch(e){warn('Pengajuan belum terkirim: '+e.message);}
  btn.disabled=false;
@@ -2037,15 +2042,16 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
    const gagal=t=>{show(t,false);return {ok:false,pesan:t};};
    let t=String($('nasabBin').value||'').replace(/\s+/g,' ').trim();
    if(!t){if(res)res.style.display='none';return {ok:false,pesan:'Tempel nasab dengan format bin terlebih dahulu.'};}
-   let anak='';const m=t.match(/\(?\s*anak\s*ke[-\s]*(\d{1,2})\s*\)?/i);if(m){anak=m[1];t=t.replace(m[0],' ').replace(/\s+/g,' ').trim();}
+   const selA=$('nasabAnakKe');let anak=selA?selA.value:'';
+   const m=t.match(/\(?\s*anak\s*ke[-\s]*(\d{1,2})\s*\)?/i);if(m){if(!anak){anak=m[1];if(selA)selA.value=m[1];}t=t.replace(m[0],' ').replace(/\s+/g,' ').trim();}
    const p=t.split(/\s+(bin|binti|bnt|bn)\s+/i);
-   if(p.length<3)return gagal('Format belum dikenali. Contoh: Nama bin Ayah bin Kakek bin KH. R. Muhamad Ilyas (anak ke-2).');
+   if(p.length<3)return gagal('Format belum dikenali. Contoh: Nama bin Ayah bin Kakek bin KH. R. Muhamad Ilyas.');
    const nama=rapikanNama(p[0]),jk=/^bin?t|^bnt/i.test(p[1])?'P':'L',rantai=[];
    for(let i=2;i<p.length;i+=2)rantai.push(rapikanNama(p[i].trim().replace(/[.,;]+$/,'')));
    if(!nama||rantai.some(x=>!x))return gagal('Ada nama yang kosong. Periksa penulisan bin/binti.');
    const rootNama=(window.__membersList||[]).find(a=>!a.ayahId);const rn=rootNama?rootNama.nama:'KH. R. Muhamad Ilyas';
    if(nkb(rantai[rantai.length-1])!==nkb(rn))rantai.push(rn);
-   if(!anak)return gagal('Tambahkan urutan anak di akhir baris, misalnya (anak ke-2). Anak tertua = 1.');
+   if(!anak)return gagal('Pilih "Anak ke-" di sebelah kanan kotak nasab (anak tertua = 1).');
    $('name').value=nama;$('gender').value=jk;$('anakKe').value=anak;
    const f=$('father'),mn=$('fatherManual'),c=$('chain');
    const cand=[...opts.entries()].filter(([l,o])=>nkb(o.nama)===nkb(rantai[0]));
@@ -2062,10 +2068,10 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
    if(pick){c.value=pick[1].chain;}
    show('Terbaca: '+nama+' ('+(jk==='P'?'putri':'putra')+', anak ke-'+anak+') · Ayah/ibu: '+rantai[0]+' · Rantai: '+rantai.join(' › ')+'\n'+status,true);
    let rapi=nama;for(let i=1;i<p.length;i+=2){rapi+=' '+(/^bin?t|^bnt/i.test(p[i])?'binti':'bin')+' '+rapikanNama(p[i+1].trim().replace(/[.,;]+$/,''));}
-   rapi+=' (anak ke-'+anak+')';
    return {ok:true,pesan:status,rapi:rapi};
   }
   window.__isiBin=isiBin;
+  (function(){const sel=$('nasabAnakKe');if(!sel)return;for(let i=1;i<=30;i++){const o=document.createElement('option');o.value=String(i);o.textContent='Anak ke-'+i;sel.appendChild(o);}sel.addEventListener('change',()=>{if($('nasabBin').value.trim())isiBin();});})();
   const ganti=(e)=>{const el=e.target;if(!el||!['nasabBin','submitter','mother','spouse'].includes(el.id))return;const v=el.value;if(el.selectionStart!==v.length)return;const n=v.replace(/(^|\s)(rd|raden)\.?(\s)/gi,'$1R.$3');if(n!==v)el.value=n;};
   document.addEventListener('input',ganti);
   document.addEventListener('change',e=>{const el=e.target;if(!el)return;if(el.id==='nasabBin'){const r=isiBin();if(r.ok&&r.rapi)el.value=r.rapi;}else if(['submitter','mother','spouse'].includes(el.id)){el.value=rapikanNama(el.value);}});
@@ -2399,7 +2405,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  (function(){
   const ta=$('nasabBin');if(!ta)return;
   const box=document.createElement('div');box.id='nasabSaran';box.style.cssText='display:none;margin:6px 0;border:1px solid #d8c99f;border-radius:10px;background:#fffdf6;overflow:hidden';
-  ta.insertAdjacentElement('afterend',box);
+  (ta.closest('.nasab-baris')||ta).insertAdjacentElement('afterend',box);
   const nk=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
   const GELAR=new Set(['r','rd','raden','h','hj','kh','k','ky','nyai','ny','alm','almarhum','almarhumah','ibu','bapak']);
   const SEP=/\s+(?:bin|binti|bnt|bn)\s+/gi;
