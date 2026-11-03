@@ -2238,8 +2238,8 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  const rapi=v=>window.rapikanNama?window.rapikanNama(v):String(v||'').trim();
  const money=n=>'Rp'+new Intl.NumberFormat('id-ID').format(Number(n)||0);
  const safeLink=u=>/^https:\/\/[^\s"'<>]+$/i.test(String(u||''))?String(u):'';
- const LABEL={name:'Nama',brand:'Merek',goods:'Barang dijual',founder:'Pendiri',leader:'Pimpinan/pengasuh',relation:'Hubungan',phone:'Telepon/WA',address:'Alamat',web:'Website/medsos',profile:'Profil',owner:'Pemilik',code:'Kode silsilah',product:'Produk',desc:'Keterangan',title:'Judul',author:'Pengarang',category:'Kategori',source:'Sumber/izin',link:'Tautan',description:'Keterangan',date:'Tanggal',time:'Jam',place:'Tempat',amount:'Nominal',purpose:'Peruntukan',note:'Catatan',ref:'Referensi',method:'Metode',proof:'Bukti',room:'Ruang',text:'Isi',key:'Kunci'};
- const JENIS={pesantren:'Pesantren',umkm:'UMKM',buku:'Kitab/Ebook',media:'Foto/Video',kalender:'Agenda kalender',donasi:'Donasi',haul:'Iuran Haul',chat:'Pesan chat',info:'Informasi'};
+ const LABEL={id:'ID orang',namaLama:'Nama sekarang',nama:'Nama baru',ayahNama:'Orang tua',anakKeLama:'Anak ke- sekarang',anakKe:'Anak ke- baru',alasan:'Alasan',catatanSistem:'Catatan sistem',name:'Nama',brand:'Merek',goods:'Barang dijual',founder:'Pendiri',leader:'Pimpinan/pengasuh',relation:'Hubungan',phone:'Telepon/WA',address:'Alamat',web:'Website/medsos',profile:'Profil',owner:'Pemilik',code:'Kode silsilah',product:'Produk',desc:'Keterangan',title:'Judul',author:'Pengarang',category:'Kategori',source:'Sumber/izin',link:'Tautan',description:'Keterangan',date:'Tanggal',time:'Jam',place:'Tempat',amount:'Nominal',purpose:'Peruntukan',note:'Catatan',ref:'Referensi',method:'Metode',proof:'Bukti',room:'Ruang',text:'Isi',key:'Kunci'};
+ const JENIS={revisi:'Revisi nama/urutan anak',pesantren:'Pesantren',umkm:'UMKM',buku:'Kitab/Ebook',media:'Foto/Video',kalender:'Agenda kalender',donasi:'Donasi',haul:'Iuran Haul',chat:'Pesan chat',info:'Informasi'};
  const api=(p)=>window.BaniIlyasApi(p);
  window.__terbit=window.__terbit||{pesantren:[],umkm:[],buku:[],media:[],kalender:[],chat:[],info:{},haul:{terverifikasi:[],menunggu:0,menungguTotal:0}};
  const say=(el,t,ok)=>{if(!el)return;el.classList.remove('hidden');el.textContent=t;el.style.color=ok===false?'#a33':'';};
@@ -2510,11 +2510,27 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 #pohonModal .pk-sp{display:flex;flex-direction:column;gap:4px}
 #pohonModal .pk-spbox{background:#f7efd6;border:1px dashed #b8893b;border-radius:9px;padding:5px 10px;font-size:13px;color:#4a3b17}
 #pohonModal .pk-spbox small{display:block;font-size:10px;color:#8a6d2c;text-transform:uppercase;letter-spacing:.04em}
+#revisiModal{position:fixed;inset:0;background:rgba(20,35,28,.7);z-index:10000;display:none;align-items:center;justify-content:center;padding:14px;overflow:auto}
+#revisiModal.on{display:flex}
+#revisiModal .rv-box{background:#fffdf6;border:2px solid #c9a35a;border-radius:14px;max-width:460px;width:100%;padding:16px 18px;box-shadow:0 20px 50px rgba(0,0,0,.4)}
+#revisiModal h3{margin:0 0 4px;color:#1d4a38;font-size:17px}
+#revisiModal label{display:block;font-size:12px;font-weight:700;color:#4b5949;margin:10px 0 3px}
+#revisiModal input,#revisiModal textarea{width:100%;box-sizing:border-box;border:1px solid #d8cfbb;border-radius:9px;padding:9px 11px;font:inherit;background:#fff}
+#revisiModal .rv-acts{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+#revisiModal .rv-msg{font-size:13px;margin-top:8px;min-height:18px}
 #pohonModal summary{cursor:pointer;list-style:none}#pohonModal summary::-webkit-details-marker{display:none}
 #pohonModal summary .pk-node::before{content:"▾";color:#9b752f}
 #pohonModal details:not([open])>summary .pk-node::before{content:"▸"}
 #pohonModal .pk-n{background:#e6efe4;color:#1f5f4a;border-radius:999px;padding:1px 8px;font-size:11px;font-weight:700}
 </style>
+<div id="revisiModal" role="dialog" aria-modal="true" aria-labelledby="rvJudul"><div class="rv-box"><h3 id="rvJudul">Revisi nama / urutan anak</h3><p class="note" id="rvSub" style="margin:0 0 4px"></p>
+<label for="rvNama">Nama yang benar</label><input id="rvNama" maxlength="120" autocomplete="off">
+<label for="rvAnak">Anak ke- (urutan lahir, 1 = tertua)</label><input id="rvAnak" type="number" min="1" max="60" inputmode="numeric">
+<label for="rvAlasan">Alasan / keterangan (boleh kosong)</label><textarea id="rvAlasan" rows="2" maxlength="300"></textarea>
+<label for="rvPengirim">Nama Anda</label><input id="rvPengirim" maxlength="100" autocomplete="name">
+<label for="rvKontak">WhatsApp (boleh kosong)</label><input id="rvKontak" maxlength="60" inputmode="tel" autocomplete="tel">
+<div class="rv-acts"><button type="button" class="primary" id="rvKirim">Kirim revisi</button><button type="button" class="secondary" id="rvBatal">Tutup</button></div>
+<div class="rv-msg" id="rvMsg" aria-live="polite"></div><p class="note" style="margin-top:6px">Revisi tidak langsung berubah. Admin memeriksa dulu, lalu menyetujui atau menolak.</p></div></div>
 <div id="pohonModal" role="dialog" aria-modal="true" aria-labelledby="pkJudul"><div class="pk-box"><div class="pk-head"><h3 id="pkJudul"></h3><small id="pkSub"></small></div><div class="pk-body"><div class="pk-acts"><button type="button" class="primary" id="pkCetak">Cetak pohon ini</button><button type="button" class="secondary" id="pkBuka">Buka semua</button><button type="button" class="secondary" id="pkTutup">Tutup</button></div><div id="pkIsi"></div></div></div></div>
 <script>
 /* Pohon silsilah per anak KH. R. Muhamad Ilyas */
@@ -2542,6 +2558,9 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   const rb=document.createElement('button');rb.type='button';rb.className='secondary';rb.textContent='Rundayan';rb.title='Buat rundayan atas nama '+a.nama;
   rb.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();tutup();const p=$('printPerson');if(p)p.value=a.nama;if(window.printFamilyTree)window.printFamilyTree();});
   node.appendChild(rb);
+  const rv=document.createElement('button');rv.type='button';rv.className='secondary';rv.textContent='Revisi';rv.title='Usulkan perbaikan nama atau urutan anak '+a.nama;
+  rv.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();bukaRevisi(a,list);});
+  node.appendChild(rv);
   row.appendChild(node);
   const sps=(a.pasangan||[]).filter(Boolean);
   if(sps.length){
@@ -2557,6 +2576,37 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   }else li.appendChild(row);
   return li;
  }
+
+ /* ---------- usulan revisi nama / urutan anak ---------- */
+ const rvM=$('revisiModal');let rvOrang=null;
+ const PKEY='bani_pengirim_v1';
+ const bacaP=()=>{try{return JSON.parse(localStorage.getItem(PKEY)||'{}')||{};}catch(e){return {};}};
+ const rvMsg=(t,ok)=>{const m=$('rvMsg');m.textContent=t;m.style.color=ok===false?'#a33':'#1f5f4a';};
+ function bukaRevisi(a,list){
+  rvOrang=a;
+  const ayah=list.find(x=>x.id===a.ayahId);
+  $('rvSub').textContent=a.nama+(ayah?' · '+(a.jk==='P'?'putri ':a.jk==='L'?'putra ':'putra/putri ')+ayah.nama:'');
+  $('rvNama').value=a.nama;$('rvAnak').value=a.anakKe||'';$('rvAlasan').value='';
+  const p=bacaP();$('rvPengirim').value=p.nama||'';$('rvKontak').value=p.kontak||'';
+  rvMsg('');$('rvKirim').disabled=false;rvM.classList.add('on');setTimeout(()=>{try{$('rvNama').focus();$('rvNama').select();}catch(e){}},50);
+ }
+ function tutupRevisi(){rvM.classList.remove('on');}
+ $('rvBatal').addEventListener('click',tutupRevisi);
+ rvM.addEventListener('click',e=>{if(e.target===rvM)tutupRevisi();});
+ $('rvKirim').addEventListener('click',async()=>{
+  if(!rvOrang)return;
+  const nama=$('rvNama').value.trim(),anak=$('rvAnak').value.trim(),pengirim=$('rvPengirim').value.trim();
+  if(!pengirim){rvMsg('Isi nama Anda terlebih dahulu.',false);return;}
+  if(!nama&&!anak){rvMsg('Isi nama yang benar atau urutan anak.',false);return;}
+  if(anak&&!/^\d{1,2}$/.test(anak)){rvMsg('Urutan anak harus angka 1 sampai 60.',false);return;}
+  $('rvKirim').disabled=true;rvMsg('Mengirim...');
+  try{
+   const r=await window.BaniIlyasApi({action:'kirim',jenis:'revisi',pengirim:window.rapikanNama?window.rapikanNama(pengirim):pengirim,kontak:$('rvKontak').value.trim(),website:'',data:{id:rvOrang.id,nama,anakKe:anak,alasan:$('rvAlasan').value.trim()}});
+   try{localStorage.setItem(PKEY,JSON.stringify({nama:pengirim,kontak:$('rvKontak').value.trim()}));}catch(e){}
+   rvMsg(r.pesan||'Revisi diterima dan menunggu verifikasi admin.');
+  }catch(e){rvMsg('Belum terkirim: '+e.message,false);$('rvKirim').disabled=false;}
+ });
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&rvM.classList.contains('on'))tutupRevisi();});
  function buka(label,wife){
   const list=window.__membersList||[];const root=list.find(a=>!a.ayahId);
   $('pkJudul').textContent='Pohon Silsilah · '+label.replace(/^\d+\.\s*/,'');
@@ -2575,7 +2625,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  function tutup(){modal.classList.remove('on');}
  $('pkTutup').addEventListener('click',tutup);
  modal.addEventListener('click',e=>{if(e.target===modal)tutup();});
- document.addEventListener('keydown',e=>{if(e.key==='Escape')tutup();});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!rvM.classList.contains('on'))tutup();});
  let semua=true;
  $('pkBuka').addEventListener('click',()=>{semua=!semua;modal.querySelectorAll('details').forEach(d=>d.open=semua);$('pkBuka').textContent=semua?'Tutup semua':'Buka semua';});
  $('pkBuka').textContent='Tutup semua';
