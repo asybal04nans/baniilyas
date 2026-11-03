@@ -735,7 +735,7 @@ main {
      <div class="formgrid">
       <div class="field"><label>Nama</label><input id="chatName" maxlength="80" placeholder="Nama lengkap"></div>
       <div class="field" style="display:none"><label>Kode silsilah (wajib untuk pencatatan hak unduh)</label><input id="chatCode" maxlength="40" placeholder="Contoh: BI-2.01.03"></div>
-      <div class="field" style="grid-column:1/-1"><label>Ruang obrolan</label><select id="chatRoom"><option>Obrolan Umum</option><option>Pancakaki & Nasab</option><option>Haul dan Kegiatan Keluarga</option><option>Pesantren dan Pendidikan</option><option>UMKM dan Informasi Usaha</option></select></div>
+      <div class="field" style="grid-column:1/-1;display:none"><label>Ruang obrolan</label><select id="chatRoom"><option>Obrolan Umum</option><option>Pancakaki & Nasab</option><option>Haul dan Kegiatan Keluarga</option><option>Pesantren dan Pendidikan</option><option>UMKM dan Informasi Usaha</option></select></div>
      </div>
      <div class="field" style="margin-top:12px"><label>Pesan Anda</label><textarea id="chatText" maxlength="1000" placeholder="Tulis pesan dengan santun (maksimal 1.000 karakter)..."></textarea><small id="chatCharCount" class="note">0/1.000 karakter</small></div>
      <label class="media-consent"><input id="chatConsent" type="checkbox"><span>Saya bersedia menjaga adab percakapan, tidak menyebarkan fitnah/ujaran kebencian, tidak membagikan data pribadi orang lain tanpa izin, dan menghormati perbedaan pendapat.</span></label>
@@ -2215,7 +2215,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   const l=document.querySelector('#haulName')?.closest('.panel')?.querySelector('.field:nth-child(6) label');if(l)l.textContent='Keterangan bukti transfer / tautan (opsional)';
   const nt=$('haulName')?.closest('.panel')?.querySelector('p.note');if(nt)nt.textContent='Setelah transfer, isi formulir ini. Laporan berstatus Menunggu Verifikasi sampai admin/bendahara memastikan dana diterima.';})();
  // Chat: sembunyikan kontrol admin lokal
- (function(){const a=$('chatAdminLogin');if(a){const c=a.closest('.media-toolbar')||a.parentNode;c.style.display='none';const s=$('chatAdminStatus');if(s)s.style.display='none';}
+ (function(){const fl=$('chatFilter');if(fl)fl.style.display='none';const a=$('chatAdminLogin');if(a){const c=a.closest('.media-toolbar')||a.parentNode;c.style.display='none';const s=$('chatAdminStatus');if(s)s.style.display='none';}
   const ps=document.querySelectorAll('#chat p.note,#chat .media-intro');ps.forEach(p=>{if(/localStorage|perangkat ini|prototipe/i.test(p.textContent))p.textContent='Pesan dikirim ke admin dan tampil setelah diperiksa agar percakapan tetap santun.';});})();
 
  /* ---------- kirim ---------- */
@@ -2261,7 +2261,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  (function(){const b=fresh($('sendChat'));if(!b)return;b.addEventListener('click',()=>{
   const m=$('chatMessage');const text=val('chatText');if(!val('chatName')||!text){say(m,'Isi nama dan pesan terlebih dahulu.',false);return;}
   if(!$('chatConsent').checked){say(m,'Centang pernyataan adab percakapan sebelum mengirim.',false);return;}
-  kirim('chat',val('chatName'),'',{room:val('chatRoom'),code:val('chatCode'),text},m,()=>{clear(['chatText']);$('chatConsent').checked=false;if($('chatCharCount'))$('chatCharCount').textContent='0/1.000 karakter';});});})();
+  kirim('chat',val('chatName'),'',{room:'Obrolan Umum',text},m,()=>{clear(['chatText']);$('chatConsent').checked=false;if($('chatCharCount'))$('chatCharCount').textContent='0/1.000 karakter';});});})();
 
  /* ---------- tampilkan data terbit ---------- */
  const T=()=>window.__terbit;
@@ -2292,9 +2292,8 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   const log=$('haulPublicLog');if(log)log.innerHTML=h.terverifikasi.length?'<div class="haul-table-wrap"><table class="haul-table"><thead><tr><th>Tanggal</th><th>Nama penyetor</th><th>Kode</th><th>Nominal</th><th>Status</th></tr></thead><tbody>'+h.terverifikasi.slice().reverse().map(x=>'<tr><td>'+esc(x.date)+'</td><td>'+esc(x.nama)+'</td><td>'+esc(x.code||'-')+'</td><td>'+money(x.amount)+'</td><td>Terverifikasi</td></tr>').join('')+'</tbody></table></div>'+(h.menunggu?'<p class="note">+ '+h.menunggu+' laporan menunggu verifikasi (belum dihitung).</p>':''):'<div class="media-empty">'+(h.menunggu?h.menunggu+' laporan menunggu verifikasi (belum dihitung).':'Belum ada laporan iuran Haul.')+'</div>';
   const info=T().info,hb=$('haulBankInfo');if(hb&&info['haul-rekening'])hb.innerHTML='<b>Informasi Rekening Iuran Haul</b><br>'+esc(info['haul-rekening']).replace(/\n/g,'<br>');
   const hs=$('hostingBankInfo');if(hs&&info['hosting-rekening'])hs.innerHTML='<b>Rekening Donasi Operasional</b><br>'+esc(info['hosting-rekening']).replace(/\n/g,'<br>');}
- function renderChatT(){const l=$('chatList');if(!l)return;const f=$('chatFilter')?$('chatFilter').value:'Semua';
-  const it=T().chat.filter(x=>f==='Semua'||x.room===f).slice().reverse();
-  l.innerHTML=it.length?it.map(x=>'<article class="chat-msg"><div class="chat-meta"><b>'+esc(x.pengirim)+'</b>'+(x.code?' · '+esc(x.code):'')+' · '+esc(x.room)+' · '+esc(x.waktu)+'</div><p>'+esc(x.text).replace(/\n/g,'<br>')+'</p></article>').join(''):'<div class="media-empty">Belum ada percakapan yang disetujui admin.</div>';}
+ function renderChatT(){const l=$('chatList');if(!l)return;const it=T().chat.slice().reverse();
+  l.innerHTML=it.length?it.map(x=>'<article class="chat-msg"><div class="chat-meta"><b>'+esc(x.pengirim)+'</b>'+' · '+esc(x.waktu)+'</div><p>'+esc(x.text).replace(/\n/g,'<br>')+'</p></article>').join(''):'<div class="media-empty">Belum ada percakapan yang disetujui admin.</div>';}
  function renderSemua(){renderPesantrenT();renderUmkmT();renderBukuT();renderMediaT();renderHaulT();renderChatT();tandaiKalender();}
  let terakhir=0,sedang=false;
  async function muat(paksa){if(sedang)return;if(!paksa&&Date.now()-terakhir<20000){renderSemua();return;}
