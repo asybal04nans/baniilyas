@@ -1283,6 +1283,12 @@ navButtons.forEach(btn=>btn.addEventListener('click',()=>{
  if(btn.dataset.page==='visits' && typeof window.renderPancakakiVisitLog==='function') window.renderPancakakiVisitLog();
  window.scrollTo({top:0,behavior:'smooth'});
 }));
+/* Tautan langsung: ...#tambah membuka formulir pengajuan; #silsilah membuka beranda */
+(function(){
+ const peta={tambah:'add',isi:'add',silsilah:'home',rundayan:'nasab'};
+ const buka=()=>{const k=peta[(location.hash||'').replace('#','').toLowerCase()];if(!k)return;const b=document.querySelector('button[data-page="'+k+'"]');if(b)b.click();};
+ window.addEventListener('hashchange',buka);buka();
+})();
 // Pencarian nama fleksibel: nama panggilan, sebagian nama, bin/binti, dan kode.
 (function(){
  const input=document.getElementById('search'), box=document.getElementById('searchResults'), tree=document.getElementById('tree');
