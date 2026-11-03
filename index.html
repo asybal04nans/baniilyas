@@ -897,16 +897,20 @@ main {
   <h3>Usulkan Data UMKM</h3>
   <div class="formgrid" style="margin-top:14px">
    <div class="field"><label>Nama usaha</label><input id="uName" placeholder="Nama UMKM"></div>
+   <div class="field"><label>Merek / nama produk (opsional)</label><input id="uBrand" placeholder="Merek dagang bila ada"></div>
    <div class="field"><label>Nama pemilik / pengelola</label><input id="uOwner" placeholder="Nama anggota keluarga"></div>
-   <div class="field" style="display:none"><label>Kode silsilah pemilik</label><input id="uCode" placeholder="Contoh BI-2.01.01"></div>
-   <div class="field"><label>Bidang usaha / produk</label><input id="uProduct" placeholder="Kuliner, perdagangan, jasa, dll."></div>
+   <div class="field"><label>Bidang usaha</label><input id="uProduct" placeholder="Kuliner, perdagangan, jasa, dll."></div>
+   <div class="field" style="grid-column:1/-1"><label>Barang / produk yang dijual</label><textarea id="uGoods" rows="3" placeholder="Tulis barang atau jasa yang dijual, dipisah koma atau baris baru. Contoh: keripik singkong, dodol, kopi bubuk"></textarea></div>
    <div class="field"><label>Nomor telepon / WhatsApp usaha</label><input id="uPhone" placeholder="Nomor kontak usaha"></div>
    <div class="field"><label>Alamat usaha</label><input id="uAddress" placeholder="Alamat usaha"></div>
-   <div class="field" style="grid-column:1/-1"><label>Deskripsi usaha</label><input id="uDesc" placeholder="Produk unggulan dan keterangan usaha"></div>
+   <div class="field"><label>Logo usaha (opsional)</label><input id="uLogo" type="file" accept="image/*"><div id="uLogoPrev" class="kr-prev"></div></div>
+   <div class="field"><label>Contoh gambar produk (opsional, maksimal 3)</label><input id="uPics" type="file" accept="image/*" multiple><div id="uPicsPrev" class="kr-prev"></div></div>
+   <div class="field" style="display:none"><label>Kode silsilah pemilik</label><input id="uCode"></div>
+   <div class="field" style="display:none"><input id="uDesc"></div>
   </div>
   <button class="primary" id="saveUmkm" style="margin-top:14px">Ajukan UMKM untuk Verifikasi</button>
   <div id="umkmMsg" class="result hidden"></div>
-  <p class="note">Pengajuan pada prototipe ini tersimpan di browser dan belum menjadi publikasi resmi. Website online nantinya mengirim pengajuan ke admin untuk disetujui.</p>
+  <p class="note">Gambar dikecilkan otomatis. Pengajuan dikirim ke admin dan tampil di daftar setelah disetujui.</p>
  </div>
 </section>
 
@@ -2162,6 +2166,12 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 .kr-no{background:#fff!important;color:#a33!important;border:1px solid #d9a5a5!important}
 .kr-tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;background:#efe6cd;color:#6b4e12;margin-right:6px}
 .kr-tag.ok{background:#dcefe2;color:#1d5a3a}.kr-tag.warn{background:#fbe5d6;color:#8a4414}
+#uGoods{font:inherit;padding:11px;border:1px solid #d9cdae;border-radius:10px;width:100%;box-sizing:border-box}
+.kr-prev{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.kr-prev img{height:56px;width:56px;object-fit:cover;border-radius:8px;border:1px solid #d8c99f}
+.um-card{display:flex;gap:14px;border:1px solid #e0d5b8;border-radius:12px;padding:12px;margin:10px 0;background:#fffdf6}
+.um-logo{width:84px;height:84px;object-fit:cover;border-radius:12px;border:1px solid #d8c99f;background:#f4ecd6;flex:none}
+.um-body{flex:1;min-width:0}.um-body h4{margin:0}.um-brand{font-size:13px;color:#8a5f14;font-weight:700}.um-meta{font-size:12px;color:#6d6652;margin:3px 0}.um-goods{margin:6px 0;font-size:13px;line-height:1.6}.um-goods span{display:inline-block;background:#efe6cd;color:#5e4a16;border-radius:999px;padding:2px 9px;margin:2px 4px 2px 0;font-size:12px}.um-pics{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.um-pics img{height:90px;width:90px;object-fit:cover;border-radius:10px;border:1px solid #d8c99f;cursor:zoom-in}
+#kr-lightbox{position:fixed;inset:0;background:rgba(0,0,0,.82);display:none;align-items:center;justify-content:center;z-index:9999;cursor:zoom-out}#kr-lightbox img{max-width:92vw;max-height:88vh;border-radius:10px}
 .calendar-day.has-event{box-shadow:inset 0 -4px 0 #c99b4b;font-weight:700}
 </style>
 <script>
@@ -2171,7 +2181,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  const rapi=v=>window.rapikanNama?window.rapikanNama(v):String(v||'').trim();
  const money=n=>'Rp'+new Intl.NumberFormat('id-ID').format(Number(n)||0);
  const safeLink=u=>/^https:\/\/[^\s"'<>]+$/i.test(String(u||''))?String(u):'';
- const LABEL={name:'Nama',founder:'Pendiri',leader:'Pimpinan/pengasuh',relation:'Hubungan',phone:'Telepon/WA',address:'Alamat',web:'Website/medsos',profile:'Profil',owner:'Pemilik',code:'Kode silsilah',product:'Produk',desc:'Keterangan',title:'Judul',author:'Pengarang',category:'Kategori',source:'Sumber/izin',link:'Tautan',description:'Keterangan',date:'Tanggal',time:'Jam',place:'Tempat',amount:'Nominal',purpose:'Peruntukan',note:'Catatan',ref:'Referensi',method:'Metode',proof:'Bukti',room:'Ruang',text:'Isi',key:'Kunci'};
+ const LABEL={name:'Nama',brand:'Merek',goods:'Barang dijual',founder:'Pendiri',leader:'Pimpinan/pengasuh',relation:'Hubungan',phone:'Telepon/WA',address:'Alamat',web:'Website/medsos',profile:'Profil',owner:'Pemilik',code:'Kode silsilah',product:'Produk',desc:'Keterangan',title:'Judul',author:'Pengarang',category:'Kategori',source:'Sumber/izin',link:'Tautan',description:'Keterangan',date:'Tanggal',time:'Jam',place:'Tempat',amount:'Nominal',purpose:'Peruntukan',note:'Catatan',ref:'Referensi',method:'Metode',proof:'Bukti',room:'Ruang',text:'Isi',key:'Kunci'};
  const JENIS={pesantren:'Pesantren',umkm:'UMKM',buku:'Kitab/Ebook',media:'Foto/Video',kalender:'Agenda kalender',donasi:'Donasi',haul:'Iuran Haul',chat:'Pesan chat',info:'Informasi'};
  const api=(p)=>window.BaniIlyasApi(p);
  window.__terbit=window.__terbit||{pesantren:[],umkm:[],buku:[],media:[],kalender:[],chat:[],info:{},haul:{terverifikasi:[],menunggu:0,menungguTotal:0}};
@@ -2220,10 +2230,10 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   const ps=document.querySelectorAll('#chat p.note,#chat .media-intro');ps.forEach(p=>{if(/localStorage|perangkat ini|prototipe/i.test(p.textContent))p.textContent='Pesan dikirim ke admin dan tampil setelah diperiksa agar percakapan tetap santun.';});})();
 
  /* ---------- kirim ---------- */
- async function kirim(jenis,pengirim,kontak,data,msgEl,aksiSukses){
+ async function kirim(jenis,pengirim,kontak,data,msgEl,aksiSukses,extra){
   if(!pengirim.trim()){say(msgEl,'Isi nama pengirim terlebih dahulu.',false);return false;}
   say(msgEl,'Mengirim...');
-  try{const r=await api({action:'kirim',jenis,pengirim:rapi(pengirim),kontak,data,website:''});say(msgEl,r.pesan||'Kiriman diterima dan menunggu verifikasi admin.');if(aksiSukses)aksiSukses();return true;}
+  try{const r=await api(Object.assign({action:'kirim',jenis,pengirim:rapi(pengirim),kontak,data,website:''},extra||{}));say(msgEl,r.pesan||'Kiriman diterima dan menunggu verifikasi admin.');if(aksiSukses)aksiSukses();return true;}
   catch(e){say(msgEl,'Kiriman belum terkirim: '+e.message,false);return false;}
  }
  const val=id=>($(id)?$(id).value:'').trim();
@@ -2233,10 +2243,24 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   const x={name:val('pName'),founder:val('pFounder'),leader:val('pLeader'),relation:val('pRelation'),phone:val('pPhone'),address:val('pAddress'),web:val('pWeb'),profile:val('pProfile')};
   const m=$('pesantrenMessage');if(!x.name||!x.address||!x.founder){say(m,'Isi nama pesantren, alamat, dan pendiri terlebih dahulu.',false);return;}
   kirim('pesantren',val('pKirimNama'),val('pKirimWa'),x,m,()=>clear(['pName','pFounder','pLeader','pPhone','pAddress','pWeb','pProfile','pRelation']));});})();
+ const pilihan={logo:'',contoh:[]};
+ function kecilkan(file,maks){return new Promise((ok,gagal)=>{
+  const fr=new FileReader();fr.onerror=()=>gagal(new Error('File gambar tidak dapat dibaca.'));
+  fr.onload=()=>{const im=new Image();im.onerror=()=>gagal(new Error('File bukan gambar yang valid.'));
+   im.onload=()=>{let sisi=maks,q=0.72;
+    for(let i=0;i<8;i++){const sk=Math.min(1,sisi/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*sk));c.height=Math.max(1,Math.round(im.height*sk));
+     const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(im,0,0,c.width,c.height);
+     const u=c.toDataURL('image/jpeg',q);if(u.length<=40000||i===7){return u.length<=44000?ok(u):gagal(new Error('Gambar terlalu rumit untuk dikecilkan. Gunakan gambar lain.'));}
+     q=Math.max(0.4,q-0.08);sisi=Math.round(sisi*0.85);}};
+   im.src=fr.result;};fr.readAsDataURL(file);});}
+ function prev(id,arr){const b=$(id);if(!b)return;b.textContent='';arr.forEach(u=>{const i=document.createElement('img');i.src=u;i.alt='';b.appendChild(i);});}
+ (function(){const lg=$('uLogo'),pc=$('uPics');
+  if(lg)lg.addEventListener('change',async()=>{pilihan.logo='';prev('uLogoPrev',[]);if(!lg.files[0])return;try{pilihan.logo=await kecilkan(lg.files[0],200);prev('uLogoPrev',[pilihan.logo]);}catch(e){say($('umkmMsg'),e.message,false);lg.value='';}});
+  if(pc)pc.addEventListener('change',async()=>{pilihan.contoh=[];prev('uPicsPrev',[]);const fs=[...pc.files].slice(0,3);if(pc.files.length>3)say($('umkmMsg'),'Hanya 3 gambar pertama yang dipakai.');try{for(const f of fs)pilihan.contoh.push(await kecilkan(f,360));prev('uPicsPrev',pilihan.contoh);}catch(e){say($('umkmMsg'),e.message,false);pc.value='';pilihan.contoh=[];}});})();
  (function(){const b=fresh($('saveUmkm'));if(!b)return;b.addEventListener('click',()=>{
-  const x={name:val('uName'),owner:val('uOwner'),code:val('uCode'),product:val('uProduct'),phone:val('uPhone'),address:val('uAddress'),desc:val('uDesc')};
+  const x={name:val('uName'),brand:val('uBrand'),owner:val('uOwner'),product:val('uProduct'),goods:($('uGoods')?$('uGoods').value:'').replace(/\s*\n+\s*/g,', ').trim(),phone:val('uPhone'),address:val('uAddress')};
   const m=$('umkmMsg');if(!x.name||!x.owner){say(m,'Isi nama usaha dan nama pemilik.',false);return;}
-  kirim('umkm',x.owner,x.phone,x,m,()=>clear(['uName','uOwner','uCode','uProduct','uPhone','uAddress','uDesc']));});})();
+  kirim('umkm',x.owner,x.phone,x,m,()=>{clear(['uName','uBrand','uOwner','uProduct','uGoods','uPhone','uAddress','uLogo','uPics']);pilihan.logo='';pilihan.contoh=[];prev('uLogoPrev',[]);prev('uPicsPrev',[]);},{gambar:{logo:pilihan.logo,contoh:pilihan.contoh}});});})();
  (function(){const b=fresh($('submitBook'));if(!b)return;b.addEventListener('click',()=>{
   const x={title:val('bTitle'),link:val('bLink')};
   const m=$('bookMsg');if(!x.title||!x.link){say(m,'Isi judul dan tautan file PDF.',false);return;}
@@ -2268,9 +2292,17 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  const T=()=>window.__terbit;
  function renderPesantrenT(){ if(window.renderPesantren)window.renderPesantren(); }
  window.getPesantren=function(){return T().pesantren;};
+ window.__gambarUmkm=window.__gambarUmkm||{};const ambil={};
+ function barangChip(t){return String(t||'').split(/[,;\n]+/).map(x=>x.trim()).filter(Boolean).map(x=>'<span>'+esc(x)+'</span>').join('');}
  function renderUmkmT(){const el=$('umkmList');if(!el)return;const q=(val('umkmSearch')).toLowerCase();
   const it=T().umkm.filter(x=>Object.values(x).join(' ').toLowerCase().includes(q));
-  el.innerHTML=it.length?it.map(x=>'<div class="pesantren-card"><h4>'+esc(x.name)+'</h4><div class="pesantren-meta">'+esc(x.product)+' · '+esc(x.owner)+' · '+esc(x.code)+'</div><div class="pesantren-detail"><b>Alamat:</b> '+esc(x.address)+'<br><b>Kontak:</b> '+esc(x.phone)+'<br>'+esc(x.desc)+'</div></div>').join(''):'<p class="note">Belum ada UMKM yang disetujui admin.</p>';}
+  el.innerHTML=it.length?it.map(x=>{const g=window.__gambarUmkm[x.id]||{logo:'',contoh:[]};
+   return '<div class="um-card"><img class="um-logo" alt="" '+(g.logo?'src="'+esc(g.logo)+'"':'style="visibility:hidden"')+'><div class="um-body"><h4>'+esc(x.name)+'</h4>'+(x.brand?'<div class="um-brand">Merek: '+esc(x.brand)+'</div>':'')+'<div class="um-meta">'+esc([x.product,'Pemilik: '+x.owner].filter(Boolean).join(' · '))+'</div>'+(x.goods?'<div class="um-goods">'+barangChip(x.goods)+'</div>':'')+(g.contoh.length?'<div class="um-pics">'+g.contoh.map(u=>'<img alt="Contoh produk" src="'+esc(u)+'">').join('')+'</div>':'')+'<div class="um-meta">'+(x.address?'📍 '+esc(x.address)+'<br>':'')+(x.phone?'☎ '+esc(x.phone):'')+'</div></div></div>';}).join(''):'<p class="note">Belum ada UMKM yang disetujui admin.</p>';
+  it.forEach(x=>{if(window.__gambarUmkm[x.id]||ambil[x.id])return;ambil[x.id]=1;
+   api({action:'gambar',id:x.id}).then(r=>{window.__gambarUmkm[x.id]=r.gambar||{logo:'',contoh:[]};renderUmkmT();}).catch(()=>{ambil[x.id]=0;});});}
+ (function(){const lb=document.createElement('div');lb.id='kr-lightbox';lb.innerHTML='<img alt="">';document.body.appendChild(lb);
+  lb.addEventListener('click',()=>{lb.style.display='none';});
+  document.addEventListener('click',e=>{const i=e.target.closest('.um-pics img,.kr-gal img');if(!i)return;lb.firstChild.src=i.src;lb.style.display='flex';});})();
  function renderBukuT(){const el=$('bookList');if(!el)return;const q=(val('bookSearch')).toLowerCase();
   const it=T().buku.filter(x=>Object.values(x).join(' ').toLowerCase().includes(q));
   el.innerHTML=it.length?it.map(x=>'<div class="pesantren-card"><h4>'+esc(x.title)+'</h4><div class="pesantren-meta">Dikirim oleh '+esc(x.pengirim)+'</div>'+(safeLink(x.link)?'<div class="pesantren-actions"><a class="donate-link" target="_blank" rel="noopener noreferrer" href="'+esc(safeLink(x.link))+'">Buka / Unduh</a></div>':'')+'</div>').join(''):'<p class="note">Belum ada koleksi yang disahkan admin.</p>';}
@@ -2371,7 +2403,8 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
    const baris=Object.keys(x.data).filter(k=>x.data[k]!=='').map(k=>{
     const v=x.data[k];const isi=(k==='link'||k==='web')&&safeLink(v)?'<a target="_blank" rel="noopener noreferrer" href="'+esc(safeLink(v))+'">'+esc(v)+'</a>':esc(k==='amount'?money(v):v);
     return '<b>'+esc(LABEL[k]||k)+':</b> '+isi;}).join('<br>');
-   d.innerHTML='<h4>'+esc(JENIS[x.jenis]||x.jenis)+': '+esc(x.jenis==='haul'||x.jenis==='donasi'?money(x.data.amount):x.judul)+'</h4><div class="kr-meta"><span class="kr-tag '+(x.pengirimTerdaftar?'ok':'warn')+'">'+(x.pengirimTerdaftar?'✓ Nama ada di silsilah':'⚠ Nama belum ada di silsilah')+'</span>'+esc(x.pengirim)+(x.kontak?' · '+esc(x.kontak):'')+' · '+esc(x.waktu)+' · '+esc(x.id)+'</div><div class="kr-data">'+baris+'</div>';
+   const gal=x.gambar&&(x.gambar.logo||x.gambar.contoh.length)?'<div class="kr-gal kr-prev">'+[x.gambar.logo].concat(x.gambar.contoh).filter(Boolean).map(u=>'<img alt="" src="'+esc(u)+'">').join('')+'</div>':'';
+   d.innerHTML='<h4>'+esc(JENIS[x.jenis]||x.jenis)+': '+esc(x.jenis==='haul'||x.jenis==='donasi'?money(x.data.amount):x.judul)+'</h4><div class="kr-meta"><span class="kr-tag '+(x.pengirimTerdaftar?'ok':'warn')+'">'+(x.pengirimTerdaftar?'✓ Nama ada di silsilah':'⚠ Nama belum ada di silsilah')+'</span>'+esc(x.pengirim)+(x.kontak?' · '+esc(x.kontak):'')+' · '+esc(x.waktu)+' · '+esc(x.id)+'</div><div class="kr-data">'+baris+'</div>'+gal;
    const a=document.createElement('div');a.className='kr-actions';
    const act=(label,cls,keputusan)=>{const b=document.createElement('button');b.type='button';b.className='secondary '+cls;b.textContent=label;b.addEventListener('click',async()=>{
     if(!terbit||keputusan==='TOLAK'){if(terbit&&!confirm('Tarik kiriman ini dari website?'))return;}
