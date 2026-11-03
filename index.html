@@ -1678,6 +1678,23 @@ document.getElementById('createDonation')?.addEventListener('click',()=>{
   const jc=x=>{const r=window.__infoNama?window.__infoNama(x):null;return r&&r.color?r.color:'';};
   const jst=(x,i)=>{const c=i===0?'':jc(x);return c?` style="border-left:2.2mm solid ${c};background:${c}22"`:'';};
   const nodes=d.rows.map((x,i)=>`<div class="node ${i===0?'root':''} ${i===d.rows.length-1?'target':''}"${jst(x,i)}><span class="num">${i+1}</span><span class="nm">${escPrint(x)}</span></div>${i<d.rows.length-1?'<div class="arrow">↓</div>':''}`).join('');
+  /* Bagan cabang: istri -> anak KH. R. Muhamad Ilyas -> garis sampai yang mengajukan */
+  const nk2=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+  const GEL2=new Set(['r','rd','raden','h','hj','kh','k','ky','nyai','ny','alm','almarhum','almarhumah','ibu','bapak']);
+  const inti2=v=>nk2(v).split(' ').filter(x=>x&&!GEL2.has(x));
+  const mirip2=(a,b)=>{const A=inti2(a),B=inti2(b);if(!A.length||!B.length)return false;return A.every(x=>B.includes(x))||B.every(x=>A.includes(x));};
+  let bagan='';
+  try{
+   const cabang=[...document.querySelectorAll('#tree .branch')].map(b=>({label:(b.querySelector('.person .code')||{}).textContent||'',wife:(b.querySelector('.person b')||{}).textContent||'',kids:[...b.querySelectorAll('.childlist .child strong')].map(x=>x.textContent.trim())}));
+   const anak=d.rows[1];let wi=-1,ki=-1;
+   cabang.forEach((c,i)=>{if(wi>=0)return;const k=c.kids.findIndex(x=>mirip2(x.replace(/^\d+\.\s*/,''),anak));if(k>=0){wi=i;ki=k;}});
+   if(anak&&wi>=0&&cabang.length===2){
+    const rest=d.rows.slice(2);
+    const kolom=cabang.map((c,i)=>`<div class="wife${i===wi?' on':''}" id="wife${i}"><div class="wh">${escPrint(c.label)}</div><div class="wn">${escPrint(c.wife)}</div><div class="kids">${c.kids.map((k,j)=>`<div class="kid${i===wi&&j===ki?' on':''}${i===wi&&j===ki&&!rest.length?' target':''}" id="${i===wi&&j===ki?'kidOn':''}">${escPrint(k)}</div>`).join('')}</div></div>`).join('');
+    const rantai=rest.map((x,i)=>`<div class="node ${i===rest.length-1?'target':''}"${jst(x,i+1)}${i===0?' id="chain0"':''}><span class="num">${i+3}</span><span class="nm">${escPrint(x)}</span></div>${i<rest.length-1?'<div class="arrow">↓</div>':''}`).join('');
+    bagan=`<section class="bagan${rest.length>7?' padat':''}" id="bagan"><svg id="garis" class="garis-svg"></svg><div class="node root" id="akar"><span class="num">1</span><span class="nm">${escPrint(d.rows[0])}</span></div><div class="dua">${kolom}</div>${rest.length?`<div class="rantai">${rantai}</div>`:''}</section>`;
+   }
+  }catch(e){bagan='';}
   const safeTitle=escPrint(d.target);
   const safeCode=d.code?`<div class="code">Kode Silsilah: ${escPrint(d.code)}</div>`:'';
   const source='sumber:Kakancingan Banten, diterbitkan oleh Tim Pancakaki Nasab Bani Ilyas Limbangan';
@@ -1710,6 +1727,22 @@ document.getElementById('createDonation')?.addEventListener('click',()=>{
    .nm{font-size:10.5pt;font-weight:bold;color:#2b4934;line-height:1.2}
    .node.root{background:#1d4b35;border:1.5px solid #b28a42}.node.root .num{background:#d7bc78;color:#3b2d14}.node.root .nm{color:#fff}
    .node.target{background:#f4e9cc;border:2px solid #b28a42}.node.target .num{background:#b28a42;color:white}.node.target .nm{color:#48391e}
+   .bagan{position:relative;width:100%;max-width:166mm;margin:0 auto;display:flex;flex-direction:column;align-items:center;flex:1 1 auto}
+   .bagan .garis-svg{position:absolute;left:0;top:0;width:100%;height:100%;z-index:1;overflow:visible}
+   .bagan .node,.bagan .wife{position:relative;z-index:2}
+   .bagan .node.root{width:92mm;justify-content:center}
+   .dua{display:flex;gap:11mm;width:100%;margin-top:15mm;align-items:flex-start}
+   .wife{flex:1;border:1px solid #d8c9a6;border-radius:2.4mm;background:#fffefa;overflow:hidden}
+   .wife .wh{background:#e9dfc0;color:#6b5321;font:700 7pt Arial,sans-serif;letter-spacing:1px;text-align:center;padding:1.4mm 0}
+   .wife .wn{font:700 11pt Georgia,serif;color:#2b4934;text-align:center;padding:1.6mm 2mm 1.2mm;border-bottom:1px solid #ecdfb9}
+   .wife.on{border:1.6px solid #b28a42;box-shadow:0 0 0 1px #f1e2b0}
+   .wife.on .wh{background:#1d4b35;color:#e8cd82}
+   .kids{padding:1.4mm 2mm 1.8mm;display:flex;flex-direction:column;gap:.9mm}
+   .kid{font:9.8pt Arial,sans-serif;color:#3a4a3d;padding:1.3mm 2.4mm;border-radius:1.4mm;line-height:1.25}
+   .kid.on{background:#f1dfa5;color:#3b2d10;font-weight:700;border:1px solid #b28a42;position:relative}
+   .kid.on.target{background:#1d4b35;color:#fff;border-color:#b28a42}
+   .rantai{width:100%;max-width:134mm;margin:13mm auto 0;display:flex;flex-direction:column;gap:1mm}
+   .bagan.padat .node{min-height:5.8mm;padding:.5mm 3mm}.bagan.padat .arrow{height:1.8mm;line-height:1.8mm}.bagan.padat .rantai{margin-top:6mm}.bagan.padat .kid{padding:.6mm 2.2mm}
    .arrow{text-align:center;height:2.5mm;line-height:2.5mm;color:#9c7838;font:700 11pt Arial,sans-serif}
    .source{font:8pt/1.4 Arial,sans-serif;color:#665537;margin-top:3mm;padding-top:2mm;border-top:1px solid #d9c89d;overflow-wrap:anywhere}
    .footer{text-align:center;margin-top:2mm;color:#937b4d;font:7pt Arial,sans-serif}
@@ -1717,8 +1750,23 @@ document.getElementById('createDonation')?.addEventListener('click',()=>{
    @media print{html,body{background:#fff}.sheet{margin:0;width:215mm;height:329mm;min-height:329mm;overflow:hidden}}
    </style></head><body>
    <main class="sheet"><i class="fr garis"></i><i class="fr paper"></i><i class="fr cn tl"></i><i class="fr cn tr"></i><i class="fr cn bl"></i><i class="fr cn br"></i><div class="ornament">❧ ❖ ❧</div><div class="kicker">Silsilah Keluarga Besar Seweu Siwi Bani Ilyas Limbangan · Limbangan – Garut</div><h1>RUNDAYAN NASAB UTAMA</h1><div class="subtitle">Jalur nasab dari Nabi Muhammad SAW sampai KH. R. Muhamad Ilyas (Mama Odi)</div><div class="poster-wrap"><img class="poster" src="${posterSrc}" alt="Poster rundayan nasab utama dari Nabi Muhammad SAW sampai KH. R. Muhamad Ilyas"></div><div class="poster-caption">Halaman ini memuat jalur nasab utama berdasarkan poster/dokumen keluarga yang tercantum pada website.</div><div class="footer">Sumber mengikuti dokumen Kecancingan Babad Banten milik keluarga; bukan pengesahan independen atas seluruh mata rantai nasab.</div></main>
-   <main class="sheet"><i class="fr garis"></i><i class="fr paper"></i><i class="fr cn tl"></i><i class="fr cn tr"></i><i class="fr cn bl"></i><i class="fr cn br"></i><div class="ornament">❧ ❖ ❧</div><div class="kicker">Sambungan Rundayan Keluarga Bani Ilyas</div><h1>SILSILAH KETURUNAN</h1><div class="subtitle">Lanjutan dari KH. R. Muhamad Ilyas (Mama Odi) sampai anggota keluarga yang bersangkutan</div><div class="recipient">Rundayan atas nama: ${safeTitle}</div>${safeCode}<section class="lineage">${nodes}</section><div class="source"><b>Keterangan:</b> Nama KH. R. Muhamad Ilyas pada awal halaman ini merupakan titik sambung dengan poster nasab utama pada halaman sebelumnya. Urutan nama setelah beliau sampai kepada yang bersangkutan diisi berdasarkan keterangan pemohon dan perlu dicocokkan dengan dokumen keluarga.<br><b>Sumber jalur utama:</b> Kecancingan Babad Banten sebagaimana dicantumkan pada poster nasab keluarga.</div><div class="footer">Dicetak melalui Portal Keluarga Besar Seweu Siwi Bani Ilyas Limbangan · Limbangan, Garut</div><div class="ornament" style="margin-top:2mm">❧ ❖ ❧</div></main>
-   <script>window.addEventListener('load',()=>{setTimeout(()=>window.print(),500)});<\/script></body></html>`;
+   <main class="sheet"><i class="fr garis"></i><i class="fr paper"></i><i class="fr cn tl"></i><i class="fr cn tr"></i><i class="fr cn bl"></i><i class="fr cn br"></i><div class="ornament">❧ ❖ ❧</div><div class="kicker">Sambungan Rundayan Keluarga Bani Ilyas</div><h1>SILSILAH KETURUNAN</h1><div class="subtitle">Lanjutan dari KH. R. Muhamad Ilyas (Mama Odi) sampai anggota keluarga yang bersangkutan</div><div class="recipient">Rundayan atas nama: ${safeTitle}</div>${safeCode}${bagan||('<section class="lineage">'+nodes+'</section>')}<div class="source"><b>Keterangan:</b> Nama KH. R. Muhamad Ilyas pada awal halaman ini merupakan titik sambung dengan poster nasab utama pada halaman sebelumnya. Garis emas menunjukkan jalur dari beliau, melalui istri dan putra/putri beliau, sampai kepada yang bersangkutan.<br><b>Sumber jalur utama:</b> Kecancingan Babad Banten sebagaimana dicantumkan pada poster nasab keluarga.</div><div class="footer">Dicetak melalui Portal Keluarga Besar Seweu Siwi Bani Ilyas Limbangan · Limbangan, Garut</div><div class="ornament" style="margin-top:2mm">❧ ❖ ❧</div></main>
+   <script>
+   function gambarGaris(){
+    var b=document.getElementById('bagan');if(!b)return;var sv=document.getElementById('garis');if(!sv)return;
+    var R=b.getBoundingClientRect();sv.setAttribute('viewBox','0 0 '+R.width+' '+R.height);sv.setAttribute('width',R.width);sv.setAttribute('height',R.height);
+    var P=function(e){var r=e.getBoundingClientRect();return {l:r.left-R.left,r:r.right-R.left,t:r.top-R.top,b:r.bottom-R.top,cx:(r.left+r.right)/2-R.left,cy:(r.top+r.bottom)/2-R.top};};
+    var akar=P(document.getElementById('akar')),w0=document.getElementById('wife0'),w1=document.getElementById('wife1');
+    var s='',tebal=function(d,on){return '<path d=\"'+d+'\" fill=\"none\" stroke=\"'+(on?'#b28a42':'#d6c28f')+'\" stroke-width=\"'+(on?3:1.6)+'\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/>';};
+    var yBar=(akar.b+P(w0).t)/2;
+    [w0,w1].forEach(function(w){var q=P(w),on=w.className.indexOf(' on')>-1;s+=tebal('M'+akar.cx+' '+akar.b+' V'+yBar+' H'+q.cx+' V'+q.t,on);});
+    var kid=document.getElementById('kidOn'),c0=document.getElementById('chain0');
+    if(kid&&c0){var k=P(kid),c=P(c0),kiri=kid.closest('.wife').id==='wife0',x0=kiri?k.r:k.l;
+     var mid=akar.cx;s+='<path d=\"M'+x0+' '+k.cy+' H'+mid+' V'+c.t+'\" fill=\"none\" stroke=\"#b28a42\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><circle cx=\"'+x0+'\" cy=\"'+k.cy+'\" r=\"3.2\" fill=\"#b28a42\"/><path d=\"M'+(mid-5)+' '+(c.t-7)+' L'+mid+' '+(c.t-1)+' L'+(mid+5)+' '+(c.t-7)+'\" fill=\"none\" stroke=\"#b28a42\" stroke-width=\"2.4\" stroke-linecap=\"round\"/>';}
+    sv.innerHTML=s;
+   }
+   window.addEventListener('load',function(){gambarGaris();setTimeout(function(){window.print()},500)});
+   <\/script></body></html>`;
  }
  document.getElementById('previewPersonalNasab')?.addEventListener('click',previewHtml);
  [nameInput,codeInput,chainInput].forEach(el=>el.addEventListener('input',previewHtml));
