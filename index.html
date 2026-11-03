@@ -2850,5 +2850,30 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  inp.parentNode.insertBefore(w,inp);
 })();
 </script>
+<script>
+/* Arsip Foto & Dokumen: tombol unggah ke Google Drive + pengecekan tautan (sama seperti Perpustakaan) */
+(function(){
+ const FOLDER_UNGGAH_MEDIA='';
+ const inp=document.getElementById('mediaLink');if(!inp||!inp.parentNode)return;
+ const url=/^https:\/\/drive\.google\.com\//.test(FOLDER_UNGGAH_MEDIA)?FOLDER_UNGGAH_MEDIA:'https://drive.google.com/drive/my-drive';
+ const w=document.createElement('div');w.style.cssText='margin:0 0 10px;padding:10px 12px;border:1px dashed #c9a35a;border-radius:10px;background:#fffdf6';
+ w.innerHTML='<a id="mUnggah" target="_blank" rel="noopener noreferrer" href="'+url+'" style="display:inline-block;padding:10px 18px;border-radius:10px;text-decoration:none;font-weight:700;color:#fff;background:linear-gradient(#2d5a86,#1d3f63);box-shadow:0 3px 8px rgba(0,0,0,.25)">Unggah foto/video/dokumen (buka Google Drive)</a>'+
+  '<ol class="note" style="margin:8px 0 0;padding-left:18px;line-height:1.6"><li>Klik tombol di atas, lalu unggah foto, video, atau dokumen ke Google Drive'+(FOLDER_UNGGAH_MEDIA?' (folder Arsip Bani Ilyas)':'')+'. Beberapa file sebaiknya dimasukkan ke satu folder.</li><li>Klik kanan file atau folder, pilih <b>Bagikan</b>, ubah menjadi <b>Siapa saja yang memiliki link</b>, lalu <b>Salin link</b>.</li><li>Kembali ke halaman ini dan tempel tautan di kolom di bawah.</li></ol>';
+ inp.parentNode.insertBefore(w,inp);
+ const box=document.createElement('div');box.style.cssText='margin-top:6px;font-size:13px';
+ box.innerHTML='<span id="mLinkInfo" class="note" style="display:block;margin:0 0 6px"></span><a id="mLinkUji" target="_blank" rel="noopener noreferrer" style="display:none;padding:6px 12px;border-radius:9px;text-decoration:none;border:1px solid #c9a35a;color:#1d4a38;font-weight:700;background:#fffdf6">Uji tautan: buka</a>';
+ inp.parentNode.appendChild(box);
+ const info=box.querySelector('#mLinkInfo'),uji=box.querySelector('#mLinkUji');
+ inp.addEventListener('input',()=>{
+  const v=inp.value.trim();uji.style.display='none';
+  if(!v){info.textContent='';return;}
+  if(!/^https:\/\/[^\s"'<>]+$/i.test(v)){info.style.color='#a33';info.textContent='Tautan harus diawali https:// (salin langsung dari Google Drive, YouTube, dll.).';return;}
+  let jenis='tautan';
+  if(/drive\.google\.com/.test(v))jenis='Google Drive';else if(/youtu\.?be/.test(v))jenis='YouTube';else if(/photos\.(app\.)?goo/.test(v))jenis='Google Foto';
+  info.style.color='#1f5f4a';info.textContent='Terbaca: '+jenis+'. Klik tombol uji untuk memastikan dapat dibuka tanpa meminta izin akses.';
+  uji.href=v;uji.style.display='inline-block';
+ });
+})();
+</script>
 </body>
 </html>
