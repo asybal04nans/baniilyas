@@ -2507,6 +2507,12 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 #pohonModal ul.pk li{margin:6px 0;position:relative}
 #pohonModal ul.pk:not(.top)>li::before{content:"";position:absolute;left:-18px;top:14px;width:14px;border-top:2px solid #d8c69b}
 #pohonModal .pk-node{display:inline-flex;flex-wrap:wrap;align-items:center;gap:6px;background:#fff;border:1px solid #d8cfbb;border-radius:9px;padding:6px 10px;font-size:14px}
+#pohonModal .pk-node.d0{background:#f4e9c9;border-color:#c9a35a;font-weight:700}
+#pohonModal .pk-node.d1{background:#dcefe3;border-color:#5fa57d}
+#pohonModal .pk-node.d2{background:#dbe9f7;border-color:#6a9fd0}
+#pohonModal .pk-node.d3{background:#f1e0f2;border-color:#b07ab5}
+#pohonModal .pk-legend{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px;font-size:12px}
+#pohonModal .pk-legend span{border:1px solid;border-radius:999px;padding:2px 10px}
 #pohonModal .pk-node.root{background:#f4e9c9;border-color:#c9a35a;font-weight:700}
 #pohonModal .pk-node small{color:#6b7a66;font-size:11px}
 #pohonModal .pk-node button{font-size:11px;padding:3px 8px;border-radius:7px}
@@ -2573,7 +2579,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  }
  function simpul(list,a,depth){
   const li=document.createElement('li');const kids=anakDari(list,a.id);
-  const node=document.createElement('span');node.className='pk-node';
+  const node=document.createElement('span');node.className='pk-node d'+Math.min(depth,3);
   const row=document.createElement('span');row.className='pk-row';
   const nm=document.createElement('span');nm.textContent=a.nama;node.appendChild(nm);
   const sm=document.createElement('small');sm.textContent=(a.jk==='P'?'putri':a.jk==='L'?'putra':'putra/putri')+(a.anakKe?' · anak ke-'+a.anakKe:'');node.appendChild(sm);
@@ -2681,6 +2687,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   if(!a){$('pkSub').textContent='Putra/putri KH. R. Muhamad Ilyas'+(wife?' dari '+wife:'');isi.innerHTML='<p class="note">Belum ada keturunan beliau yang tercatat di basis data silsilah. Keturunan akan tampil di sini setelah didaftarkan lewat menu <b>Tambah Data Kulawarga</b> dan disetujui Admin.</p>';modal.classList.add('on');return;}
   cur=a;const n=hitung(list,a.id);
   $('pkSub').textContent='Putra/putri KH. R. Muhamad Ilyas'+(wife?' dari '+wife:'')+' · '+(n?n+' keturunan tercatat (anak, cucu, cicit dan seterusnya)':'belum ada keturunan tercatat');
+  const lg=document.createElement('div');lg.className='pk-legend';[['d0','Anak','#f4e9c9','#c9a35a'],['d1','Cucu','#dcefe3','#5fa57d'],['d2','Cicit','#dbe9f7','#6a9fd0'],['d3','Canggah dan seterusnya','#f1e0f2','#b07ab5']].forEach(x=>{const e=document.createElement('span');e.textContent=x[1];e.style.background=x[2];e.style.borderColor=x[3];lg.appendChild(e);});isi.appendChild(lg);
   const ul=document.createElement('ul');ul.className='pk top';ul.appendChild(simpul(list,a,0));
   const first=ul.querySelector('.pk-node');if(first)first.classList.add('root');
   isi.appendChild(ul);
