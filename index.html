@@ -2367,9 +2367,24 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  (function(){const lb=document.createElement('div');lb.id='kr-lightbox';lb.innerHTML='<img alt="">';document.body.appendChild(lb);
   lb.addEventListener('click',()=>{lb.style.display='none';});
   document.addEventListener('click',e=>{const i=e.target.closest('.um-pics img,.kr-gal img');if(!i)return;lb.firstChild.src=i.src;lb.style.display='flex';});})();
+ /* Tautan kitab: dikenali otomatis (Google Drive/Docs, Dropbox, dll.) lalu diarahkan langsung ke file */
+ function arahFile(u){
+  u=safeLink(u);if(!u)return null;
+  let m;
+  if((m=u.match(/drive\.google\.com\/file\/d\/([\w-]+)/))||(m=u.match(/drive\.google\.com\/(?:open|uc)\?(?:[^#]*&)?id=([\w-]+)/)))
+   return {baca:'https://drive.google.com/file/d/'+m[1]+'/view',unduh:'https://drive.google.com/uc?export=download&id='+m[1]};
+  if((m=u.match(/docs\.google\.com\/(document|presentation|spreadsheets)\/d\/([\w-]+)/)))
+   return {baca:'https://docs.google.com/'+m[1]+'/d/'+m[2]+'/preview',unduh:'https://docs.google.com/'+m[1]+'/d/'+m[2]+'/export?format=pdf'};
+  if(/dropbox\.com\//.test(u)){const b=u.replace(/([?&])dl=0/,'$1dl=1');return {baca:u.replace(/([?&])dl=1/,'$1dl=0'),unduh:/[?&]dl=1/.test(b)?b:b+(b.indexOf('?')>=0?'&':'?')+'dl=1'};}
+  if(/\.pdf(\?|#|$)/i.test(u))return {baca:u,unduh:u};
+  return {baca:u,unduh:''};
+ }
+ window.arahFile=arahFile;
  function renderBukuT(){const el=$('bookList');if(!el)return;const q=(val('bookSearch')).toLowerCase();
   const it=T().buku.filter(x=>Object.values(x).join(' ').toLowerCase().includes(q));
-  el.innerHTML=it.length?it.map(x=>'<div class="pesantren-card"><h4>'+esc(x.title)+'</h4><div class="pesantren-meta">Dikirim oleh '+esc(x.pengirim)+'</div>'+(safeLink(x.link)?'<div class="pesantren-actions"><a class="donate-link" target="_blank" rel="noopener noreferrer" href="'+esc(safeLink(x.link))+'">Buka / Unduh</a></div>':'')+'</div>').join(''):'<p class="note">Belum ada koleksi yang disahkan admin.</p>';}
+  el.innerHTML=it.length?it.map(x=>{const f=arahFile(x.link);
+   return '<div class="pesantren-card"><h4>'+esc(x.title)+'</h4><div class="pesantren-meta">'+esc([x.author?'Pengarang: '+x.author:'',x.category,'Dikirim oleh '+x.pengirim].filter(Boolean).join(' · '))+'</div>'+
+   (f?'<div class="pesantren-actions"><a class="donate-link" target="_blank" rel="noopener noreferrer" href="'+esc(f.baca)+'">Baca</a>'+(f.unduh?' <a class="donate-link" target="_blank" rel="noopener noreferrer" href="'+esc(f.unduh)+'">Unduh</a>':'')+'</div>':'')+'</div>';}).join(''):'<p class="note">Belum ada koleksi yang disahkan admin.</p>';}
  function renderMediaT(){const el=$('publishedMediaList');if(!el)return;const it=T().media;
   const c=$('publishedMediaCount');if(c)c.textContent=it.length+' dokumentasi';
   el.innerHTML=it.length?it.map(x=>'<div class="kr-card"><h4>'+esc(x.title)+'</h4><div class="kr-meta">'+esc(x.category)+' · dikirim '+esc(x.pengirim)+'</div>'+(x.description?'<div class="kr-data">'+esc(x.description)+'</div>':'')+(safeLink(x.link)?'<div class="kr-actions"><a class="donate-link" target="_blank" rel="noopener noreferrer" href="'+esc(safeLink(x.link))+'">Lihat foto/video</a></div>':'')+'</div>').join(''):'<div class="media-empty">Belum ada foto atau video yang diterbitkan.</div>';}
