@@ -734,7 +734,7 @@ main {
      <h4 style="margin:0 0 12px;color:#214b35">Tulis Pesan</h4>
      <div class="formgrid">
       <div class="field"><label>Nama</label><input id="chatName" maxlength="80" placeholder="Nama lengkap"></div>
-      <div class="field"><label>Kode silsilah (wajib untuk pencatatan hak unduh)</label><input id="chatCode" maxlength="40" placeholder="Contoh: BI-2.01.03"></div>
+      <div class="field" style="display:none"><label>Kode silsilah (wajib untuk pencatatan hak unduh)</label><input id="chatCode" maxlength="40" placeholder="Contoh: BI-2.01.03"></div>
       <div class="field" style="grid-column:1/-1"><label>Ruang obrolan</label><select id="chatRoom"><option>Obrolan Umum</option><option>Pancakaki & Nasab</option><option>Haul dan Kegiatan Keluarga</option><option>Pesantren dan Pendidikan</option><option>UMKM dan Informasi Usaha</option></select></div>
      </div>
      <div class="field" style="margin-top:12px"><label>Pesan Anda</label><textarea id="chatText" maxlength="1000" placeholder="Tulis pesan dengan santun (maksimal 1.000 karakter)..."></textarea><small id="chatCharCount" class="note">0/1.000 karakter</small></div>
@@ -898,7 +898,7 @@ main {
   <div class="formgrid" style="margin-top:14px">
    <div class="field"><label>Nama usaha</label><input id="uName" placeholder="Nama UMKM"></div>
    <div class="field"><label>Nama pemilik / pengelola</label><input id="uOwner" placeholder="Nama anggota keluarga"></div>
-   <div class="field"><label>Kode silsilah pemilik</label><input id="uCode" placeholder="Contoh BI-2.01.01"></div>
+   <div class="field" style="display:none"><label>Kode silsilah pemilik</label><input id="uCode" placeholder="Contoh BI-2.01.01"></div>
    <div class="field"><label>Bidang usaha / produk</label><input id="uProduct" placeholder="Kuliner, perdagangan, jasa, dll."></div>
    <div class="field"><label>Nomor telepon / WhatsApp usaha</label><input id="uPhone" placeholder="Nomor kontak usaha"></div>
    <div class="field"><label>Alamat usaha</label><input id="uAddress" placeholder="Alamat usaha"></div>
@@ -1005,7 +1005,7 @@ main {
   <p class="note">Setelah melakukan transfer, isi formulir berikut. Laporan akan berstatus <b>Menunggu Verifikasi</b> sampai bendahara memastikan dana benar-benar diterima.</p>
   <div class="haul-grid">
    <div class="field"><label for="haulName">Nama penyetor</label><input id="haulName" placeholder="Nama lengkap"></div>
-   <div class="field"><label for="haulCode">Kode silsilah (wajib untuk pencatatan hak unduh)</label><input id="haulCode" placeholder="Contoh BI-2.01.03"></div>
+   <div class="field" style="display:none"><label for="haulCode">Kode silsilah (wajib untuk pencatatan hak unduh)</label><input id="haulCode" placeholder="Contoh BI-2.01.03"></div>
    <div class="field"><label for="haulAmount">Nominal iuran (Rp)</label><input id="haulAmount" type="number" min="1" step="1000" placeholder="Contoh 100000"></div>
    <div class="field"><label for="haulDate">Tanggal transfer</label><input id="haulDate" type="date"></div>
    <div class="field"><label for="haulMethod">Metode pembayaran</label><select id="haulMethod"><option value="Transfer bank">Transfer bank</option><option value="Setor tunai ke bendahara">Setor tunai ke bendahara</option><option value="QRIS">QRIS</option><option value="Lainnya">Lainnya</option></select></div>
