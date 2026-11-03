@@ -1339,6 +1339,7 @@ document.getElementById('makeCode').addEventListener('click',async()=>{
  btn.disabled=true;warn('Mengirim pengajuan...');
  try{
   const j=await window.BaniIlyasApi(data);
+  if(j.duplikat){out.classList.remove('hidden');out.textContent='ℹ '+j.pesan;btn.disabled=false;return;}
   document.getElementById('generatedMemberCode').value=j.idPengajuan||'';
   out.classList.remove('hidden');
   out.innerHTML='<b>Pengajuan diterima</b><br>Nama: '+escapeHtml(data.nama)+'<br>Bin/Binti: '+escapeHtml(data.namaAyah)+(data.ibu?'<br>Nama ibu: '+escapeHtml(data.ibu):'')+(data.pasangan?'<br>Pasangan: '+escapeHtml(data.pasangan):'')+'<br>Nomor pengajuan: <b>'+escapeHtml(j.idPengajuan||'-')+'</b><br><br><b>Status: Menunggu pemeriksaan Admin.</b> Data belum masuk silsilah resmi. Admin akan memeriksa rantai ayah-anak sampai KH. R. Muhamad Ilyas sebelum menyetujui.';
@@ -2019,40 +2020,46 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  }
  function card(p,names){
   const k=el('div','panel');
+  const dup=p.hasil==='DUPLIKAT',ok=p.hasil==='SESUAI';
   const head=el('div');head.appendChild(el('b',null,p.nama+' ('+p.jk+') '));
-  const ok=p.hasil==='SESUAI';
-  const badge=el('span','pill',ok?'RANTAI COCOK':'PERLU PERIKSA MANUAL');if(!ok)badge.style.background='#fff0cc';
+  const badge=el('span','pill',dup?'NAMA SUDAH TERCANTUM':(ok?'SIAP DIVERIFIKASI':'TIDAK BISA DIPROSES OTOMATIS'));
+  if(dup)badge.style.background='#fde0e0';else if(!ok)badge.style.background='#fff0cc';
   head.appendChild(badge);k.appendChild(head);
   k.appendChild(el('div','note',p.id+' · '+p.waktu+' · pengaju: '+p.pengaju+(p.kontak?' ('+p.kontak+')':'')));
-  k.appendChild(el('p',null,'Ayah yang diisi: '+p.namaAyah));
-  k.appendChild(el('div','note','Rantai: '+p.rantai));
-  k.appendChild(el('div','note','Hasil pencocokan sistem: '+p.alasan));
+  k.appendChild(el('p',null,'Ayah/ibu yang diisi: '+p.namaAyah+(p.anakKe?' · anak ke-'+p.anakKe:'')));
+  k.appendChild(el('div','note','Rantai nasab: '+p.rantai));
   const extra=[p.ibu?'Ibu: '+p.ibu:'',p.pasangan?'Pasangan: '+p.pasangan:'',p.alamat?'Alamat: '+p.alamat:''].filter(Boolean);
   if(extra.length)k.appendChild(el('div','note',extra.join(' · ')));
-  const g=el('div','formgrid');
-  const fk=el('div','field');fk.appendChild(el('label',null,'Anak ke- (boleh dibetulkan Admin)'));
-  const iK=el('input');iK.type='number';iK.min='1';iK.max='60';iK.value=p.anakKe||'';fk.appendChild(iK);
-  if(p.bentrokAnakKe)fk.appendChild(el('small',null,'Perhatian: urutan ini sudah dipakai '+p.bentrokAnakKe+'. Betulkan angkanya atau isi catatan.'));
-  else if(!p.anakKe)fk.appendChild(el('small',null,'Belum diisi pengaju.'));
-  const f1=el('div','field');f1.appendChild(el('label',null,'ID ayah di silsilah resmi (diperiksa Admin)'));
-  const iA=el('input');iA.maxLength=20;iA.value=p.ayahDisarankan||'';f1.appendChild(iA);
-  f1.appendChild(el('small',null,p.ayahDisarankan?'Disarankan sistem: '+(names.get(p.ayahDisarankan)||p.ayahDisarankan):'Belum ada saran. Isi ID ayah setelah memeriksa silsilah.'));
-  const f2=el('div','field');f2.appendChild(el('label',null,'Catatan Admin (wajib bila perlu periksa manual atau menolak)'));
-  const iC=el('input');iC.maxLength=300;f2.appendChild(iC);
-  g.appendChild(fk);g.appendChild(f1);g.appendChild(f2);k.appendChild(g);
+  const rc=el('div','note');rc.style.cssText='margin-top:10px;line-height:1.7';
+  if(dup){
+   rc.appendChild(el('div',null,'⚠ Nama ini sudah tercantum dalam daftar silsilah ('+(p.duplikat?p.duplikat.id:'')+'). Tidak ada yang perlu ditambahkan.'));
+  }else if(!ok){
+   rc.appendChild(el('div',null,'⚠ '+p.alasan));
+  }else{
+   rc.appendChild(el('b',null,'Rencana penambahan oleh sistem:'));
+   (p.langkah||[]).forEach(st=>{
+    const t=st.status==='BARU'?'➕ Ditambahkan: '+st.nama+' (anak dari '+st.dari+')':'✓ Sudah ada: '+(st.tercatat||st.nama)+(st.status==='MIRIP'?' (dianggap sama dengan "'+st.nama+'")':'');
+    rc.appendChild(el('div',null,t));
+   });
+   const par=(p.langkah&&p.langkah.length)?p.langkah[p.langkah.length-1]:null;
+   rc.appendChild(el('div',null,'➕ Ditambahkan: '+p.nama+(par?' (anak dari '+(par.tercatat||par.nama)+')':'')));
+   if(p.peringatan)rc.appendChild(el('div',null,'⚠ '+p.peringatan));
+  }
+  k.appendChild(rc);
   const msg=el('div','note');msg.style.marginTop='8px';
   const row=el('div');row.style.cssText='display:flex;gap:9px;flex-wrap:wrap;margin-top:12px';
-  const bS=el('button','primary','Setujui'),bT=el('button','secondary','Tolak');bS.type=bT.type='button';
+  const bS=el('button','primary',dup?'Tutup (sudah tercantum)':'✓ Benar'),bT=el('button','secondary','✗ Salah');bS.type=bT.type='button';
+  if(!ok&&!dup)bS.disabled=true;
   async function send(action){
    bS.disabled=bT.disabled=true;
    try{
-    const j=await api({action,token,idPengajuan:p.id,ayahId:iA.value,catatan:iC.value,anakKe:iK.value});
+    const j=await api({action,token,idPengajuan:p.id});
     msg.style.color='#1f5f4a';msg.textContent=j.pesan;
-    setTimeout(()=>{loadAdmin();loadMembers();},1200);
-   }catch(e){msg.style.color='#a33';msg.textContent=e.message;bS.disabled=bT.disabled=false;}
+    setTimeout(()=>{loadAdmin();loadMembers();},1500);
+   }catch(e){msg.style.color='#a33';msg.textContent=e.message;bS.disabled=(!ok&&!dup);bT.disabled=false;}
   }
-  bS.onclick=()=>{if(confirm('Setujui dan masukkan ke silsilah resmi?'))send('adminApprove');};
-  bT.onclick=()=>{if(confirm('Tolak pengajuan ini?'))send('adminReject');};
+  bS.onclick=()=>{if(dup){send('adminApprove');}else if(confirm('Data ini benar? Sistem akan menambahkan yang belum ada ke silsilah resmi.'))send('adminApprove');};
+  bT.onclick=()=>{if(confirm('Tandai data ini salah dan tolak pengajuan?'))send('adminReject');};
   row.appendChild(bS);row.appendChild(bT);k.appendChild(row);k.appendChild(msg);
   return k;
  }
