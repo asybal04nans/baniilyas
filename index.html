@@ -876,7 +876,6 @@ main {
    <div class="field"><label>Nama pendiri</label><input id="pFounder" placeholder="Nama pendiri pesantren"></div>
    <div class="field"><label>Nama pimpinan / pengasuh saat ini</label><input id="pLeader" placeholder="Nama pimpinan atau pengasuh"></div>
    <div class="field"><label>Generasi / hubungan keluarga</label><select id="pRelation"><option value="">Pilih hubungan</option><option>Anak</option><option>Incu</option><option>Buyut</option><option>Cicit</option><option>Canggah</option><option>Menantu</option><option>Keturunan lainnya</option></select></div>
-   <div class="field"><label>Hubungan dengan KH. R. Muhamad Ilyas</label><input id="pLink" placeholder="Contoh: cicit melalui BI-1.02.01"></div>
    <div class="field"><label>Nomor telepon / WhatsApp pesantren</label><input id="pPhone" placeholder="Nomor resmi pesantren"></div>
    <div class="field" style="grid-column:1/-1"><label>Alamat lengkap pesantren</label><input id="pAddress" placeholder="Kampung, desa, kecamatan, kabupaten, provinsi"></div>
    <div class="field" style="grid-column:1/-1"><label>Website / media sosial (opsional)</label><input id="pWeb" placeholder="Alamat website atau akun resmi"></div>
@@ -1472,7 +1471,6 @@ function renderPesantren(){
    <b>Telepon/WhatsApp:</b> ${safePesantren(x.phone)}<br>
    <b>Pendiri:</b> ${safePesantren(x.founder)}<br>
    <b>Pimpinan/pengasuh:</b> ${safePesantren(x.leader)}<br>
-   <b>Hubungan dengan KH. R. Muhamad Ilyas:</b> ${safePesantren(x.link)}<br>
    <b>Profil:</b> ${safePesantren(x.profile)}<br>
    ${x.web?'<b>Website/media sosial:</b> '+safePesantren(x.web):''}
   </div></article>`).join('');
@@ -1482,12 +1480,12 @@ function renderPesantren(){
 }
 document.getElementById('pesantrenSearch')?.addEventListener('input',renderPesantren);
 document.getElementById('savePesantren')?.addEventListener('click',()=>{
- const x={name:pName.value.trim(),founder:pFounder.value.trim(),leader:pLeader.value.trim(),relation:pRelation.value,link:pLink.value.trim(),phone:pPhone.value.trim(),address:pAddress.value.trim(),web:pWeb.value.trim(),profile:pProfile.value.trim()};
+ const x={name:pName.value.trim(),founder:pFounder.value.trim(),leader:pLeader.value.trim(),relation:pRelation.value,phone:pPhone.value.trim(),address:pAddress.value.trim(),web:pWeb.value.trim(),profile:pProfile.value.trim()};
  const msg=document.getElementById('pesantrenMessage');
- if(!x.name||!x.address||!x.founder||!x.link){msg.classList.remove('hidden');msg.textContent='Eusi heula ngaran pesantren, alamat, pendiri, sareng hubungan kulawarga.';return;}
+ if(!x.name||!x.address||!x.founder){msg.classList.remove('hidden');msg.textContent='Eusi heula ngaran pesantren, alamat, sareng pendiri.';return;}
  const items=getPesantren();items.push(x);localStorage.setItem(pesantrenKey,JSON.stringify(items));
  msg.classList.remove('hidden');msg.textContent='Data pesantren disimpen dina browser ieu. Data can otomatis diterbitkeun atawa disahkeun.';
- ['pName','pFounder','pLeader','pLink','pPhone','pAddress','pWeb','pProfile'].forEach(id=>document.getElementById(id).value='');pRelation.value='';
+ ['pName','pFounder','pLeader','pPhone','pAddress','pWeb','pProfile'].forEach(id=>document.getElementById(id).value='');pRelation.value='';
  renderPesantren();
 });
 </script>
