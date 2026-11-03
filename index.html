@@ -1286,11 +1286,12 @@ navButtons.forEach(btn=>btn.addEventListener('click',()=>{
  const input=document.getElementById('search'), box=document.getElementById('searchResults'), tree=document.getElementById('tree');
  if(!input||!box||!tree)return;
  const norm=v=>String(v||'').toLocaleLowerCase('id').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
- function labelOf(el){const node=el.matches('details.child')?el.querySelector(':scope > summary'):el;return (node?.innerText||el.innerText||'').replace(/\s+/g,' ').trim();}
+ function bersih(n){if(!n)return '';const c=n.cloneNode(true);c.querySelectorAll('.code,.multi-family,button,.pill').forEach(x=>x.remove());return (c.textContent||'').replace(/\s+/g,' ').trim();}
+ function labelOf(el){const node=el.matches('details.child')?el.querySelector(':scope > summary'):el;return bersih(node||el);}
  function lineageOf(el){
   const parts=['KH. R. Muhamad Ilyas'];
   let p=el.parentElement, chain=[];
-  while(p&&p!==tree){if(p.matches('details.child')){const sm=p.querySelector(':scope > summary');if(sm)chain.unshift(sm.innerText.replace(/\s+/g,' ').trim());}p=p.parentElement;}
+  while(p&&p!==tree){if(p.matches('details.child')){const sm=p.querySelector(':scope > summary');if(sm)chain.unshift(bersih(sm));}p=p.parentElement;}
   parts.push(...chain);
   const own=labelOf(el);if(own&&!norm(own).includes('kh r muhamad ilyas'))parts.push(own);
   return parts.filter(Boolean).join('  ›  ');
