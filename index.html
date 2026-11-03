@@ -703,11 +703,7 @@ main {
     <div id="rundayanPwSteps" style="display:grid;gap:10px"></div>
     <div id="rundayanPwStatus" style="margin-top:10px;font-weight:700"></div>
    </div>
-   <div class="nasab-donation-condition" role="note" aria-label="Syarat donasi sebelum mencetak">
-    <strong>Ketentuan unduh Rundayan Nasab Pribadi</strong><br>
-    Setiap anggota keluarga memperoleh <strong>satu kesempatan unduh gratis</strong> untuk rundayan nasab pribadinya. Setelah kesempatan tersebut digunakan, permohonan unduh ulang memerlukan donasi operasional yang <strong>sukarela, tanpa nominal minimum atau tarif tetap, sesuai kemampuan</strong>, serta menghubungi Admin untuk verifikasi dan persetujuan. Donasi membantu biaya hosting/server, pencadangan dan keamanan data, perbaikan gangguan, pembaruan fitur, serta pemeliharaan website; bukan biaya pembelian data nasab. Informasi rekening donasi belum diumumkan; silakan menunggu pengumuman resmi dari Admin. <strong>Superadmin dapat mengunduh tanpa batas untuk kebutuhan pengelolaan website.</strong>
-    <label class="nasab-donation-confirm"><input type="checkbox" id="confirmNasabDonation"> Khusus permohonan unduh ulang: saya menyatakan telah menyalurkan donasi sukarela sesuai kemampuan dan akan menghubungi Admin untuk verifikasi.</label>
-   </div>
+   <div class="note" style="margin-top:14px"><strong>Unduhan rundayan gratis</strong> dan dapat dilakukan berkali-kali, tanpa donasi.</div>
    <div class="nasab-personal-actions">
     <button type="button" class="primary" id="previewPersonalNasab" style="display:none">Tampilkan Pratinjau</button>
     <button type="button" class="primary" id="printPersonalNasab" disabled>Unduh / Cetak Rundayan (PDF)</button>
@@ -970,7 +966,7 @@ main {
  </div>
  <div class="hosting-donation-card" role="region" aria-label="Rekening donasi operasional hosting website">
   <h3>Donasi Operasional Hosting Website</h3>
-  <p class="hosting-purpose">Donasi operasional website merupakan partisipasi sukarela keluarga untuk membantu biaya <strong>hosting/server</strong> (agar website dan data dapat diakses secara daring), perpanjangan domain bila diperlukan, pencadangan data, keamanan, perbaikan gangguan, pembaruan fitur, serta pemeliharaan teknis website Keluarga Besar Seweu Siwi Bani Ilyas Limbangan. Donasi <strong>tidak memiliki nominal minimum atau tarif tetap</strong>; keluarga dapat berdonasi sesuai kemampuan. Donasi bukan biaya pembelian data nasab. Setiap anggota memperoleh satu kali unduhan gratis untuk Rundayan Nasab pribadi dan satu kali unduhan gratis untuk Kartu Bani Ilyas. Jika kesempatan unduh masing-masing sudah digunakan, permohonan unduh ulang dilakukan dengan donasi sukarela dan menghubungi Admin untuk verifikasi serta persetujuan. <strong>Superadmin dikecualikan dari batas unduhan dan dapat mengunduh berulang kali untuk keperluan pengelolaan website.</strong></p>
+  <p class="hosting-purpose">Donasi operasional website merupakan partisipasi sukarela keluarga untuk membantu biaya <strong>hosting/server</strong> (agar website dan data dapat diakses secara daring), perpanjangan domain bila diperlukan, pencadangan data, keamanan, perbaikan gangguan, pembaruan fitur, serta pemeliharaan teknis website Keluarga Besar Seweu Siwi Bani Ilyas Limbangan. Donasi <strong>tidak memiliki nominal minimum atau tarif tetap</strong>; keluarga dapat berdonasi sesuai kemampuan. Donasi bukan biaya pembelian data nasab. Unduhan Rundayan Nasab pribadi gratis dan dapat dilakukan berkali-kali. Setiap anggota memperoleh satu kali unduhan gratis untuk Kartu Bani Ilyas; bila kesempatan itu sudah digunakan, permohonan unduh ulang dilakukan dengan donasi sukarela dan menghubungi Admin untuk verifikasi serta persetujuan. <strong>Superadmin dikecualikan dari batas unduhan dan dapat mengunduh berulang kali untuk keperluan pengelolaan website.</strong></p>
   <div class="note" id="hostingBankInfo">Informasi rekening donasi belum diumumkan. Silakan menunggu pengumuman resmi dari Admin.</div>
  </div>
  <div class="panel">
@@ -1627,14 +1623,8 @@ document.getElementById('createDonation')?.addEventListener('click',()=>{
  function updateNasabGate(){
   if(!printButton)return;
   const code=codeInput?.value.trim()||'';
-  const used=code && window.PancakakiDownloadGate.used('nasab',code);
-  if(used){
-   printButton.textContent='Ajukan Unduh Ulang kepada Admin';
-   printButton.disabled=!donationConfirm?.checked||!window.__rundayanOk;
-  }else{
-   printButton.textContent=window.PancakakiDownloadGate.isSuperAdmin()?'Unduh Rundayan (Superadmin · Tanpa Batas)':'Unduh Rundayan Gratis (1 Kali)';
-   printButton.disabled=!code||!window.__rundayanOk;
-  }
+  printButton.textContent='Unduh / Cetak Rundayan (PDF)';
+  printButton.disabled=!code||!window.__rundayanOk;
  }
  if(printButton&&donationConfirm){donationConfirm.addEventListener('change',updateNasabGate);}
  codeInput?.addEventListener('input',updateNasabGate); updateNasabGate();
@@ -1706,17 +1696,9 @@ document.getElementById('createDonation')?.addEventListener('click',()=>{
   const d=getRows();
   if(!window.__rundayanOk){alert('Kata sandi nasab belum benar. Pilih nama ayah/ibu sampai KH. R. Muhamad Ilyas dengan benar.');return;}
   if(!d.code){alert('Kode silsilah wajib diisi agar hak unduh dapat dicatat per anggota.');codeInput?.focus();return;}
-  const isSuperAdmin=window.PancakakiDownloadGate.isSuperAdmin();
-  const used=window.PancakakiDownloadGate.used('nasab',d.code);
-  if(used && !isSuperAdmin){
-   if(!donationConfirm?.checked){alert('Kesempatan unduh gratis untuk kode ini sudah digunakan. Untuk unduh ulang, salurkan donasi sukarela sesuai kemampuan, centang konfirmasi, lalu hubungi Admin.');return;}
-   window.PancakakiDownloadGate.admin('Assalamu’alaikum Admin Keluarga Besar Seweu Siwi Bani Ilyas Limbangan. Saya mengajukan persetujuan unduh ulang Rundayan Nasab.\nNama: '+d.target+'\nKode silsilah: '+d.code+'\nSaya telah menyalurkan donasi sukarela dan siap mengirimkan bukti. Mohon verifikasi dan petunjuk unduh ulang.');
-   alert('Permohonan unduh ulang dikirim ke Admin. Unduhan akan dibuka setelah Admin melakukan verifikasi.');return;
-  }
   const html=makePrintHtml();if(!html)return;
   const w=window.open('','_blank');
   if(!w){alert('Jendela cetak diblokir oleh browser. Izinkan pop-up untuk website ini, kemudian coba kembali.');return;}
-  if(!isSuperAdmin) window.PancakakiDownloadGate.mark('nasab',d.code);
   w.document.open();w.document.write(html);w.document.close();
   updateNasabGate();
  });
