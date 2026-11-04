@@ -3430,5 +3430,41 @@ let dobelMode=true;
 .kr-prev-besar img{height:84px!important;width:84px!important;cursor:zoom-in}
 .pesantren-foto{margin-top:8px}.pesantren-foto .pf-judul{font-size:12px;font-weight:700;color:#7a5f1f;margin:8px 0 2px}
 </style>
+<style>
+nav button[data-page="verifikasi"]{position:relative}
+nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right:-7px;min-width:20px;height:20px;padding:0 5px;box-sizing:border-box;border-radius:10px;background:#e0262f;color:#fff;font-size:11px;font-weight:800;line-height:20px;text-align:center;border:2px solid #fff;box-shadow:0 2px 6px #0006;animation:titikDenyut 1.6s infinite}
+@keyframes titikDenyut{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+</style>
+<script>
+(function(){
+ const KUNCI='bani_admin_pantau',tombol=document.querySelector('nav button[data-page="verifikasi"]');
+ if(!tombol)return;
+ let titik=null;
+ function tampil(n){
+  if(!n){if(titik){titik.remove();titik=null;}tombol.removeAttribute('title');return;}
+  if(!titik){titik=document.createElement('span');titik.className='titik-merah';titik.setAttribute('aria-hidden','true');tombol.appendChild(titik);}
+  titik.textContent=n>99?'99+':String(n);tombol.title=n+' kiriman menunggu verifikasi';
+ }
+ async function cek(tok){
+  if(!tok||!window.BaniIlyasApi)return;
+  try{
+   const a=await window.BaniIlyasApi({action:'adminList',token:tok});
+   const b=await window.BaniIlyasApi({action:'kirimanList',token:tok});
+   const n=(a.pengajuan||[]).length+(b.kiriman||[]).filter(x=>x.status==='MENUNGGU'&&x.jenis!=='chat').length;
+   try{sessionStorage.setItem(KUNCI,tok);}catch(e){}
+   tampil(n);
+  }catch(e){try{sessionStorage.removeItem(KUNCI);}catch(er){}tampil(0);}
+ }
+ function ulang(){let t='';try{t=sessionStorage.getItem(KUNCI)||'';}catch(e){}const f=document.getElementById('adminToken');if(f&&f.value)t=f.value;cek(t);}
+ /* setelah admin memuat / menyetujui / menolak: hitung ulang */
+ document.addEventListener('click',function(e){
+  const b=e.target.closest&&e.target.closest('#adminLoad,#krMuat,#adminList button,#krMenunggu button,#krTerbit button');
+  if(b)setTimeout(ulang,b.id==='adminLoad'||b.id==='krMuat'?1800:2600);
+ });
+ setTimeout(ulang,2500);
+ setInterval(function(){if(!document.hidden)ulang();},120000);
+ document.addEventListener('visibilitychange',function(){if(!document.hidden)ulang();});
+})();
+</script>
 </body>
 </html>
