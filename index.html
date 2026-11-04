@@ -3158,6 +3158,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 <label for="klCatatan">Keterangan admin (boleh kosong)</label><input id="klCatatan" maxlength="200" autocomplete="off">
 <label style="display:flex;gap:8px;align-items:center;font-weight:600"><input type="checkbox" id="klPaksa" style="width:auto"> Tetap simpan walau ada saudara bernama mirip</label>
 <div class="kl-sub" id="klAnakBox" hidden><b id="klAnakJudul"></b><div id="klAnakDaftar" style="margin-top:6px;font-size:13px;max-height:170px;overflow:auto"></div>
+<div id="klIbuSemuaBox" hidden style="margin-top:10px;padding:8px 10px;background:#f4e9c9;border-radius:8px"><label for="klIbuSemua" style="margin:0 0 4px">Anak yang ibunya belum dicatat, jadikan anak dari:</label><select id="klIbuSemua" style="width:100%;box-sizing:border-box;border:1px solid #d8cfbb;border-radius:9px;padding:9px 11px;font:inherit;background:#fff"></select><div class="kl-acts" style="margin-top:8px"><button type="button" class="secondary" id="klIbuSemuaYa">Terapkan ke semua yang belum dicatat</button></div></div>
 <label for="klAnakKe2" style="margin-top:10px">Pindahkan SEMUA anak di atas ke orang tua lain:</label><input id="klAnakKe2" list="klDaftar" autocomplete="off" placeholder="Ketik nama orang tua tujuan, lalu pilih dari daftar"><div class="kl-acts" style="margin-top:8px"><button type="button" class="secondary" id="klAnakPindah">Pindahkan semua anak</button></div></div>
 <div class="kl-acts"><button type="button" class="primary" id="klSimpan">Simpan</button><button type="button" class="secondary" id="klHapusBtn">Hapus</button><button type="button" class="secondary" id="klGabungBtn">Gabungkan dengan...</button><button type="button" class="secondary" id="klTutup">Tutup</button></div>
 <div class="kl-sub" id="klHapusBox" hidden><b>Hapus orang ini</b><div class="note" id="klHapusInfo"></div>
@@ -3254,6 +3255,9 @@ let dobelMode=true;
   const sp=(cur.pasangan||[]).filter(Boolean);
   $('klAnakDaftar').innerHTML=k.map(x=>{const op=['<option value="">(ibu belum dicatat)</option>'].concat(sp.concat(x.ibu&&!sp.some(n=>nk(n)===nk(x.ibu))?[x.ibu]:[]).map(n=>'<option'+(nk(n)===nk(x.ibu)?' selected':'')+'>'+esc(n)+'</option>')).join('');
    return '<div style="padding:4px 0;border-bottom:1px solid #eee3c8"><div style="display:flex;justify-content:space-between;gap:8px"><span>'+(x.anakKe?x.anakKe+'. ':'')+esc(x.nama)+(x.sambung?' <small>(sambung)</small>':'')+(x.jumlahAnak?' <small>('+x.jumlahAnak+' anak)</small>':'')+'</span><a href="#" data-klanak="'+esc(x.id)+'">Edit</a></div>'+(sp.length?'<select data-klibu="'+esc(x.id)+'" style="margin-top:3px;font-size:12px;padding:4px 6px;border:1px solid #d8cfbb;border-radius:7px;background:#fff;max-width:100%">'+op+'</select>':'')+'</div>';}).join('');
+  const kosong=k.filter(x=>!x.ibu);$('klIbuSemuaBox').hidden=!(sp.length&&kosong.length);
+  $('klIbuSemua').innerHTML=sp.map(n=>'<option>'+esc(n)+'</option>').join('');
+  $('klIbuSemuaYa').textContent='Terapkan ke '+kosong.length+' anak yang belum dicatat';
   $('klAnakKe2').value='';$('klAnakKe2').disabled=!k.length;$('klAnakPindah').disabled=!k.length;
  }
  const tutup=()=>M.classList.remove('on');
@@ -3263,6 +3267,13 @@ let dobelMode=true;
  $('klBaru').addEventListener('click',async()=>{if(!semua.length&&!(await muat()))return;buka(null);});
  $('klList').addEventListener('click',e=>{const h=e.target.closest('[data-klhapus]');if(h){const a=semua.find(x=>x.id===h.dataset.klhapus);if(a){buka(a);$('klHapusBtn').click();}return;}const b=e.target.closest('[data-kl]');if(!b)return;const a=semua.find(x=>x.id===b.dataset.kl);if(a)buka(a);});
  $('klAyah').addEventListener('change',isiIbuDaftar);
+ $('klIbuSemuaYa').addEventListener('click',async()=>{
+  const n=$('klIbuSemua').value;const k=semua.filter(x=>x.ayahId===cur.id&&!x.ibu);if(!n||!k.length)return;
+  if(!confirm('Jadikan '+k.length+' anak sebagai anak dari '+n+'?'))return;
+  $('klIbuSemuaYa').disabled=true;let ok=0,gagal=[];
+  for(const x of k){msg('Menyimpan '+(ok+gagal.length+1)+' dari '+k.length+'...');try{await api({action:'adminSimpan',id:x.id,data:{ibu:n}});x.ibu=n;ok++;}catch(e){gagal.push(x.nama+': '+e.message);}}
+  $('klIbuSemuaYa').disabled=false;isiAnak();msg(ok+' anak dicatat sebagai anak dari '+n+'.'+(gagal.length?' Gagal: '+gagal.join(' | '):''),!gagal.length);
+ });
  $('klAnakDaftar').addEventListener('change',async e=>{const sl=e.target.closest('[data-klibu]');if(!sl)return;const x=semua.find(y=>y.id===sl.dataset.klibu);if(!x)return;
   sl.disabled=true;try{await api({action:'adminSimpan',id:x.id,data:{ibu:sl.value}});x.ibu=sl.value;msg('Ibu '+x.nama+(sl.value?': '+sl.value:' dikosongkan')+' tersimpan.');}catch(er){msg(er.message,false);}sl.disabled=false;});
  $('klAnakDaftar').addEventListener('click',e=>{const a=e.target.closest('[data-klanak]');if(!a)return;e.preventDefault();const x=semua.find(y=>y.id===a.dataset.klanak);if(x)buka(x);});
