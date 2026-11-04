@@ -2624,6 +2624,8 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   const rv=document.createElement('button');rv.type='button';rv.className='secondary';rv.textContent='Update';rv.title='Usulkan update nama atau urutan anak '+a.nama;
   rv.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();bukaRevisi(a,list);});
   node.appendChild(rv);
+  const pb=document.createElement('button');pb.type='button';pb.className='secondary';pb.textContent=a.jk==='L'?'+ Istri':a.jk==='P'?'+ Suami':'+ Pasangan';pb.title='Tambah nama istri/suami '+a.nama;
+  pb.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();if(window.__tambahPasangan)window.__tambahPasangan(a);});node.appendChild(pb);
   if(kids.length>1){const ub=document.createElement('button');ub.type='button';ub.className='secondary';ub.textContent='Update urutan anak';ub.title='Usulkan update urutan anak-anak '+a.nama;
    ub.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();bukaUrutan(a,list);});node.appendChild(ub);}
   row.appendChild(node);
@@ -3216,6 +3218,56 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   if(!confirm('Gabungkan "'+cur.nama+'" ke orang yang dipilih? Yang ini akan dihapus.'))return;
   msg('Menggabungkan...');
   try{const r=await api({action:'adminGabung',dupId:cur.id,simpanId:t});msg(r.pesan);await muat();window.__muatAnggota&&window.__muatAnggota();setTimeout(tutup,900);}catch(e){msg(e.message,false);}
+ });
+})();
+</script>
+<style>
+#psModal{position:fixed;inset:0;background:rgba(20,35,28,.72);z-index:10003;display:none;align-items:center;justify-content:center;padding:14px;overflow:auto}
+#psModal.on{display:flex}
+#psModal .ps-box{background:#fffdf6;border:2px solid #c9a35a;border-radius:14px;max-width:440px;width:100%;padding:16px 18px;box-shadow:0 20px 50px rgba(0,0,0,.4)}
+#psModal h3{margin:0 0 4px;color:#1d4a38;font-size:18px}
+#psModal label{display:block;font-size:12px;font-weight:700;color:#4b5949;margin:12px 0 4px}
+#psModal input{width:100%;box-sizing:border-box;border:1px solid #d8cfbb;border-radius:9px;padding:11px 12px;font:inherit;background:#fff}
+#psModal .ps-ada{background:#f4e9c9;border-radius:8px;padding:7px 10px;font-size:13px;margin-top:8px}
+#psModal .ps-acts{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+</style>
+<div id="psModal" role="dialog" aria-modal="true" aria-labelledby="psJudul"><div class="ps-box"><h3 id="psJudul"></h3><p class="note" id="psSub" style="margin:0"></p><div class="ps-ada" id="psAda" hidden></div>
+<label for="psNama" id="psLabel">Nama istri / suami</label><input id="psNama" maxlength="120" autocomplete="off" placeholder="Contoh: Hj. Siti Aminah">
+<label for="psPengirim">Nama Anda</label><input id="psPengirim" maxlength="100" autocomplete="name">
+<div class="ps-acts"><button type="button" class="primary" id="psKirim">Kirim</button><button type="button" class="secondary" id="psBatal">Tutup</button></div>
+<div id="psMsg" aria-live="polite" style="font-size:13px;margin-top:10px;min-height:18px"></div><p class="note" style="margin-top:6px">Cukup satu nama saja. Nama yang sudah ada tidak terhapus. Admin memeriksa dulu sebelum tampil.</p></div></div>
+<script>
+(function(){
+ const $=id=>document.getElementById(id),M=$('psModal');let cur=null;
+ const PK='bani_pengirim_v1';
+ const baca=()=>{try{return JSON.parse(localStorage.getItem(PK)||'{}')||{};}catch(e){return {};}};
+ const msg=(t,ok)=>{const m=$('psMsg');m.textContent=t;m.style.color=ok===false?'#a33':'#1f5f4a';};
+ const nk=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+ window.__tambahPasangan=function(a){
+  cur=a;const kata=a.jk==='L'?'istri':a.jk==='P'?'suami':'istri/suami';
+  $('psJudul').textContent='Tambah '+kata;$('psSub').textContent='untuk '+a.nama;$('psLabel').textContent='Nama '+kata;
+  const ada=(a.pasangan||[]).filter(Boolean),b=$('psAda');
+  b.hidden=!ada.length;b.textContent=ada.length?'Sudah tercatat: '+ada.join(', '):'';
+  $('psNama').value='';$('psPengirim').value=baca().nama||'';msg('');$('psKirim').disabled=false;M.classList.add('on');
+  setTimeout(()=>{try{$('psNama').focus();}catch(e){}},50);
+ };
+ const tutup=()=>M.classList.remove('on');
+ $('psBatal').addEventListener('click',tutup);M.addEventListener('click',e=>{if(e.target===M)tutup();});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&M.classList.contains('on')){tutup();e.stopImmediatePropagation();}},true);
+ $('psKirim').addEventListener('click',async()=>{
+  if(!cur)return;
+  let nama=$('psNama').value.trim().replace(/\s*[|;\n]\s*/g,' ');const pengirim=$('psPengirim').value.trim();
+  if(!nama){msg('Tulis nama yang akan ditambahkan.',false);return;}
+  if(!pengirim){msg('Isi nama Anda terlebih dahulu.',false);return;}
+  if(window.rapikanNama)nama=window.rapikanNama(nama);
+  const ada=(cur.pasangan||[]).filter(Boolean);
+  if(ada.some(x=>nk(x)===nk(nama))){msg('Nama itu sudah tercatat.',false);return;}
+  $('psKirim').disabled=true;msg('Mengirim...');
+  try{
+   const r=await window.BaniIlyasApi({action:'kirim',jenis:'revisi',pengirim:window.rapikanNama?window.rapikanNama(pengirim):pengirim,kontak:'',website:'',data:{id:cur.id,nama:'',anakKe:'',hubungan:'',pasangan:ada.concat([nama]).join(' | '),alamat:'',wa:'',alasan:'Tambah pasangan'}});
+   try{const o=baca();o.nama=pengirim;localStorage.setItem(PK,JSON.stringify(o));}catch(e){}
+   msg(r.pesan||'Terkirim. Menunggu persetujuan admin.');
+  }catch(e){msg('Belum terkirim: '+e.message,false);$('psKirim').disabled=false;}
  });
 })();
 </script>
