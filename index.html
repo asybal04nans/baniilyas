@@ -3271,5 +3271,11 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  });
 })();
 </script>
+<style>
+/* Semua kotak isian: selalu bisa digulir, bagian atas tidak terpotong (HP, keyboard, layar pendek) */
+#pohonModal,#profilModal,#urutModal,#revisiModal,#pRevModal,#uUpModal,#kelolaModal,#psModal{align-items:flex-start!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:12px 12px 40vh!important;box-sizing:border-box}
+#profilModal .pf-box,#urutModal .rv-box,#revisiModal .rv-box,#pRevModal .rv-box,#uUpModal .rv-box,#kelolaModal .kl-box,#psModal .ps-box{margin:0 auto!important;max-height:none!important;overflow:visible!important}
+@media (max-width:600px){#urutModal .rv-box,#revisiModal .rv-box,#pRevModal .rv-box,#uUpModal .rv-box,#kelolaModal .kl-box,#psModal .ps-box,#profilModal .pf-box{padding:14px 14px}}
+</style>
 </body>
 </html>
