@@ -2575,7 +2575,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 <div id="revisiModal" role="dialog" aria-modal="true" aria-labelledby="rvJudul"><div class="rv-box"><h3 id="rvJudul">Update data (nama, urutan, istri/suami, alamat, WhatsApp)</h3><p class="note" id="rvSub" style="margin:0 0 4px"></p>
 <label for="rvNama">Nama yang benar</label><input id="rvNama" maxlength="120" autocomplete="off">
 <label for="rvAnak">Anak ke- (urutan lahir, 1 = tertua)</label><input id="rvAnak" type="number" min="1" max="60" inputmode="numeric">
-<label for="rvHub">Hubungan dengan ayah/ibu</label><select id="rvHub" style="width:100%;box-sizing:border-box;border:1px solid #d8cfbb;border-radius:9px;padding:9px 11px;font:inherit;background:#fff"><option value="kandung">Anak kandung</option><option value="sambung">Anak sambung (bukan anak kandung)</option></select>
+<label for="rvHub">Hubungan dengan ayah/ibu</label><select id="rvHub" style="width:100%;box-sizing:border-box;border:1px solid #d8cfbb;border-radius:9px;padding:9px 11px;font:inherit;background:#fff"><option value="kandung">Anak kandung</option><option value="sambung">Anak sambung (bukan anak kandung)</option></select><small class="note" id="rvHubInfo" style="display:none;margin-top:3px">Untuk anak yang bapaknya menikah lebih dari sekali. <b>Seibu sebapak</b> = anak dari istri yang sekarang. <b>Sebapak</b> = bapaknya sama, ibunya lain (nama ibu tidak ditampilkan). <b>Anak sambung</b> = bawaan ibu.</small>
 <label for="rvPasangan">Nama istri / suami</label><input id="rvPasangan" maxlength="300" autocomplete="off" placeholder="Kosongkan bila belum ada. Lebih dari satu: pisahkan dengan |">
 <small class="note" style="display:block;margin-top:3px">Isi atau perbarui nama istri/suami orang ini. Contoh: Hj. Siti Aminah. Hapus semua tulisan untuk menghapus nama pasangan.</small>
 <label for="rvAlamat">Alamat rumah sekarang</label><input id="rvAlamat" maxlength="250" autocomplete="off" placeholder="Kampung/jalan, desa, kecamatan, kabupaten (kosongkan bila tidak diubah)">
@@ -2614,11 +2614,14 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  function kelompokIbu(a,sps,kids){
   const ibuKunci=k=>nkI(k.ibu);
   const beda=new Set(kids.map(ibuKunci).filter(Boolean));
-  if(!beda.size||!(sps.length>=2||beda.size>=2))return null;
-  const grup=[];const cari=n=>grup.find(g=>nkI(g.nama)===nkI(n));
+  const seb=kids.some(k=>k.hubungan==='sebapak');
+  if(!(beda.size||seb)||!(sps.length>=2||beda.size>=2||seb))return null;
+  const grup=[];const cari=n=>grup.find(g=>g.nama&&nkI(g.nama)===nkI(n));
+  const sebG={nama:'',sebapak:true,anak:[]};grup.push(sebG);
   sps.forEach(n=>grup.push({nama:n,anak:[]}));
   const tanpa={nama:'',anak:[]};
   kids.forEach(k=>{
+   if(k.hubungan==='sebapak'){sebG.anak.push(k);return;}
    if(!k.ibu){tanpa.anak.push(k);return;}
    let g=cari(k.ibu);
    if(!g){g=grup.find(x=>{const A=nkI(x.nama),B=nkI(k.ibu);return A&&B&&(A.includes(B)||B.includes(A));});}
@@ -2636,6 +2639,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   const bp=e=>{e.stopPropagation();e.preventDefault();bukaProfil(a,list);};nm.addEventListener('click',bp);nm.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')bp(e);});node.appendChild(nm);
   const sm=document.createElement('small');sm.textContent=(a.jk==='P'?'putri':a.jk==='L'?'putra':'putra/putri')+(a.anakKe?' · anak ke-'+a.anakKe:'');node.appendChild(sm);
   if(a.sambung){node.classList.add('sambung');const sb=document.createElement('span');sb.className='pk-sambung';sb.textContent='anak sambung';sb.title='Bukan anak kandung dari ayah/ibu sambungnya';node.appendChild(sb);}
+  else if(a.hubungan==='sebapak'||a.hubungan==='seibu'){const sb=document.createElement('span');sb.className='pk-sambung';sb.textContent=a.hubungan==='seibu'?'seibu sebapak':'sebapak';sb.title=a.hubungan==='seibu'?'Seibu dan sebapak dengan anak-anak istri yang sekarang':'Bapaknya sama, ibunya lain';node.appendChild(sb);}
   if(kids.length){const c=document.createElement('span');c.className='pk-n';c.textContent=kids.length+' anak';node.appendChild(c);}
   const rb=document.createElement('button');rb.type='button';rb.className='secondary';rb.textContent='Rundayan';rb.title='Buat rundayan atas nama '+a.nama;
   rb.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();tutup();const p=$('printPerson');if(p)p.value=a.nama;if(window.printFamilyTree)window.printFamilyTree();});
@@ -2661,7 +2665,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
    const grup=kelompokIbu(a,sps,kids);
    if(grup){
     grup.forEach(g=>{const h=document.createElement('div');h.className='pk-grup';
-     h.textContent=g.nama?('Anak dari '+(a.jk==='P'?'suami ':'istri ')+g.nama+' ('+g.anak.length+')'):('Ibu belum dicatat ('+g.anak.length+')');d.appendChild(h);
+     h.textContent=g.sebapak?('Anak sebapak, lain ibu ('+g.anak.length+')'):g.nama?('Anak dari '+(a.jk==='P'?'suami ':'istri ')+g.nama+' ('+g.anak.length+')'):('Ibu belum dicatat ('+g.anak.length+')');d.appendChild(h);
      const u2=document.createElement('ul');u2.className='pk';g.anak.forEach(k=>u2.appendChild(simpul(list,k,depth+1)));d.appendChild(u2);});
     li.appendChild(d);
    }else{
@@ -2675,11 +2679,18 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  const PKEY='bani_pengirim_v1';
  const bacaP=()=>{try{return JSON.parse(localStorage.getItem(PKEY)||'{}')||{};}catch(e){return {};}};
  const rvMsg=(t,ok)=>{const m=$('rvMsg');m.textContent=t;m.style.color=ok===false?'#a33':'#1f5f4a';};
+ function aturPilihanHub(a,list){
+  const ay=list.find(x=>x.id===a.ayahId),banyak=ay&&(ay.pasangan||[]).filter(Boolean).length>=1,cur=a.hubungan||(a.sambung?'sambung':'kandung');
+  const o=[['kandung','Anak kandung']];if(banyak||cur==='seibu'||cur==='sebapak'){o.push(['seibu','Seibu sebapak (anak dari istri sekarang)']);o.push(['sebapak','Sebapak (bapak sama, lain ibu)']);}
+  o.push(['sambung','Anak sambung (bawaan ibu, bukan anak kandung bapak)']);
+  $('rvHub').innerHTML=o.map(x=>'<option value="'+x[0]+'">'+x[1]+'</option>').join('');$('rvHub').value=cur;
+  $('rvHubInfo').style.display=(banyak||cur==='seibu'||cur==='sebapak')?'block':'none';
+ }
  function bukaRevisi(a,list){
   rvOrang=a;
   const ayah=list.find(x=>x.id===a.ayahId);
   $('rvSub').textContent=a.nama+(ayah?' · '+(a.jk==='P'?'putri ':a.jk==='L'?'putra ':'putra/putri ')+ayah.nama:'');
-  $('rvNama').value=a.nama;$('rvAnak').value=a.anakKe||'';$('rvHub').value=a.sambung?'sambung':'kandung';$('rvPasangan').value=(a.pasangan||[]).join(' | ');$('rvAlamat').value='';$('rvWa').value='';$('rvAlasan').value='';
+  $('rvNama').value=a.nama;$('rvAnak').value=a.anakKe||'';aturPilihanHub(a,list);$('rvPasangan').value=(a.pasangan||[]).join(' | ');$('rvAlamat').value='';$('rvWa').value='';$('rvAlasan').value='';
   const p=bacaP();$('rvPengirim').value=p.nama||'';$('rvKontak').value=p.kontak||'';
   rvMsg('');$('rvKirim').disabled=false;rvM.classList.add('on');setTimeout(()=>{try{$('rvNama').focus();$('rvNama').select();}catch(e){}},50);
  }
@@ -2690,7 +2701,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   if(!rvOrang)return;
   const nama=$('rvNama').value.trim(),anak=$('rvAnak').value.trim(),pengirim=$('rvPengirim').value.trim();
   if(!pengirim){rvMsg('Isi nama Anda terlebih dahulu.',false);return;}
-  const hub=$('rvHub').value,hubBerubah=hub!==(rvOrang.sambung?'sambung':'kandung');
+  const hub=$('rvHub').value,hubBerubah=hub!==(rvOrang.hubungan||(rvOrang.sambung?'sambung':'kandung'));
   const alamatB=$('rvAlamat').value.trim(),waB=$('rvWa').value.trim();
   if(waB&&waB!=='-'&&!/^\+?[0-9][0-9 \-]{5,18}$/.test(waB)){rvMsg('Nomor WhatsApp tidak valid. Tulis angka saja, contoh 081234567890.',false);return;}
   const pLama=(rvOrang.pasangan||[]).join(' | '),pBaru=$('rvPasangan').value.trim().replace(/\s*[;\n]\s*/g,' | '),pBerubah=pBaru!==pLama;
@@ -2756,14 +2767,14 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   pfOrang=a;pfList=list;
   $('pfNama').textContent=a.nama;
   const ayah=list.find(x=>x.id===a.ayahId);
-  $('pfSub').textContent=(a.jk==='P'?'Putri':a.jk==='L'?'Putra':'Putra/putri')+(ayah?' dari '+ayah.nama:'')+(a.anakKe?' · anak ke-'+a.anakKe:'')+(a.ibu?' · ibu: '+a.ibu:'')+(a.sambung?' · anak sambung':'');
+  $('pfSub').textContent=(a.jk==='P'?'Putri':a.jk==='L'?'Putra':'Putra/putri')+(ayah?' dari '+ayah.nama:'')+(a.anakKe?' · anak ke-'+a.anakKe:'')+(a.ibu?' · ibu: '+a.ibu:'')+(a.sambung?' · anak sambung':a.hubungan==='sebapak'?' · sebapak':a.hubungan==='seibu'?' · seibu sebapak':'');
   $('pfNasab').textContent=nasabTeks(a,list);
   const sps=(a.pasangan||[]).filter(Boolean);
   $('pfPasangan').innerHTML='<b>'+(a.jk==='P'?'Suami':a.jk==='L'?'Istri':'Pasangan')+'</b>';
   $('pfPasangan').appendChild(document.createTextNode(sps.length?sps.join(', '):'Belum dicatat'));
   const kids=anakDari(list,a.id);
   $('pfAnak').innerHTML='<b>Anak ('+kids.length+')</b>';
-  $('pfAnak').appendChild(document.createTextNode(kids.length?kids.map((k,i)=>(k.anakKe||i+1)+'. '+k.nama+(k.sambung?' (sambung)':'')).join('; '):'Belum ada anak yang tercatat'));
+  $('pfAnak').appendChild(document.createTextNode(kids.length?kids.map((k,i)=>(k.anakKe||i+1)+'. '+k.nama+(k.sambung?' (sambung)':k.hubungan==='sebapak'?' (sebapak)':k.hubungan==='seibu'?' (seibu sebapak)':'')).join('; '):'Belum ada anak yang tercatat'));
   $('pfKontakMsg').textContent='';
   let kode='';try{kode=sessionStorage.getItem('bani_kode_keluarga')||'';}catch(e){}
   $('pfKode').value=kode;$('pfKontakIsi').style.display='';$('pfHasil').textContent='';
@@ -3152,7 +3163,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 <label for="klAnakKe">Anak ke-</label><input id="klAnakKe" type="number" min="1" max="60" inputmode="numeric">
 <label for="klIbu">Ibu dari orang ini (istri/suami orang tuanya; pilih dari daftar)</label><input id="klIbu" list="klIbuDaftar" maxlength="100" autocomplete="off" placeholder="Kosongkan bila belum diketahui"><datalist id="klIbuDaftar"></datalist>
 <label for="klPasangan">Nama istri / suami (lebih dari satu dipisah |)</label><input id="klPasangan" maxlength="300" autocomplete="off">
-<label style="display:flex;gap:8px;align-items:center;font-weight:600"><input type="checkbox" id="klSambung" style="width:auto"> Anak sambung (bukan anak kandung dari orang tua di atas)</label>
+<label for="klHub">Hubungan dengan orang tua</label><select id="klHub"><option value="kandung">Anak kandung (tanpa keterangan)</option><option value="seibu">Seibu sebapak</option><option value="sebapak">Sebapak (lain ibu)</option><option value="sambung">Anak sambung (bawaan ibu)</option></select>
 <label for="klAlamat">Alamat rumah</label><input id="klAlamat" maxlength="250" autocomplete="off">
 <label for="klWa">Nomor WhatsApp</label><input id="klWa" maxlength="30" inputmode="tel" autocomplete="off">
 <label for="klCatatan">Keterangan admin (boleh kosong)</label><input id="klCatatan" maxlength="200" autocomplete="off">
@@ -3238,7 +3249,7 @@ let dobelMode=true;
   $('klSub').textContent=baru?'Orang baru ditambahkan langsung ke silsilah.':'ID '+a.id+' · generasi '+a.generasi+' · '+a.jumlahAnak+' anak';
   $('klNama').value=a?a.nama:'';$('klJk').value=a?a.jk:'';
   const ay=a&&semua.find(x=>x.id===a.ayahId);$('klAyah').value=ay?ay.nama+' — '+ay.id:'';$('klAyah').disabled=!!a&&!a.ayahId;
-  $('klAnakKe').value=a&&a.anakKe?a.anakKe:'';$('klIbu').value=a?(a.ibu||''):'';isiIbuDaftar();$('klPasangan').value=a?(a.pasangan||[]).join(' | '):'';$('klSambung').checked=!!(a&&a.sambung);
+  $('klAnakKe').value=a&&a.anakKe?a.anakKe:'';$('klIbu').value=a?(a.ibu||''):'';isiIbuDaftar();$('klPasangan').value=a?(a.pasangan||[]).join(' | '):'';$('klHub').value=a?(a.hubungan||(a.sambung?'sambung':'kandung')):'kandung';
   $('klAlamat').value=a?a.alamat:'';$('klWa').value=a?a.wa:'';$('klCatatan').value='';$('klPaksa').checked=false;
   $('klHapusBtn').style.display=baru||!a.ayahId?'none':'';$('klGabungBtn').style.display=baru||!a.ayahId?'none':'';
   isiAnak();
@@ -3254,7 +3265,7 @@ let dobelMode=true;
   b.hidden=false;$('klAnakJudul').textContent=k.length?('Anak-anak '+cur.nama+' ('+k.length+')'):('Anak-anak '+cur.nama+': belum ada yang tercatat');
   const sp=(cur.pasangan||[]).filter(Boolean);
   $('klAnakDaftar').innerHTML=k.map(x=>{const op=['<option value="">(ibu belum dicatat)</option>'].concat(sp.concat(x.ibu&&!sp.some(n=>nk(n)===nk(x.ibu))?[x.ibu]:[]).map(n=>'<option'+(nk(n)===nk(x.ibu)?' selected':'')+'>'+esc(n)+'</option>')).join('');
-   return '<div style="padding:4px 0;border-bottom:1px solid #eee3c8"><div style="display:flex;justify-content:space-between;gap:8px"><span>'+(x.anakKe?x.anakKe+'. ':'')+esc(x.nama)+(x.sambung?' <small>(sambung)</small>':'')+(x.jumlahAnak?' <small>('+x.jumlahAnak+' anak)</small>':'')+'</span><a href="#" data-klanak="'+esc(x.id)+'">Edit</a></div>'+(sp.length?'<select data-klibu="'+esc(x.id)+'" style="margin-top:3px;font-size:12px;padding:4px 6px;border:1px solid #d8cfbb;border-radius:7px;background:#fff;max-width:100%">'+op+'</select>':'')+'</div>';}).join('');
+   return '<div style="padding:4px 0;border-bottom:1px solid #eee3c8"><div style="display:flex;justify-content:space-between;gap:8px"><span>'+(x.anakKe?x.anakKe+'. ':'')+esc(x.nama)+(x.sambung?' <small>(sambung)</small>':x.hubungan==='sebapak'?' <small>(sebapak)</small>':x.hubungan==='seibu'?' <small>(seibu sebapak)</small>':'')+(x.jumlahAnak?' <small>('+x.jumlahAnak+' anak)</small>':'')+'</span><a href="#" data-klanak="'+esc(x.id)+'">Edit</a></div>'+(sp.length?'<select data-klibu="'+esc(x.id)+'" style="margin-top:3px;font-size:12px;padding:4px 6px;border:1px solid #d8cfbb;border-radius:7px;background:#fff;max-width:100%">'+op+'</select>':'')+'</div>';}).join('');
   const kosong=k.filter(x=>!x.ibu);$('klIbuSemuaBox').hidden=!(sp.length&&kosong.length);
   $('klIbuSemua').innerHTML=sp.map(n=>'<option>'+esc(n)+'</option>').join('');
   $('klIbuSemuaYa').textContent='Terapkan ke '+kosong.length+' anak yang belum dicatat';
@@ -3294,7 +3305,7 @@ let dobelMode=true;
   const ayahId=idDari($('klAyah').value);
   if(!$('klNama').value.trim()){msg('Nama wajib diisi.',false);return;}
   if(!$('klAyah').disabled&&!ayahId){msg('Pilih orang tua dari daftar yang muncul saat mengetik.',false);return;}
-  const data={nama:$('klNama').value.trim(),jk:$('klJk').value,anakKe:$('klAnakKe').value.trim(),pasangan:$('klPasangan').value.trim(),ibu:$('klIbu').value.trim(),sambung:$('klSambung').checked,alamat:$('klAlamat').value.trim(),wa:$('klWa').value.trim()};
+  const data={nama:$('klNama').value.trim(),jk:$('klJk').value,anakKe:$('klAnakKe').value.trim(),pasangan:$('klPasangan').value.trim(),ibu:$('klIbu').value.trim(),hubungan:$('klHub').value,alamat:$('klAlamat').value.trim(),wa:$('klWa').value.trim()};
   if(!$('klAyah').disabled)data.ayahId=ayahId;
   if($('klCatatan').value.trim())data.catatan=$('klCatatan').value.trim();
   $('klSimpan').disabled=true;msg('Menyimpan...');
