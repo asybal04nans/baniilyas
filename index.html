@@ -2609,6 +2609,25 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   const kids=anakDari(list,root.id);const t=label.replace(/^\d+\.\s*/,'');
   return kids.find(k=>nk(k.nama)===nk(t))||kids.find(k=>mirip(k.nama,t))||null;
  }
+ /* anak dikelompokkan menurut ibu bila istri/suami lebih dari satu, atau anak mencatat ibu yang berbeda-beda */
+ const nkI=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').replace(/\b(h|hj|r|kh|ny|nyai|ibu|hajjah|raden)\b/g,' ').replace(/\s+/g,' ').trim();
+ function kelompokIbu(a,sps,kids){
+  const ibuKunci=k=>nkI(k.ibu);
+  const beda=new Set(kids.map(ibuKunci).filter(Boolean));
+  if(!beda.size||!(sps.length>=2||beda.size>=2))return null;
+  const grup=[];const cari=n=>grup.find(g=>nkI(g.nama)===nkI(n));
+  sps.forEach(n=>grup.push({nama:n,anak:[]}));
+  const tanpa={nama:'',anak:[]};
+  kids.forEach(k=>{
+   if(!k.ibu){tanpa.anak.push(k);return;}
+   let g=cari(k.ibu);
+   if(!g){g=grup.find(x=>{const A=nkI(x.nama),B=nkI(k.ibu);return A&&B&&(A.includes(B)||B.includes(A));});}
+   if(!g){g={nama:k.ibu,anak:[]};grup.push(g);}
+   g.anak.push(k);
+  });
+  const hasil=grup.filter(g=>g.anak.length);if(tanpa.anak.length)hasil.push(tanpa);
+  return hasil.length?hasil:null;
+ }
  function simpul(list,a,depth){
   const li=document.createElement('li');const kids=anakDari(list,a.id);
   const node=document.createElement('span');node.className='pk-node d'+Math.min(depth,3);
@@ -2639,7 +2658,14 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   }
   if(kids.length){
    const d=document.createElement('details');d.open=true;const s=document.createElement('summary');s.appendChild(row);d.appendChild(s);
-   const ul=document.createElement('ul');ul.className='pk';kids.forEach(k=>ul.appendChild(simpul(list,k,depth+1)));d.appendChild(ul);li.appendChild(d);
+   const grup=kelompokIbu(a,sps,kids);
+   if(grup){
+    grup.forEach(g=>{const h=document.createElement('div');h.className='pk-grup';
+     h.textContent=g.nama?('Anak dari '+(a.jk==='P'?'suami ':'istri ')+g.nama+' ('+g.anak.length+')'):('Ibu belum dicatat ('+g.anak.length+')');d.appendChild(h);
+     const u2=document.createElement('ul');u2.className='pk';g.anak.forEach(k=>u2.appendChild(simpul(list,k,depth+1)));d.appendChild(u2);});
+    li.appendChild(d);
+   }else{
+   const ul=document.createElement('ul');ul.className='pk';kids.forEach(k=>ul.appendChild(simpul(list,k,depth+1)));d.appendChild(ul);li.appendChild(d);}
   }else li.appendChild(row);
   return li;
  }
@@ -2730,7 +2756,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   pfOrang=a;pfList=list;
   $('pfNama').textContent=a.nama;
   const ayah=list.find(x=>x.id===a.ayahId);
-  $('pfSub').textContent=(a.jk==='P'?'Putri':a.jk==='L'?'Putra':'Putra/putri')+(ayah?' dari '+ayah.nama:'')+(a.anakKe?' · anak ke-'+a.anakKe:'')+(a.sambung?' · anak sambung':'');
+  $('pfSub').textContent=(a.jk==='P'?'Putri':a.jk==='L'?'Putra':'Putra/putri')+(ayah?' dari '+ayah.nama:'')+(a.anakKe?' · anak ke-'+a.anakKe:'')+(a.ibu?' · ibu: '+a.ibu:'')+(a.sambung?' · anak sambung':'');
   $('pfNasab').textContent=nasabTeks(a,list);
   const sps=(a.pasangan||[]).filter(Boolean);
   $('pfPasangan').innerHTML='<b>'+(a.jk==='P'?'Suami':a.jk==='L'?'Istri':'Pasangan')+'</b>';
@@ -3124,6 +3150,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 <label for="klAyah">Orang tua (ketik nama lalu pilih dari daftar)</label><input id="klAyah" list="klDaftar" autocomplete="off" placeholder="Contoh: KH. R. Memed Mahmudin">
 <datalist id="klDaftar"></datalist>
 <label for="klAnakKe">Anak ke-</label><input id="klAnakKe" type="number" min="1" max="60" inputmode="numeric">
+<label for="klIbu">Ibu dari orang ini (istri/suami orang tuanya; pilih dari daftar)</label><input id="klIbu" list="klIbuDaftar" maxlength="100" autocomplete="off" placeholder="Kosongkan bila belum diketahui"><datalist id="klIbuDaftar"></datalist>
 <label for="klPasangan">Nama istri / suami (lebih dari satu dipisah |)</label><input id="klPasangan" maxlength="300" autocomplete="off">
 <label style="display:flex;gap:8px;align-items:center;font-weight:600"><input type="checkbox" id="klSambung" style="width:auto"> Anak sambung (bukan anak kandung dari orang tua di atas)</label>
 <label for="klAlamat">Alamat rumah</label><input id="klAlamat" maxlength="250" autocomplete="off">
@@ -3210,17 +3237,23 @@ let dobelMode=true;
   $('klSub').textContent=baru?'Orang baru ditambahkan langsung ke silsilah.':'ID '+a.id+' · generasi '+a.generasi+' · '+a.jumlahAnak+' anak';
   $('klNama').value=a?a.nama:'';$('klJk').value=a?a.jk:'';
   const ay=a&&semua.find(x=>x.id===a.ayahId);$('klAyah').value=ay?ay.nama+' — '+ay.id:'';$('klAyah').disabled=!!a&&!a.ayahId;
-  $('klAnakKe').value=a&&a.anakKe?a.anakKe:'';$('klPasangan').value=a?(a.pasangan||[]).join(' | '):'';$('klSambung').checked=!!(a&&a.sambung);
+  $('klAnakKe').value=a&&a.anakKe?a.anakKe:'';$('klIbu').value=a?(a.ibu||''):'';isiIbuDaftar();$('klPasangan').value=a?(a.pasangan||[]).join(' | '):'';$('klSambung').checked=!!(a&&a.sambung);
   $('klAlamat').value=a?a.alamat:'';$('klWa').value=a?a.wa:'';$('klCatatan').value='';$('klPaksa').checked=false;
   $('klHapusBtn').style.display=baru||!a.ayahId?'none':'';$('klGabungBtn').style.display=baru||!a.ayahId?'none':'';
   isiAnak();
   M.classList.add('on');
  }
+ function isiIbuDaftar(){
+  const ay=semua.find(x=>x.id===(idDari($('klAyah').value)||(cur&&cur.ayahId)));
+  $('klIbuDaftar').innerHTML=((ay&&ay.pasangan)||[]).map(n=>'<option value="'+esc(n)+'"></option>').join('');
+ }
  function isiAnak(){
   const b=$('klAnakBox');if(baru||!cur){b.hidden=true;return;}
   const k=semua.filter(x=>x.ayahId===cur.id).sort((x,y)=>(Number(x.anakKe)||99)-(Number(y.anakKe)||99));
   b.hidden=false;$('klAnakJudul').textContent=k.length?('Anak-anak '+cur.nama+' ('+k.length+')'):('Anak-anak '+cur.nama+': belum ada yang tercatat');
-  $('klAnakDaftar').innerHTML=k.map(x=>'<div style="display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px solid #eee3c8"><span>'+(x.anakKe?x.anakKe+'. ':'')+esc(x.nama)+(x.jumlahAnak?' <small>('+x.jumlahAnak+' anak)</small>':'')+'</span><a href="#" data-klanak="'+esc(x.id)+'">Edit</a></div>').join('');
+  const sp=(cur.pasangan||[]).filter(Boolean);
+  $('klAnakDaftar').innerHTML=k.map(x=>{const op=['<option value="">(ibu belum dicatat)</option>'].concat(sp.concat(x.ibu&&!sp.some(n=>nk(n)===nk(x.ibu))?[x.ibu]:[]).map(n=>'<option'+(nk(n)===nk(x.ibu)?' selected':'')+'>'+esc(n)+'</option>')).join('');
+   return '<div style="padding:4px 0;border-bottom:1px solid #eee3c8"><div style="display:flex;justify-content:space-between;gap:8px"><span>'+(x.anakKe?x.anakKe+'. ':'')+esc(x.nama)+(x.sambung?' <small>(sambung)</small>':'')+(x.jumlahAnak?' <small>('+x.jumlahAnak+' anak)</small>':'')+'</span><a href="#" data-klanak="'+esc(x.id)+'">Edit</a></div>'+(sp.length?'<select data-klibu="'+esc(x.id)+'" style="margin-top:3px;font-size:12px;padding:4px 6px;border:1px solid #d8cfbb;border-radius:7px;background:#fff;max-width:100%">'+op+'</select>':'')+'</div>';}).join('');
   $('klAnakKe2').value='';$('klAnakKe2').disabled=!k.length;$('klAnakPindah').disabled=!k.length;
  }
  const tutup=()=>M.classList.remove('on');
@@ -3229,6 +3262,9 @@ let dobelMode=true;
  $('klDobel').addEventListener('click',async()=>{if(!semua.length&&!(await muat()))return;dobelMode=!dobelMode;$('klDobel').textContent=dobelMode?'Tampilkan semua nama':'Tampilkan nama dobel & mirip';$('klCari').value='';tampil();});
  $('klBaru').addEventListener('click',async()=>{if(!semua.length&&!(await muat()))return;buka(null);});
  $('klList').addEventListener('click',e=>{const h=e.target.closest('[data-klhapus]');if(h){const a=semua.find(x=>x.id===h.dataset.klhapus);if(a){buka(a);$('klHapusBtn').click();}return;}const b=e.target.closest('[data-kl]');if(!b)return;const a=semua.find(x=>x.id===b.dataset.kl);if(a)buka(a);});
+ $('klAyah').addEventListener('change',isiIbuDaftar);
+ $('klAnakDaftar').addEventListener('change',async e=>{const sl=e.target.closest('[data-klibu]');if(!sl)return;const x=semua.find(y=>y.id===sl.dataset.klibu);if(!x)return;
+  sl.disabled=true;try{await api({action:'adminSimpan',id:x.id,data:{ibu:sl.value}});x.ibu=sl.value;msg('Ibu '+x.nama+(sl.value?': '+sl.value:' dikosongkan')+' tersimpan.');}catch(er){msg(er.message,false);}sl.disabled=false;});
  $('klAnakDaftar').addEventListener('click',e=>{const a=e.target.closest('[data-klanak]');if(!a)return;e.preventDefault();const x=semua.find(y=>y.id===a.dataset.klanak);if(x)buka(x);});
  $('klAnakPindah').addEventListener('click',async()=>{
   const t=idDari($('klAnakKe2').value);if(!t){msg('Pilih orang tua tujuan dari daftar yang muncul saat mengetik.',false);return;}
@@ -3247,7 +3283,7 @@ let dobelMode=true;
   const ayahId=idDari($('klAyah').value);
   if(!$('klNama').value.trim()){msg('Nama wajib diisi.',false);return;}
   if(!$('klAyah').disabled&&!ayahId){msg('Pilih orang tua dari daftar yang muncul saat mengetik.',false);return;}
-  const data={nama:$('klNama').value.trim(),jk:$('klJk').value,anakKe:$('klAnakKe').value.trim(),pasangan:$('klPasangan').value.trim(),sambung:$('klSambung').checked,alamat:$('klAlamat').value.trim(),wa:$('klWa').value.trim()};
+  const data={nama:$('klNama').value.trim(),jk:$('klJk').value,anakKe:$('klAnakKe').value.trim(),pasangan:$('klPasangan').value.trim(),ibu:$('klIbu').value.trim(),sambung:$('klSambung').checked,alamat:$('klAlamat').value.trim(),wa:$('klWa').value.trim()};
   if(!$('klAyah').disabled)data.ayahId=ayahId;
   if($('klCatatan').value.trim())data.catatan=$('klCatatan').value.trim();
   $('klSimpan').disabled=true;msg('Menyimpan...');
@@ -3334,6 +3370,9 @@ let dobelMode=true;
 #pohonModal,#profilModal,#urutModal,#revisiModal,#pRevModal,#uUpModal,#kelolaModal,#psModal{align-items:flex-start!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:12px 12px 40vh!important;box-sizing:border-box}
 #profilModal .pf-box,#urutModal .rv-box,#revisiModal .rv-box,#pRevModal .rv-box,#uUpModal .rv-box,#kelolaModal .kl-box,#psModal .ps-box{margin:0 auto!important;max-height:none!important;overflow:visible!important}
 @media (max-width:600px){#urutModal .rv-box,#revisiModal .rv-box,#pRevModal .rv-box,#uUpModal .rv-box,#kelolaModal .kl-box,#psModal .ps-box,#profilModal .pf-box{padding:14px 14px}}
+</style>
+<style>
+#pohonModal .pk-grup{margin:10px 0 2px 6px;padding:4px 10px;display:inline-block;background:#f4e9c9;border-left:4px solid #c9a35a;border-radius:0 8px 8px 0;font-size:12.5px;font-weight:700;color:#7a5f1f}
 </style>
 </body>
 </html>
