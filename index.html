@@ -899,7 +899,11 @@ main {
    <div class="field" style="grid-column:1/-1"><label>Alamat lengkap pesantren</label><input id="pAddress" placeholder="Kampung, desa, kecamatan, kabupaten, provinsi"></div>
    <div class="field" style="grid-column:1/-1"><label>Website / media sosial (opsional)</label><input id="pWeb" placeholder="Alamat website atau akun resmi"></div>
    <div class="field" style="grid-column:1/-1"><label>Profil singkat dan keterangan</label><input id="pProfile" placeholder="Sejarah singkat, bidang pendidikan, dan informasi lain"></div>
+   <div class="field"><label for="pFotoFisik">Foto fisik pesantren (gedung, masjid, asrama; maks. 3)</label><input id="pFotoFisik" type="file" accept="image/*" multiple><div id="pFotoFisikPrev" class="kr-prev kr-prev-besar"></div></div>
+   <div class="field"><label for="pFotoKegiatan">Foto kegiatan mengaji / belajar (maks. 3)</label><input id="pFotoKegiatan" type="file" accept="image/*" multiple><div id="pFotoKegiatanPrev" class="kr-prev kr-prev-besar"></div></div>
+   <div class="field"><label for="pFotoBrosur">Foto brosur pesantren (maks. 3)</label><input id="pFotoBrosur" type="file" accept="image/*" multiple><div id="pFotoBrosurPrev" class="kr-prev kr-prev-besar"></div></div>
   </div>
+  <p class="note">Foto dikecilkan otomatis agar ringan. Foto tampil di daftar pesantren setelah disetujui admin.</p>
   <button class="primary" id="savePesantren" style="margin-top:15px">Simpan Data Pesantren</button>
   <div id="pesantrenMessage" class="result hidden"></div>
   <p class="note">Catatan: pada prototipe, data tersimpan di browser/perangkat ini saja. Pada website resmi, penambahan dan perubahan data harus melalui akun admin serta verifikasi.</p>
@@ -1510,6 +1514,18 @@ function printFamilyTree(){
 const pesantrenKey='pancakaki_bani_ilyas_pesantren_v1';
 function getPesantren(){try{return JSON.parse(localStorage.getItem(pesantrenKey)||'[]')}catch(e){return []}}
 function safePesantren(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+window.__fotoPesantren=window.__fotoPesantren||{};
+function isiFotoPesantren(list){
+ const NAMA=[['fisik','Fisik pesantren'],['kegiatan','Kegiatan mengaji / belajar'],['brosur','Brosur']];
+ list.querySelectorAll('[data-pfoto]').forEach(box=>{
+  const id=box.dataset.pfoto;
+  const tampil=g=>{box.innerHTML=NAMA.map(([k,n])=>(g[k]&&g[k].length)?'<div class="pf-judul">'+n+'</div><div class="kr-gal kr-prev kr-prev-besar">'+g[k].map(u=>'<img alt="'+n+'" src="'+u.replace(/"/g,'')+'">').join('')+'</div>':'').join('');};
+  const c=window.__fotoPesantren[id];if(c&&c.ok){tampil(c.g);return;}
+  if(c&&c.ambil)return;
+  window.__fotoPesantren[id]={ambil:true};
+  if(window.BaniIlyasApi)window.BaniIlyasApi({action:'gambar',id}).then(r=>{window.__fotoPesantren[id]={ok:true,g:r.gambar||{}};document.querySelectorAll('[data-pfoto="'+id+'"]').forEach(b=>{const g=window.__fotoPesantren[id].g;b.innerHTML=NAMA.map(([k,n])=>(g[k]&&g[k].length)?'<div class="pf-judul">'+n+'</div><div class="kr-gal kr-prev kr-prev-besar">'+g[k].map(u=>'<img alt="'+n+'" src="'+u.replace(/"/g,'')+'">').join('')+'</div>':'').join('');});}).catch(()=>{window.__fotoPesantren[id]={};});
+ });
+}
 function renderPesantren(){
  const list=document.getElementById('pesantrenList'); if(!list)return;
  const q=(document.getElementById('pesantrenSearch')?.value||'').toLowerCase();
@@ -1527,7 +1543,9 @@ function renderPesantren(){
    <b>Pimpinan/pengasuh:</b> ${safePesantren(x.leader)}<br>
    <b>Profil:</b> ${safePesantren(x.profile)}<br>
    ${x.web?'<b>Website/media sosial:</b> '+safePesantren(x.web):''}
+   ${x.id?`<div class="pesantren-foto" data-pfoto="${safePesantren(x.id)}"></div>`:''}
   </div></article>`).join('');
+ isiFotoPesantren(list);
  list.querySelectorAll('[data-pdetail]').forEach(b=>b.addEventListener('click',()=>{
   const el=document.getElementById('pdetail-'+b.dataset.pdetail);el.hidden=!el.hidden;b.textContent=el.hidden?'Lihat Profil Lengkap':'Tutup Profil';
  }));
@@ -2292,10 +2310,11 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  const val=id=>($(id)?$(id).value:'').trim();
  const clear=ids=>ids.forEach(i=>{if($(i))$(i).value='';});
 
+ const fotoP={fisik:[],kegiatan:[],brosur:[]};
  (function(){const b=fresh($('savePesantren'));if(!b)return;b.addEventListener('click',()=>{
   const x={name:val('pName'),founder:val('pFounder'),leader:val('pLeader'),relation:val('pRelation'),phone:val('pPhone'),address:val('pAddress'),web:val('pWeb'),profile:val('pProfile')};
   const m=$('pesantrenMessage');if(!x.name||!x.address||!x.founder){say(m,'Isi nama pesantren, alamat, dan pendiri terlebih dahulu.',false);return;}
-  kirim('pesantren',val('pKirimNama'),val('pKirimWa'),x,m,()=>clear(['pName','pFounder','pLeader','pPhone','pAddress','pWeb','pProfile','pRelation']));});})();
+  kirim('pesantren',val('pKirimNama'),val('pKirimWa'),x,m,()=>{clear(['pName','pFounder','pLeader','pPhone','pAddress','pWeb','pProfile','pRelation','pFotoFisik','pFotoKegiatan','pFotoBrosur']);['fisik','kegiatan','brosur'].forEach(k=>{fotoP[k]=[];prev('pFoto'+k[0].toUpperCase()+k.slice(1)+'Prev',[]);});},{gambar:{fisik:fotoP.fisik,kegiatan:fotoP.kegiatan,brosur:fotoP.brosur}});});})();
  const pilihan={logo:'',contoh:[]};
  function kecilkan(file,maks){return new Promise((ok,gagal)=>{
   const fr=new FileReader();fr.onerror=()=>gagal(new Error('File gambar tidak dapat dibaca.'));
@@ -2306,7 +2325,11 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
      const u=c.toDataURL('image/jpeg',q);if(u.length<=40000||i===7){return u.length<=44000?ok(u):gagal(new Error('Gambar terlalu rumit untuk dikecilkan. Gunakan gambar lain.'));}
      q=Math.max(0.4,q-0.08);sisi=Math.round(sisi*0.85);}};
    im.src=fr.result;};fr.readAsDataURL(file);});}
+ window.__kecilkan=kecilkan;
  function prev(id,arr){const b=$(id);if(!b)return;b.textContent='';arr.forEach(u=>{const i=document.createElement('img');i.src=u;i.alt='';b.appendChild(i);});}
+ [['fisik','pFotoFisik',480],['kegiatan','pFotoKegiatan',480],['brosur','pFotoBrosur',700]].forEach(([k,id,mk])=>{const el=$(id);if(!el)return;
+  el.addEventListener('change',async()=>{fotoP[k]=[];prev(id+'Prev',[]);const fs=[...el.files].slice(0,3);if(el.files.length>3)say($('pesantrenMessage'),'Hanya 3 foto pertama yang dipakai.');
+   try{for(const f of fs)fotoP[k].push(await kecilkan(f,mk));prev(id+'Prev',fotoP[k]);}catch(e){say($('pesantrenMessage'),e.message,false);el.value='';fotoP[k]=[];}});});
  (function(){const lg=$('uLogo'),pc=$('uPics');
   if(lg)lg.addEventListener('change',async()=>{pilihan.logo='';prev('uLogoPrev',[]);if(!lg.files[0])return;try{pilihan.logo=await kecilkan(lg.files[0],200);prev('uLogoPrev',[pilihan.logo]);}catch(e){say($('umkmMsg'),e.message,false);lg.value='';}});
   if(pc)pc.addEventListener('change',async()=>{pilihan.contoh=[];prev('uPicsPrev',[]);const fs=[...pc.files].slice(0,3);if(pc.files.length>3)say($('umkmMsg'),'Hanya 3 gambar pertama yang dipakai.');try{for(const f of fs)pilihan.contoh.push(await kecilkan(f,360));prev('uPicsPrev',pilihan.contoh);}catch(e){say($('umkmMsg'),e.message,false);pc.value='';pilihan.contoh=[];}});})();
@@ -2471,7 +2494,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
    const baris=Object.keys(x.data).filter(k=>x.data[k]!=='').map(k=>{
     const v=x.data[k];const isi=(k==='link'||k==='web')&&safeLink(v)?'<a target="_blank" rel="noopener noreferrer" href="'+esc(safeLink(v))+'">'+esc(v)+'</a>':esc(k==='amount'?money(v):v);
     return '<b>'+esc(LABEL[k]||k)+':</b> '+isi;}).join('<br>');
-   const gal=x.gambar&&(x.gambar.logo||x.gambar.contoh.length)?'<div class="kr-gal kr-prev">'+[x.gambar.logo].concat(x.gambar.contoh).filter(Boolean).map(u=>'<img alt="" src="'+esc(u)+'">').join('')+'</div>':'';
+   const gal=x.gambar?(()=>{const g=x.gambar,par=[['Logo',[g.logo].filter(Boolean)],['Contoh',g.contoh||[]],['Fisik pesantren',g.fisik||[]],['Kegiatan',g.kegiatan||[]],['Brosur',g.brosur||[]]].filter(z=>z[1].length);return par.map(z=>'<div class="kr-gal kr-prev kr-prev-besar" title="'+z[0]+'"><b style="flex-basis:100%;font-size:11px">'+z[0]+'</b>'+z[1].map(u=>'<img alt="" src="'+esc(u)+'">').join('')+'</div>').join('');})():'';
    d.innerHTML='<h4>'+esc(JENIS[x.jenis]||x.jenis)+': '+esc(x.jenis==='haul'||x.jenis==='donasi'?money(x.data.amount):x.judul)+'</h4><div class="kr-meta"><span class="kr-tag '+(x.pengirimTerdaftar?'ok':'warn')+'">'+(x.pengirimTerdaftar?'✓ Nama ada di silsilah':'⚠ Nama belum ada di silsilah')+'</span>'+esc(x.pengirim)+(x.kontak?' · '+esc(x.kontak):'')+' · '+esc(x.waktu)+' · '+esc(x.id)+'</div><div class="kr-data">'+baris+'</div>'+gal;
    const a=document.createElement('div');a.className='kr-actions';
    const act=(label,cls,keputusan)=>{const b=document.createElement('button');b.type='button';b.className='secondary '+cls;b.textContent=label;b.addEventListener('click',async()=>{
@@ -3000,6 +3023,9 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 <label for="prAddress">Alamat lengkap pesantren</label><input id="prAddress" maxlength="250">
 <label for="prWeb">Website / media sosial</label><input id="prWeb" maxlength="200">
 <label for="prProfile">Profil singkat dan keterangan</label><textarea id="prProfile" rows="3" maxlength="800"></textarea>
+<label for="prFisik">Tambah foto fisik pesantren (maks. 3)</label><input id="prFisik" type="file" accept="image/*" multiple><div id="prFisikPrev" class="kr-prev kr-prev-besar"></div>
+<label for="prKegiatan">Tambah foto kegiatan mengaji / belajar (maks. 3)</label><input id="prKegiatan" type="file" accept="image/*" multiple><div id="prKegiatanPrev" class="kr-prev kr-prev-besar"></div>
+<label for="prBrosur">Tambah foto brosur (maks. 3)</label><input id="prBrosur" type="file" accept="image/*" multiple><div id="prBrosurPrev" class="kr-prev kr-prev-besar"></div>
 <label for="prAlasan">Alasan / keterangan update (boleh kosong)</label><input id="prAlasan" maxlength="300">
 <label for="prPengirim">Nama Anda</label><input id="prPengirim" maxlength="100" autocomplete="name">
 <label for="prKontak">WhatsApp (boleh kosong)</label><input id="prKontak" maxlength="60" inputmode="tel" autocomplete="tel">
@@ -3009,6 +3035,9 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 (function(){
  const $=id=>document.getElementById(id),M=$('pRevModal');if(!M)return;let asal=null;
  const KOL=[['name','prName'],['founder','prFounder'],['leader','prLeader'],['relation','prRelation'],['phone','prPhone'],['address','prAddress'],['web','prWeb'],['profile','prProfile']];
+ const foto={fisik:[],kegiatan:[],brosur:[]};
+ [['fisik','prFisik',480],['kegiatan','prKegiatan',480],['brosur','prBrosur',700]].forEach(([k,id,mk])=>{const el=$(id);if(!el)return;el.addEventListener('change',async()=>{foto[k]=[];const pv=$(id+'Prev');pv.textContent='';const fs=[...el.files].slice(0,3);
+  try{for(const f of fs){const u=await window.__kecilkan(f,mk);foto[k].push(u);const im=document.createElement('img');im.src=u;im.alt='';pv.appendChild(im);}}catch(er){msg(er.message,false);el.value='';foto[k]=[];pv.textContent='';}});});
  const msg=(t,ok)=>{const m=$('prMsg');m.textContent=t;m.style.color=ok===false?'#a33':'#1f5f4a';};
  const rapi=v=>window.rapikanNama?window.rapikanNama(v):v;
  document.addEventListener('click',e=>{
@@ -3016,7 +3045,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   const x=(window.getPesantren?window.getPesantren():[])[Number(b.dataset.previsi)];if(!x||!x.id)return;
   asal=x;$('prSub').textContent='Pesantren: '+x.name+'. Ubah isian yang perlu diperbaiki saja.';
   KOL.forEach(k=>{$(k[1]).value=x[k[0]]||'';});
-  $('prAlasan').value='';
+  $('prAlasan').value='';foto.fisik=[];foto.kegiatan=[];foto.brosur=[];['prFisik','prKegiatan','prBrosur'].forEach(i=>{$(i).value='';$(i+'Prev').textContent='';});
   try{const p=JSON.parse(localStorage.getItem('bani_pengirim_v1')||'{}');$('prPengirim').value=p.nama||'';$('prKontak').value=p.kontak||'';}catch(er){}
   msg('');$('prKirim').disabled=false;M.classList.add('on');
  });
@@ -3028,10 +3057,11 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   if(!pengirim){msg('Isi nama Anda terlebih dahulu.',false);return;}
   const data={target:asal.id,alasan:$('prAlasan').value.trim()};let n=0;
   KOL.forEach(k=>{let v=$(k[1]).value.trim();if(k[0]==='founder'||k[0]==='leader')v=rapi(v);if(v&&v!==String(asal[k[0]]||'')){data[k[0]]=v;n++;}});
-  if(!n){msg('Belum ada isian yang diubah.',false);return;}
+  const nf=foto.fisik.length+foto.kegiatan.length+foto.brosur.length;
+  if(!n&&!nf){msg('Belum ada isian yang diubah atau foto yang ditambahkan.',false);return;}
   $('prKirim').disabled=true;msg('Mengirim...');
   try{
-   const r=await window.BaniIlyasApi({action:'kirim',jenis:'revisipesantren',pengirim:rapi(pengirim),kontak:$('prKontak').value.trim(),website:'',data});
+   const r=await window.BaniIlyasApi({action:'kirim',jenis:'revisipesantren',pengirim:rapi(pengirim),kontak:$('prKontak').value.trim(),website:'',data,gambar:nf?{fisik:foto.fisik,kegiatan:foto.kegiatan,brosur:foto.brosur}:undefined});
    try{localStorage.setItem('bani_pengirim_v1',JSON.stringify({nama:pengirim,kontak:$('prKontak').value.trim()}));}catch(er){}
    msg(r.pesan||'Update diterima dan menunggu verifikasi admin.');
   }catch(er){msg('Belum terkirim: '+er.message,false);$('prKirim').disabled=false;}
@@ -3395,6 +3425,10 @@ let dobelMode=true;
 </style>
 <style>
 #pohonModal .pk-grup{margin:10px 0 2px 6px;padding:4px 10px;display:inline-block;background:#f4e9c9;border-left:4px solid #c9a35a;border-radius:0 8px 8px 0;font-size:12.5px;font-weight:700;color:#7a5f1f}
+</style>
+<style>
+.kr-prev-besar img{height:84px!important;width:84px!important;cursor:zoom-in}
+.pesantren-foto{margin-top:8px}.pesantren-foto .pf-judul{font-size:12px;font-weight:700;color:#7a5f1f;margin:8px 0 2px}
 </style>
 </body>
 </html>
