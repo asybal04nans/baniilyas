@@ -3146,7 +3146,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  const anchor=$('logAdminPanel');if(!anchor||$('kelolaPanel'))return;
  const p=document.createElement('div');p.className='panel';p.id='kelolaPanel';
  p.innerHTML='<div class="panelhead"><h3>Kelola Silsilah (Admin)</h3><span class="pill">KHUSUS ADMIN</span></div><p class="note">Admin dapat mengubah, menambah, menghapus, dan menggabungkan nama langsung, tanpa antre persetujuan. Gunakan bila ada nama dobel atau salah tulis. Penghapusan tidak permanen: barisnya tetap tersimpan di Google Sheets dengan status DIHAPUS. Semua tindakan tercatat di Log Aktivitas.</p>'+
-  '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" type="button" id="klMuat">Muat Daftar Anggota</button><button class="secondary" type="button" id="klBaru">+ Tambah orang baru</button></div>'+
+  '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" type="button" id="klMuat">Muat Daftar Anggota</button><button class="secondary" type="button" id="klBaru">+ Tambah orang baru</button><button class="secondary" type="button" id="klDobel">Tampilkan nama kembar</button></div>'+
   '<div class="field" style="margin-top:10px"><label for="klCari">Cari nama</label><input id="klCari" placeholder="Ketik sebagian nama..."></div><div class="note" id="klInfo" role="status"></div><div class="kl-list" id="klList"></div>';
  anchor.parentNode.insertBefore(p,anchor);
  const M=$('kelolaModal');let semua=[],cur=null,baru=false;
@@ -3157,10 +3157,19 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  const api=a=>window.BaniIlyasApi(Object.assign({token:token()},a));
  const idDari=teks=>{const t=String(teks||'').trim();const m=t.match(/(I-\d+)\s*$/);if(m)return m[1];const x=semua.filter(a=>nk(a.nama)===nk(t));return x.length===1?x[0].id:'';};
  function isiDaftar(){$('klDaftar').innerHTML=semua.map(a=>'<option value="'+esc(a.nama+' — '+a.id)+'"></option>').join('');}
+ let dobelMode=false;
+ function kunci(a){return nk(a.nama).replace(/\b(h|hj|r|kh|kyai|nyi|ny|dr|drs|ir|ust|ustadz|ustadzah|hr|rh)\b/g,' ').replace(/\s+/g,' ').trim();}
+ function saring(){
+  let L=semua;
+  if(dobelMode){const c={};L.forEach(a=>{const k=kunci(a);if(k)c[k]=(c[k]||0)+1;});L=L.filter(a=>c[kunci(a)]>1).sort((x,y)=>kunci(x)<kunci(y)?-1:kunci(x)>kunci(y)?1:0);}
+  const toks=nk($('klCari').value).split(' ').filter(Boolean);
+  if(!toks.length)return L;
+  return L.filter(a=>{const h=nk(a.nama+' '+(a.ayahNama||'')+' '+(a.pasangan||[]).join(' ')+' '+a.id);return toks.every(t=>h.includes(t));});
+ }
  function tampil(){
-  const q=nk($('klCari').value);const r=semua.filter(a=>!q||nk(a.nama).includes(q)||nk(a.ayahNama).includes(q)).slice(0,60);
-  $('klList').innerHTML=r.length?r.map(a=>'<div class="kl-row"><div><b>'+esc(a.nama)+'</b><small>'+(a.ayahNama?(a.jk==='P'?'binti ':'bin ')+esc(a.ayahNama)+' · ':'')+'generasi '+a.generasi+(a.anakKe?' · anak ke-'+a.anakKe:'')+' · '+a.jumlahAnak+' anak'+(a.sambung?' · sambung':'')+'</small></div><button class="secondary" type="button" data-kl="'+esc(a.id)+'">Edit</button></div>').join(''):'<div class="kl-row">Tidak ada yang cocok.</div>';
-  $('klInfo').textContent=semua.length+' anggota dimuat. Menampilkan '+r.length+(semua.filter(a=>!q||nk(a.nama).includes(q)||nk(a.ayahNama).includes(q)).length>60?' pertama (persempit pencarian)':'')+'.';
+  const r0=saring();const r=r0.slice(0,80);
+  $('klList').innerHTML=r.length?r.map(a=>'<div class="kl-row"><div><b>'+esc(a.nama)+'</b><small>'+(a.ayahNama?(a.jk==='P'?'binti ':'bin ')+esc(a.ayahNama)+' · ':'')+'generasi '+a.generasi+(a.anakKe?' · anak ke-'+a.anakKe:'')+' · '+a.jumlahAnak+' anak'+(a.sambung?' · sambung':'')+' · '+esc(a.id)+'</small></div><div style="display:flex;gap:6px;flex-shrink:0"><button class="secondary" type="button" data-kl="'+esc(a.id)+'">Edit</button>'+(a.ayahId?'<button class="secondary" type="button" data-klhapus="'+esc(a.id)+'" style="border-color:#a33;color:#a33">Hapus</button>':'')+'</div></div>').join(''):'<div class="kl-row">Tidak ada yang cocok. Coba ketik satu kata saja dari namanya.</div>';
+  $('klInfo').textContent=semua.length+' anggota dimuat. '+(dobelMode?'Menampilkan nama kembar: ':'Menampilkan ')+r.length+(r0.length>80?' dari '+r0.length+' (ketik lebih spesifik)':'')+'.';
  }
  async function muat(){
   if(!token()){$('klInfo').style.color='#a33';$('klInfo').textContent='Isi kata sandi Admin di atas terlebih dahulu.';return false;}
@@ -3181,8 +3190,9 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  const tutup=()=>M.classList.remove('on');
  $('klMuat').addEventListener('click',muat);
  $('klCari').addEventListener('input',tampil);
+ $('klDobel').addEventListener('click',async()=>{if(!semua.length&&!(await muat()))return;dobelMode=!dobelMode;$('klDobel').textContent=dobelMode?'Tampilkan semua nama':'Tampilkan nama kembar';tampil();});
  $('klBaru').addEventListener('click',async()=>{if(!semua.length&&!(await muat()))return;buka(null);});
- $('klList').addEventListener('click',e=>{const b=e.target.closest('[data-kl]');if(!b)return;const a=semua.find(x=>x.id===b.dataset.kl);if(a)buka(a);});
+ $('klList').addEventListener('click',e=>{const h=e.target.closest('[data-klhapus]');if(h){const a=semua.find(x=>x.id===h.dataset.klhapus);if(a){buka(a);$('klHapusBtn').click();}return;}const b=e.target.closest('[data-kl]');if(!b)return;const a=semua.find(x=>x.id===b.dataset.kl);if(a)buka(a);});
  $('klTutup').addEventListener('click',tutup);M.addEventListener('click',e=>{if(e.target===M)tutup();});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&M.classList.contains('on')){tutup();e.stopImmediatePropagation();}},true);
  $('klSimpan').addEventListener('click',async()=>{
@@ -3200,7 +3210,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   $('klSimpan').disabled=false;
  });
  $('klHapusBtn').addEventListener('click',()=>{
-  $('klGabungBox').hidden=true;$('klHapusBox').hidden=false;
+  $('klGabungBox').hidden=true;$('klHapusBox').hidden=false;setTimeout(()=>{try{$('klHapusBox').scrollIntoView({block:'center',behavior:'smooth'});}catch(e){}},60);
   const n=cur.jumlahAnak;$('klHapusInfo').textContent=n?('Orang ini punya '+n+' anak. Pilih: pindahkan anak-anaknya, atau hapus semuanya.'):'Orang ini tidak punya anak, jadi langsung dihapus.';
   document.querySelectorAll('#klHapusBox input[name=klMode],#klPindahKe').forEach(x=>x.disabled=!n);
  });
