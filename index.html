@@ -3130,6 +3130,8 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 <label for="klWa">Nomor WhatsApp</label><input id="klWa" maxlength="30" inputmode="tel" autocomplete="off">
 <label for="klCatatan">Keterangan admin (boleh kosong)</label><input id="klCatatan" maxlength="200" autocomplete="off">
 <label style="display:flex;gap:8px;align-items:center;font-weight:600"><input type="checkbox" id="klPaksa" style="width:auto"> Tetap simpan walau ada saudara bernama mirip</label>
+<div class="kl-sub" id="klAnakBox" hidden><b id="klAnakJudul"></b><div id="klAnakDaftar" style="margin-top:6px;font-size:13px;max-height:170px;overflow:auto"></div>
+<label for="klAnakKe2" style="margin-top:10px">Pindahkan SEMUA anak di atas ke orang tua lain:</label><input id="klAnakKe2" list="klDaftar" autocomplete="off" placeholder="Ketik nama orang tua tujuan, lalu pilih dari daftar"><div class="kl-acts" style="margin-top:8px"><button type="button" class="secondary" id="klAnakPindah">Pindahkan semua anak</button></div></div>
 <div class="kl-acts"><button type="button" class="primary" id="klSimpan">Simpan</button><button type="button" class="secondary" id="klHapusBtn">Hapus</button><button type="button" class="secondary" id="klGabungBtn">Gabungkan dengan...</button><button type="button" class="secondary" id="klTutup">Tutup</button></div>
 <div class="kl-sub" id="klHapusBox" hidden><b>Hapus orang ini</b><div class="note" id="klHapusInfo"></div>
 <label style="display:flex;gap:8px;align-items:center;font-weight:600"><input type="radio" name="klMode" value="pindah" checked style="width:auto"> Pindahkan anak-anaknya ke:</label><input id="klPindahKe" list="klDaftar" autocomplete="off" placeholder="Ketik nama orang tua tujuan">
@@ -3211,7 +3213,15 @@ let dobelMode=true;
   $('klAnakKe').value=a&&a.anakKe?a.anakKe:'';$('klPasangan').value=a?(a.pasangan||[]).join(' | '):'';$('klSambung').checked=!!(a&&a.sambung);
   $('klAlamat').value=a?a.alamat:'';$('klWa').value=a?a.wa:'';$('klCatatan').value='';$('klPaksa').checked=false;
   $('klHapusBtn').style.display=baru||!a.ayahId?'none':'';$('klGabungBtn').style.display=baru||!a.ayahId?'none':'';
+  isiAnak();
   M.classList.add('on');
+ }
+ function isiAnak(){
+  const b=$('klAnakBox');if(baru||!cur){b.hidden=true;return;}
+  const k=semua.filter(x=>x.ayahId===cur.id).sort((x,y)=>(Number(x.anakKe)||99)-(Number(y.anakKe)||99));
+  b.hidden=false;$('klAnakJudul').textContent=k.length?('Anak-anak '+cur.nama+' ('+k.length+')'):('Anak-anak '+cur.nama+': belum ada yang tercatat');
+  $('klAnakDaftar').innerHTML=k.map(x=>'<div style="display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px solid #eee3c8"><span>'+(x.anakKe?x.anakKe+'. ':'')+esc(x.nama)+(x.jumlahAnak?' <small>('+x.jumlahAnak+' anak)</small>':'')+'</span><a href="#" data-klanak="'+esc(x.id)+'">Edit</a></div>').join('');
+  $('klAnakKe2').value='';$('klAnakKe2').disabled=!k.length;$('klAnakPindah').disabled=!k.length;
  }
  const tutup=()=>M.classList.remove('on');
  $('klMuat').addEventListener('click',muat);
@@ -3219,6 +3229,18 @@ let dobelMode=true;
  $('klDobel').addEventListener('click',async()=>{if(!semua.length&&!(await muat()))return;dobelMode=!dobelMode;$('klDobel').textContent=dobelMode?'Tampilkan semua nama':'Tampilkan nama dobel & mirip';$('klCari').value='';tampil();});
  $('klBaru').addEventListener('click',async()=>{if(!semua.length&&!(await muat()))return;buka(null);});
  $('klList').addEventListener('click',e=>{const h=e.target.closest('[data-klhapus]');if(h){const a=semua.find(x=>x.id===h.dataset.klhapus);if(a){buka(a);$('klHapusBtn').click();}return;}const b=e.target.closest('[data-kl]');if(!b)return;const a=semua.find(x=>x.id===b.dataset.kl);if(a)buka(a);});
+ $('klAnakDaftar').addEventListener('click',e=>{const a=e.target.closest('[data-klanak]');if(!a)return;e.preventDefault();const x=semua.find(y=>y.id===a.dataset.klanak);if(x)buka(x);});
+ $('klAnakPindah').addEventListener('click',async()=>{
+  const t=idDari($('klAnakKe2').value);if(!t){msg('Pilih orang tua tujuan dari daftar yang muncul saat mengetik.',false);return;}
+  const k=semua.filter(x=>x.ayahId===cur.id);if(!k.length)return;
+  const tujuan=semua.find(x=>x.id===t);if(!tujuan||t===cur.id){msg('Tujuan tidak boleh orang yang sama.',false);return;}
+  if(!confirm('Pindahkan '+k.length+' anak dari '+cur.nama+' ke '+tujuan.nama+'?'))return;
+  $('klAnakPindah').disabled=true;let ok=0,gagal=[];
+  for(const x of k){msg('Memindahkan '+(ok+gagal.length+1)+' dari '+k.length+'...');
+   try{await api({action:'adminSimpan',id:x.id,data:{ayahId:t}});ok++;}catch(e){gagal.push(x.nama+': '+e.message);}}
+  const cid=cur.id;await muat();cur=semua.find(x=>x.id===cid)||cur;isiAnak();
+  msg(ok+' anak dipindahkan ke '+tujuan.nama+'.'+(gagal.length?' Gagal: '+gagal.join(' | '):''),!gagal.length);
+ });
  $('klTutup').addEventListener('click',tutup);M.addEventListener('click',e=>{if(e.target===M)tutup();});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&M.classList.contains('on')){tutup();e.stopImmediatePropagation();}},true);
  $('klSimpan').addEventListener('click',async()=>{
