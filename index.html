@@ -3177,14 +3177,19 @@ let dobelMode=true;
  }
  function baris(a){return '<div class="kl-row"><div><b>'+esc(a.nama)+'</b><small>'+(a.ayahNama?(a.jk==='P'?'binti ':'bin ')+esc(a.ayahNama)+' · ':'')+'generasi '+a.generasi+(a.anakKe?' · anak ke-'+a.anakKe:'')+' · '+a.jumlahAnak+' anak'+(a.sambung?' · sambung':'')+' · '+esc(a.id)+'</small></div><div style="display:flex;gap:6px;flex-shrink:0"><button class="secondary" type="button" data-kl="'+esc(a.id)+'">Edit</button>'+(a.ayahId?'<button class="secondary" type="button" data-klhapus="'+esc(a.id)+'" style="border-color:#a33;color:#a33">Hapus</button>':'')+'</div></div>';}
  function tampil(){
-  const q=nk($('klCari').value),toks=q.split(' ').filter(Boolean),panjang=q.replace(/ /g,'').length;
+  const GELAR=/^(h|hj|haji|hajjah|r|raden|kh|kyai|nyi|ny|dr|drs|ir|ust|ustadz|ustadzah|hr|rh|bin|binti|ibu|bapak|mama|abah|ema)$/;
+  const toks=nk($('klCari').value).split(' ').filter(t=>t&&!GELAR.test(t)),panjang=toks.join('').length;
   const L=$('klList'),I=$('klInfo');
   if(panjang>=3){
-   const r0=semua.filter(a=>{const h=nk(a.nama+' '+(a.ayahNama||'')+' '+(a.pasangan||[]).join(' ')+' '+a.id);return toks.every(t=>h.includes(t));});const r=r0.slice(0,80);
-   L.innerHTML=r.length?r.map(baris).join(''):'<div class="kl-row">Tidak ada yang cocok dengan "'+esc($('klCari').value)+'".</div>';
+   if(!semua.length){L.innerHTML='<div class="kl-row">Memuat daftar...</div>';muat().then(ok=>{if(ok)tampil();});return;}
+   const hay=a=>kunci(a)+' '+nk(a.nama+' '+(a.ayahNama||'')+' '+(a.pasangan||[]).join(' ')+' '+a.id);
+   const r0=semua.map(a=>({a,h:hay(a)})).filter(x=>toks.every(t=>x.h.includes(t)));
+   r0.sort((x,y)=>{const kx=kunci(x.a),ky=kunci(y.a);const sx=toks.every(t=>kx.split(' ').some(w=>w.startsWith(t)))?0:1,sy=toks.every(t=>ky.split(' ').some(w=>w.startsWith(t)))?0:1;return sx-sy||(kx<ky?-1:kx>ky?1:0);});
+   const r=r0.slice(0,80).map(x=>x.a);
+   L.innerHTML=r.length?r.map(baris).join(''):'<div class="kl-row">Tidak ada yang cocok dengan "'+esc($('klCari').value)+'". Daftar ini hanya memuat nama yang sudah terverifikasi; coba ejaan lain atau 3 huruf pertama saja.</div>';
    I.textContent=r0.length+' nama cocok'+(r0.length>80?' (80 pertama, ketik lebih spesifik)':'')+'.';return;
   }
-  if(panjang>0){L.innerHTML='<div class="kl-row">Ketik minimal 3 huruf, hasil langsung muncul.</div>';I.textContent='';return;}
+  if(nk($('klCari').value)){L.innerHTML='<div class="kl-row">Ketik minimal 3 huruf nama (gelar seperti Hj./H./R. tidak dihitung), hasil langsung muncul.</div>';I.textContent='';return;}
   if(dobelMode){
    const n=kelompok.reduce((t,g)=>t+g.length,0);
    L.innerHTML=kelompok.length?kelompok.map((g,i)=>'<div style="background:#f4e9c9;padding:6px 10px;font-size:12px;font-weight:700;color:#7a5f1f">Kelompok '+(i+1)+' · '+g.length+' nama sama/mirip</div>'+g.map(baris).join('')).join(''):'<div class="kl-row">Tidak ditemukan nama dobel atau mirip.</div>';
