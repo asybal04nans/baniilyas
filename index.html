@@ -534,6 +534,13 @@ main {
   <div class="stat"><strong>2</strong><span>Jalur rumah tangga</span></div>
   <div class="stat"><strong id="statLine">BI-0</strong><span>Runtuyan turunan</span></div>
  </div>
+ <div class="panel" id="sorotan" style="display:none" aria-label="Sorotan">
+  <div class="panelhead"><h3>✨ Sorotan</h3><small class="note" style="margin:0">Yang terbaru dari keluarga besar</small></div>
+  <div class="sorot-grid">
+   <div id="sorotArtikel"></div>
+   <div id="sorotAgenda"></div>
+  </div>
+ </div>
  <div class="panel">
   <div class="panelhead"><h3>Silsilah Keluarga Besar Seweu Siwi Bani Ilyas Limbangan</h3><input id="search" placeholder="Cek nasab: ketik beberapa huruf nama, bin/binti, atau kode..." aria-label="Cari nama anggota"></div>
   <div id="searchResults" class="panel" style="display:none;margin:12px 0;background:#fffdf6;border:1px solid #d8c69b;border-radius:12px;padding:14px" aria-live="polite"></div>
@@ -2447,7 +2454,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   const hs=$('hostingBankInfo');if(hs&&info['hosting-rekening'])hs.innerHTML='<b>Rekening Donasi Operasional</b><br>'+esc(info['hosting-rekening']).replace(/\n/g,'<br>');}
  function renderChatT(){const l=$('chatList');if(!l)return;const it=T().chat.slice().reverse();
   l.innerHTML=it.length?it.map(x=>'<article class="chat-msg"><div class="chat-meta"><b>'+esc(x.pengirim)+'</b>'+' · '+esc(x.waktu)+'</div><p>'+esc(x.text).replace(/\n/g,'<br>')+'</p></article>').join(''):'<div class="media-empty">Belum ada percakapan yang disetujui admin.</div>';}
- function renderSemua(){renderPesantrenT();renderUmkmT();renderBukuT();renderMediaT();renderHaulT();renderChatT();tandaiKalender();}
+ function renderSemua(){renderPesantrenT();renderUmkmT();renderBukuT();renderMediaT();renderHaulT();renderChatT();tandaiKalender();try{window.__sorotan&&window.__sorotan();}catch(e){}}
  let terakhir=0,sedang=false;
  async function muat(paksa){if(sedang)return;if(!paksa&&Date.now()-terakhir<20000){renderSemua();return;}
   sedang=true;try{const r=await api({action:'terbit'});window.__terbit=r.terbit;terakhir=Date.now();}catch(e){}finally{sedang=false;}renderSemua();}
@@ -3608,7 +3615,8 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   return r.replace(/<(p|li|td|th|h3|h4|blockquote)(?=[ >])/g,'<$1 dir="auto"').replace(/<table>/g,'<div class="art-tabel"><table>').replace(/<\/table>/g,'</table></div>');}
  function teksDari(h){const x=new DOMParser().parseFromString(String(h||'').replace(/<\/(p|li|tr|h3|h4|blockquote)>|<br>/g,' '),'text/html');return (x.body.textContent||'').replace(/\s+/g,' ').trim();}
  window.__rapikanHtml=tampilHtml;
- let pilih='';
+ let pilih='';const terbuka=new Set();
+ window.__bukaArtikel=function(id){terbuka.add(id);pilih='';render();};
  function semua(){return ((window.__terbit&&window.__terbit.artikel)||[]).slice().reverse();}
  function render(){
   const daftar=$('artDaftar'),kat=$('artKategori');if(!daftar)return;
@@ -3624,7 +3632,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
    if(!arr.length)return;
    html+='<div class="art-grup"><h4>'+esc(g.nama)+'</h4>'+arr.map(a=>{
     const tk=teksDari(a.isi);const cuplik=tk.slice(0,150)+(tk.length>150?'...':'');
-    return '<article class="art-item" data-id="'+esc(a.id)+'"><button type="button" aria-expanded="false"><h5>'+esc(a.title)+'</h5><div class="art-meta">Ditulis oleh '+esc(a.pengirim)+' · '+esc(String(a.waktu||'').slice(0,10))+'</div><div class="art-cuplik">'+esc(cuplik)+'</div></button><div class="art-isi">'+tampilHtml(a.isi)+'</div></article>';}).join('')+'</div>';
+    return '<article class="art-item'+(terbuka.has(a.id)?' buka':'')+'" data-id="'+esc(a.id)+'"><button type="button" aria-expanded="'+(terbuka.has(a.id)?'true':'false')+'"><h5>'+esc(a.title)+'</h5><div class="art-meta">Ditulis oleh '+esc(a.pengirim)+' · '+esc(String(a.waktu||'').slice(0,10))+'</div><div class="art-cuplik">'+esc(cuplik)+'</div></button><div class="art-isi">'+tampilHtml(a.isi)+'</div></article>';}).join('')+'</div>';
   });
   daftar.innerHTML=html||'<p class="note">Tidak ada artikel yang cocok.</p>';
  }
@@ -3633,7 +3641,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   const k=e.target.closest&&e.target.closest('#artKategori button');
   if(k){pilih=k.dataset.k;render();return;}
   const b=e.target.closest&&e.target.closest('.art-item>button');
-  if(b){const it=b.parentNode;it.classList.toggle('buka');b.setAttribute('aria-expanded',it.classList.contains('buka')?'true':'false');}
+  if(b){const it=b.parentNode;it.classList.toggle('buka');const o=it.classList.contains('buka');b.setAttribute('aria-expanded',o?'true':'false');if(o)terbuka.add(it.dataset.id);else terbuka.delete(it.dataset.id);}
  });
  $('artCari').addEventListener('input',render);
  const ed=$('artIsi');
@@ -3679,6 +3687,47 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   }catch(e){say('Artikel belum terkirim: '+e.message,false);}
   btn.disabled=false;
  });
+})();
+</script>
+<style>
+.sorot-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:18px}
+@media(max-width:760px){.sorot-grid{grid-template-columns:1fr}}
+.sorot-grid h4{margin:0 0 8px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#7a5f1f}
+.sorot-kartu{display:block;width:100%;text-align:left;box-sizing:border-box;border:1px solid #e5dcc8;border-left:4px solid #c9a35a;border-radius:11px;background:#fffdf6;padding:11px 14px;margin:0 0 9px;cursor:pointer;font:inherit;color:inherit}
+.sorot-kartu:hover{background:#fff6dc}.sorot-kartu:focus-visible{outline:2px solid #b8893b}
+.sorot-kartu b{display:block;color:#1d4a38;font-size:15.5px}
+.sorot-kartu small{display:block;color:#777;font-size:12px;margin-top:2px}
+.sorot-kartu span{display:block;margin-top:5px;font-size:13.5px;color:#444;line-height:1.5}
+.sorot-lagi{background:none;border:0;color:#1d4a38;font-weight:700;cursor:pointer;padding:2px 0;font:inherit;font-size:13px;text-decoration:underline}
+</style>
+<script>
+(function(){
+ const $=id=>document.getElementById(id);
+ const esc=t=>String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const teks=h=>{const x=new DOMParser().parseFromString(String(h||'').replace(/<\/(p|li|tr|h3|h4|blockquote)>|<br>/g,' '),'text/html');return(x.body.textContent||'').replace(/\s+/g,' ').trim();};
+ const BLN=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+ const tgl=d=>{const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(d||'');return m?(+m[3])+' '+BLN[+m[2]-1]+' '+m[1]:esc(d);};
+ const buka=h=>{const b=document.querySelector('nav button[data-page="'+h+'"]');if(b)b.click();};
+ function render(){
+  const T=window.__terbit||{},box=$('sorotan');if(!box)return;
+  const art=(T.artikel||[]).slice().reverse().slice(0,3);
+  const hariIni=new Date(Date.now()+7*3600e3).toISOString().slice(0,10);
+  const agenda=(T.kalender||[]).filter(x=>x.date>=hariIni).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0).slice(0,3);
+  if(!art.length&&!agenda.length){box.style.display='none';return;}
+  box.style.display='';
+  $('sorotArtikel').innerHTML=art.length?'<h4>Artikel terbaru</h4>'+art.map(a=>{const t=teks(a.isi);return '<button type="button" class="sorot-kartu" data-art="'+esc(a.id)+'"><b>'+esc(a.title)+'</b><small>Ditulis oleh '+esc(a.pengirim)+' · '+esc(String(a.waktu||'').slice(0,10))+'</small><span>'+esc(t.slice(0,130))+(t.length>130?'...':'')+'</span></button>';}).join('')+'<button type="button" class="sorot-lagi" data-go="artikel">Lihat semua artikel →</button>':'';
+  $('sorotAgenda').innerHTML=agenda.length?'<h4>Agenda terdekat</h4>'+agenda.map(a=>'<button type="button" class="sorot-kartu" data-go="calendar"><b>'+esc(a.title)+'</b><small>'+tgl(a.date)+(a.time?' · '+esc(a.time):'')+(a.place?' · '+esc(a.place):'')+'</small></button>').join('')+'<button type="button" class="sorot-lagi" data-go="calendar">Buka kalender →</button>':'';
+ }
+ window.__sorotan=render;
+ document.addEventListener('click',e=>{
+  const k=e.target.closest&&e.target.closest('#sorotan [data-art],#sorotan [data-go]');if(!k)return;
+  if(k.dataset.go){buka(k.dataset.go);window.scrollTo({top:0,behavior:'smooth'});return;}
+  buka('artikel');
+  const id=k.dataset.art;let n=0;
+  const t=setInterval(()=>{const it=document.querySelector('.art-item[data-id="'+(window.CSS&&CSS.escape?CSS.escape(id):id)+'"]');
+   if(it||++n>25){clearInterval(t);window.__bukaArtikel&&window.__bukaArtikel(id);const it2=document.querySelector('.art-item[data-id="'+(window.CSS&&CSS.escape?CSS.escape(id):id)+'"]');if(it2)it2.scrollIntoView({behavior:'smooth',block:'start'});}},200);
+ });
+ render();
 })();
 </script>
 </body>
