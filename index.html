@@ -951,7 +951,7 @@ main {
   <p class="note">Siapa pun anggota keluarga boleh menulis. Tulisan singkat saja (sekitar 1-5 paragraf), isinya mencerahkan dan santun. Sertakan sumber (ayat/hadis/kitab) bila mengutip. Admin akan membaca dahulu sebelum menampilkan.</p>
   <div class="formgrid" style="margin-top:12px">
    <div class="field" style="grid-column:1/-1"><label for="artJudul">Judul artikel</label><input id="artJudul" maxlength="120" placeholder="Contoh: Keutamaan Sabar"></div>
-   <div class="field" style="grid-column:1/-1"><label for="artIsi">Isi artikel</label><textarea id="artIsi" rows="9" maxlength="6000" placeholder="Tulis artikel di sini. Pisahkan paragraf dengan baris kosong."></textarea><small id="artHitung" class="note">0 / 6000 huruf</small></div>
+   <div class="field" style="grid-column:1/-1"><label for="artIsi">Isi artikel</label><textarea id="artIsi" rows="9" maxlength="10000" placeholder="Tulis artikel di sini. Pisahkan paragraf dengan baris kosong."></textarea><small id="artHitung" class="note">0 / 10000 huruf</small></div>
    <div class="field"><label for="artNama">Nama penulis</label><input id="artNama" placeholder="Nama lengkap Anda"></div>
    <div class="field"><label for="artWa">Nomor WhatsApp (opsional, hanya dilihat admin)</label><input id="artWa" placeholder="08xxxxxxxxxx"></div>
   </div>
@@ -3568,7 +3568,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   if(b){const it=b.parentNode;it.classList.toggle('buka');b.setAttribute('aria-expanded',it.classList.contains('buka')?'true':'false');}
  });
  $('artCari').addEventListener('input',render);
- $('artIsi').addEventListener('input',()=>{$('artHitung').textContent=$('artIsi').value.length+' / 6000 huruf';});
+ $('artIsi').addEventListener('input',()=>{$('artHitung').textContent=$('artIsi').value.length+' / 10000 huruf';});
  async function muat(){
   try{if(window.__muatTerbit)await window.__muatTerbit();}catch(e){}
   render();setTimeout(render,1800);
@@ -3586,7 +3586,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   try{
    const r=await window.BaniIlyasApi({action:'kirim',jenis:'artikel',pengirim:window.rapikanNama?window.rapikanNama(nama):nama,kontak:$('artWa').value.trim(),data:{title:judul,isi},website:''});
    say((r.pesan||'Artikel diterima dan menunggu verifikasi admin.')+' Terima kasih.');
-   $('artJudul').value='';$('artIsi').value='';$('artHitung').textContent='0 / 6000 huruf';
+   $('artJudul').value='';$('artIsi').value='';$('artHitung').textContent='0 / 10000 huruf';
   }catch(e){say('Artikel belum terkirim: '+e.message,false);}
   btn.disabled=false;
  });
