@@ -484,6 +484,7 @@ main {
    <button data-page="nasab">Rundayan Nasab</button>
    <button data-page="kartu">Kartu Bani Ilyas</button>
    <button data-page="chat">Chat Anak Incu</button>
+   <button data-page="artikel">Artikel Agama</button>
    <button data-page="verifikasi">Verifikasi Admin</button>
   </nav>
  </div>
@@ -938,6 +939,27 @@ main {
  </div>
 </section>
 
+<section id="artikel" class="hidden">
+ <div class="hero"><div><h2>Artikel Agama</h2><p>Tulisan-tulisan singkat yang mencerahkan, dikirim oleh keluarga besar. Setiap tulisan dibaca dan disetujui admin sebelum tampil.</p></div><span class="pill">NGAJI &amp; NGALAKSANAKEUN</span></div>
+ <div class="panel">
+  <div class="panelhead"><h3>Kumpulan Artikel</h3><input id="artCari" placeholder="Cari judul atau isi..."></div>
+  <div id="artKategori" class="art-kat"></div>
+  <div id="artDaftar"><p class="note">Memuat artikel...</p></div>
+ </div>
+ <div class="panel">
+  <h3>Kirim Artikel</h3>
+  <p class="note">Siapa pun anggota keluarga boleh menulis. Tulisan singkat saja (sekitar 1-5 paragraf), isinya mencerahkan dan santun. Sertakan sumber (ayat/hadis/kitab) bila mengutip. Admin akan membaca dahulu sebelum menampilkan.</p>
+  <div class="formgrid" style="margin-top:12px">
+   <div class="field" style="grid-column:1/-1"><label for="artJudul">Judul artikel</label><input id="artJudul" maxlength="120" placeholder="Contoh: Keutamaan Sabar"></div>
+   <div class="field" style="grid-column:1/-1"><label for="artIsi">Isi artikel</label><textarea id="artIsi" rows="9" maxlength="6000" placeholder="Tulis artikel di sini. Pisahkan paragraf dengan baris kosong."></textarea><small id="artHitung" class="note">0 / 6000 huruf</small></div>
+   <div class="field"><label for="artNama">Nama penulis</label><input id="artNama" placeholder="Nama lengkap Anda"></div>
+   <div class="field"><label for="artWa">Nomor WhatsApp (opsional, hanya dilihat admin)</label><input id="artWa" placeholder="08xxxxxxxxxx"></div>
+  </div>
+  <button class="primary" id="artKirim" type="button" style="margin-top:14px">Kirim Artikel untuk Verifikasi</button>
+  <div class="result hidden" id="artMsg" role="status"></div>
+ </div>
+</section>
+
 <section id="library" class="hidden">
  <div class="hero"><div><h2>Perpustakaan Digital Bani Ilyas</h2><p>Kumpulan kitab, buku keagamaan, ebook, dan bahan bacaan keluarga yang dapat dibaca atau diunduh sesuai izin penggunaan.</p></div><span class="pill">ILMU & LITERASI</span></div>
  <div class="panel">
@@ -1296,7 +1318,7 @@ window.PancakakiDownloadGate = {
 <footer>Arsip Digital Kulawarga Bani Ilyas · Limbangan, Garut · Rarancang awal pikeun dimekarkeun babarengan ku kulawarga</footer>
 <script>
 const navButtons=document.querySelectorAll('nav button');
-const pageIds=['home','profil','add','archive','pesantren','umkm','library','calendar','donasi','haul','guide','nasab','kartu','chat','verifikasi'];
+const pageIds=['home','profil','add','archive','pesantren','umkm','library','calendar','donasi','haul','guide','nasab','kartu','chat','artikel','verifikasi'];
 navButtons.forEach(btn=>btn.addEventListener('click',()=>{
  navButtons.forEach(b=>b.classList.remove('active'));
  btn.classList.add('active');
@@ -2252,8 +2274,8 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  const rapi=v=>window.rapikanNama?window.rapikanNama(v):String(v||'').trim();
  const money=n=>'Rp'+new Intl.NumberFormat('id-ID').format(Number(n)||0);
  const safeLink=u=>/^https:\/\/[^\s"'<>]+$/i.test(String(u||''))?String(u):'';
- const LABEL={alamat:'Alamat rumah baru',alamatLama:'Alamat rumah sekarang',wa:'WhatsApp baru',waLama:'WhatsApp sekarang',pasangan:'Istri/suami baru',pasanganLama:'Istri/suami sekarang',target:'Kode data asal',ringkas:'Perubahan',id:'ID orang',namaLama:'Nama sekarang',nama:'Nama baru',ayahNama:'Orang tua',anakKeLama:'Anak ke- sekarang',anakKe:'Anak ke- baru',alasan:'Alasan',catatanSistem:'Catatan sistem',name:'Nama',brand:'Merek',goods:'Barang dijual',founder:'Pendiri',leader:'Pimpinan/pengasuh',relation:'Hubungan dengan KH. R. Muhamad Ilyas',phone:'Telepon/WA',address:'Alamat',web:'Website/medsos',profile:'Profil',owner:'Pemilik',code:'Kode silsilah',product:'Produk',desc:'Keterangan',title:'Judul',author:'Pengarang',category:'Kategori',source:'Sumber/izin',link:'Tautan',description:'Keterangan',date:'Tanggal',time:'Jam',place:'Tempat',amount:'Nominal',purpose:'Peruntukan',note:'Catatan',ref:'Referensi',method:'Metode',proof:'Bukti',room:'Ruang',text:'Isi',key:'Kunci'};
- const JENIS={revisi:'Update nama/urutan anak',pesantren:'Pesantren',revisipesantren:'Update data pesantren',revisiumkm:'Update data UMKM',umkm:'UMKM',buku:'Kitab/Ebook',media:'Foto/Video',kalender:'Agenda kalender',donasi:'Donasi',haul:'Iuran Haul',chat:'Pesan chat',info:'Informasi'};
+ const LABEL={alamat:'Alamat rumah baru',alamatLama:'Alamat rumah sekarang',wa:'WhatsApp baru',waLama:'WhatsApp sekarang',pasangan:'Istri/suami baru',pasanganLama:'Istri/suami sekarang',target:'Kode data asal',ringkas:'Perubahan',id:'ID orang',namaLama:'Nama sekarang',nama:'Nama baru',ayahNama:'Orang tua',anakKeLama:'Anak ke- sekarang',anakKe:'Anak ke- baru',alasan:'Alasan',catatanSistem:'Catatan sistem',name:'Nama',brand:'Merek',goods:'Barang dijual',founder:'Pendiri',leader:'Pimpinan/pengasuh',relation:'Hubungan dengan KH. R. Muhamad Ilyas',phone:'Telepon/WA',address:'Alamat',web:'Website/medsos',profile:'Profil',owner:'Pemilik',code:'Kode silsilah',product:'Produk',desc:'Keterangan',title:'Judul',author:'Pengarang',category:'Kategori',source:'Sumber/izin',link:'Tautan',description:'Keterangan',date:'Tanggal',time:'Jam',place:'Tempat',amount:'Nominal',purpose:'Peruntukan',note:'Catatan',ref:'Referensi',method:'Metode',proof:'Bukti',room:'Ruang',text:'Isi',isi:'Isi artikel',key:'Kunci'};
+ const JENIS={revisi:'Update nama/urutan anak',pesantren:'Pesantren',revisipesantren:'Update data pesantren',revisiumkm:'Update data UMKM',umkm:'UMKM',buku:'Kitab/Ebook',media:'Foto/Video',kalender:'Agenda kalender',artikel:'Artikel agama',donasi:'Donasi',haul:'Iuran Haul',chat:'Pesan chat',info:'Informasi'};
  const api=(p)=>window.BaniIlyasApi(p);
  window.__terbit=window.__terbit||{pesantren:[],umkm:[],buku:[],media:[],kalender:[],chat:[],info:{},haul:{terverifikasi:[],menunggu:0,menungguTotal:0}};
  const say=(el,t,ok)=>{if(!el)return;el.classList.remove('hidden');el.textContent=t;el.style.color=ok===false?'#a33':'';};
@@ -3143,7 +3165,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  kp.parentNode.insertBefore(p,kp.nextSibling);
  let data=[],timer=null;
  const label=a=>{
-  if(a.indexOf('MASUK_')===0){const j=a.substring(6);const m={PENGAJUAN:'Pengajuan nama silsilah',DUPLIKAT:'Pengajuan nama (sudah ada)',PESANTREN:'Pesantren',UMKM:'UMKM',BUKU:'Kitab/Ebook',MEDIA:'Foto/Video',KALENDER:'Agenda',DONASI:'Donasi',HAUL:'Iuran Haul',CHAT:'Chat',REVISI:'Update nama/urutan/pasangan/alamat',REVISIPESANTREN:'Update data pesantren',REVISIUMKM:'Update data UMKM'};return ['Masuk: '+(m[j]||j),'lg-masuk'];}
+  if(a.indexOf('MASUK_')===0){const j=a.substring(6);const m={PENGAJUAN:'Pengajuan nama silsilah',DUPLIKAT:'Pengajuan nama (sudah ada)',PESANTREN:'Pesantren',UMKM:'UMKM',BUKU:'Kitab/Ebook',MEDIA:'Foto/Video',KALENDER:'Agenda',ARTIKEL:'Artikel agama',DONASI:'Donasi',HAUL:'Iuran Haul',CHAT:'Chat',REVISI:'Update nama/urutan/pasangan/alamat',REVISIPESANTREN:'Update data pesantren',REVISIUMKM:'Update data UMKM'};return ['Masuk: '+(m[j]||j),'lg-masuk'];}
   if(/SETUJU|TERBIT|DITERAPKAN|^UPDATE_/.test(a))return ['Disetujui/diterapkan ('+a+')','lg-ok'];
   if(/TOLAK/.test(a))return ['Ditolak ('+a+')','lg-no'];
   return [a,''];
@@ -3464,6 +3486,110 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
  setTimeout(ulang,2500);
  setInterval(function(){if(!document.hidden)ulang();},120000);
  document.addEventListener('visibilitychange',function(){if(!document.hidden)ulang();});
+})();
+</script>
+<style>
+.kr-data{white-space:pre-line}
+.art-kat{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 12px}
+.art-kat button{border:1px solid #d8c69b;background:#fffaf0;color:#5d4a1c;border-radius:999px;padding:6px 13px;font-size:13px;cursor:pointer}
+.art-kat button.on{background:#1d4a38;color:#f4e3b5;border-color:#1d4a38}
+.art-grup{margin-top:16px}
+.art-grup>h4{margin:0 0 8px;padding:5px 12px;display:inline-block;background:#f4e9c9;border-left:4px solid #c9a35a;border-radius:0 8px 8px 0;color:#7a5f1f;font-size:14px}
+.art-item{border:1px solid #e5dcc8;border-radius:12px;background:#fffdf6;margin:8px 0;overflow:hidden}
+.art-item>button{all:unset;box-sizing:border-box;display:block;width:100%;padding:12px 14px;cursor:pointer}
+.art-item>button:focus-visible{outline:2px solid #b8893b;outline-offset:-2px}
+.art-item h5{margin:0;font-size:15.5px;color:#1d4a38}
+.art-item .art-meta{font-size:12px;color:#777;margin-top:2px}
+.art-item .art-cuplik{font-size:13.5px;color:#444;margin-top:5px;line-height:1.5}
+.art-item .art-isi{display:none;padding:2px 16px 16px;line-height:1.75;font-size:15px;color:#222;border-top:1px dashed #e0d3b0}
+.art-item.buka .art-isi{display:block}.art-item.buka .art-cuplik{display:none}
+.art-item .art-isi p{margin:10px 0}
+#artIsi{width:100%;box-sizing:border-box;min-height:160px;padding:10px;border:1px solid #cfd8dc;border-radius:9px;font:inherit;resize:vertical}
+</style>
+<script>
+(function(){
+ const $=id=>document.getElementById(id);
+ const esc=t=>String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const BERHENTI=new Set('yang dan di ke dari untuk dengan apa itu ini kita kamu anda adalah dalam pada atau tidak akan jika saat ketika mengapa bagaimana cara para sebuah oleh sebagai agar supaya lebih juga saja sudah belum bisa harus jangan seorang setiap semua antara tentang kepada karena sebab ialah yaitu yakni ada bagi bukan hanya masih lalu maka pun lah kah nya'.split(' '));
+ /* akar kata sederhana agar "Bersabar", "Kesabaran", "Sabar" jatuh ke kelompok yang sama */
+ function akar(w){
+  w=w.toLowerCase().replace(/[^a-z]/g,'');
+  w=w.replace(/(nya|lah|kah|kan|an|i)$/,'');
+  w=w.replace(/^(meng|meny|men|mem|me|ber|ter|per|pen|peng|pem|pe|ke|se|di)(?=[a-z]{4,})/,'');
+  return w;
+ }
+ function kata(j){return String(j||'').toLowerCase().split(/[^a-z']+/).filter(w=>w.length>=4&&!BERHENTI.has(w)).map(w=>({asli:w,akar:akar(w)})).filter(o=>o.akar.length>=4);}
+ /* kelompokkan berdasarkan kata kunci judul yang sama (minimal dua judul memakainya) */
+ function kelompok(list){
+  const df={},asli={};
+  list.forEach(a=>{const seen=new Set();kata(a.title).forEach(o=>{if(seen.has(o.akar))return;seen.add(o.akar);df[o.akar]=(df[o.akar]||0)+1;(asli[o.akar]=asli[o.akar]||{})[o.asli]=((asli[o.akar]||{})[o.asli]||0)+1;});});
+  const peta=new Map();
+  list.forEach(a=>{
+   const ks=[...new Set(kata(a.title).map(o=>o.akar))].filter(k=>df[k]>=2).sort((x,y)=>df[y]-df[x]||y.length-x.length);
+   const k=ks[0]||'';
+   if(!peta.has(k))peta.set(k,[]);peta.get(k).push(a);
+  });
+  const hasil=[];
+  peta.forEach((arr,k)=>{
+   let nama='Lainnya';
+   if(k){const kandidat=Object.entries(asli[k]).sort((x,y)=>y[1]-x[1]||x[0].length-y[0].length)[0][0];nama=kandidat.charAt(0).toUpperCase()+kandidat.slice(1);}
+   hasil.push({nama,arr});
+  });
+  hasil.sort((x,y)=>(x.nama==='Lainnya')-(y.nama==='Lainnya')||y.arr.length-x.arr.length||x.nama.localeCompare(y.nama));
+  return hasil;
+ }
+ window.__kelompokArtikel=kelompok;
+ let pilih='';
+ function semua(){return ((window.__terbit&&window.__terbit.artikel)||[]).slice().reverse();}
+ function render(){
+  const daftar=$('artDaftar'),kat=$('artKategori');if(!daftar)return;
+  const q=($('artCari').value||'').toLowerCase().trim();
+  const all=semua();
+  if(!all.length){daftar.innerHTML='<p class="note">Belum ada artikel yang disetujui admin. Jadilah penulis pertama di bawah.</p>';kat.innerHTML='';return;}
+  const grup=kelompok(all);
+  if(pilih&&!grup.some(g=>g.nama===pilih))pilih='';
+  kat.innerHTML='<button type="button" data-k=""'+(pilih===''?' class="on"':'')+'>Semua ('+all.length+')</button>'+grup.map(g=>'<button type="button" data-k="'+esc(g.nama)+'"'+(pilih===g.nama?' class="on"':'')+'>'+esc(g.nama)+' ('+g.arr.length+')</button>').join('');
+  let html='';
+  grup.filter(g=>!pilih||g.nama===pilih).forEach(g=>{
+   const arr=g.arr.filter(a=>!q||(a.title+' '+a.isi+' '+a.pengirim).toLowerCase().includes(q));
+   if(!arr.length)return;
+   html+='<div class="art-grup"><h4>'+esc(g.nama)+'</h4>'+arr.map(a=>{
+    const par=String(a.isi||'').split(/\n{2,}|\n/).map(x=>x.trim()).filter(Boolean);
+    const cuplik=String(a.isi||'').replace(/\s+/g,' ').slice(0,150)+(String(a.isi||'').length>150?'...':'');
+    return '<article class="art-item" data-id="'+esc(a.id)+'"><button type="button" aria-expanded="false"><h5>'+esc(a.title)+'</h5><div class="art-meta">Ditulis oleh '+esc(a.pengirim)+' · '+esc(String(a.waktu||'').slice(0,10))+'</div><div class="art-cuplik">'+esc(cuplik)+'</div></button><div class="art-isi">'+par.map(x=>'<p>'+esc(x)+'</p>').join('')+'</div></article>';}).join('')+'</div>';
+  });
+  daftar.innerHTML=html||'<p class="note">Tidak ada artikel yang cocok.</p>';
+ }
+ window.__renderArtikel=render;
+ document.addEventListener('click',e=>{
+  const k=e.target.closest&&e.target.closest('#artKategori button');
+  if(k){pilih=k.dataset.k;render();return;}
+  const b=e.target.closest&&e.target.closest('.art-item>button');
+  if(b){const it=b.parentNode;it.classList.toggle('buka');b.setAttribute('aria-expanded',it.classList.contains('buka')?'true':'false');}
+ });
+ $('artCari').addEventListener('input',render);
+ $('artIsi').addEventListener('input',()=>{$('artHitung').textContent=$('artIsi').value.length+' / 6000 huruf';});
+ async function muat(){
+  try{if(window.__muatTerbit)await window.__muatTerbit();}catch(e){}
+  render();setTimeout(render,1800);
+ }
+ const nb=document.querySelector('nav button[data-page="artikel"]');
+ if(nb)nb.addEventListener('click',muat);
+ if(location.hash==='#artikel'&&nb)nb.click();
+ $('artKirim').addEventListener('click',async()=>{
+  const m=$('artMsg'),say=(t,ok)=>{m.classList.remove('hidden');m.textContent=t;m.style.color=ok===false?'#a33':'';};
+  const judul=$('artJudul').value.trim(),isi=$('artIsi').value.trim(),nama=$('artNama').value.trim();
+  if(!judul){say('Isi judul artikel.',false);return;}
+  if(isi.length<40){say('Isi artikel terlalu pendek (minimal 40 huruf).',false);return;}
+  if(!nama){say('Isi nama penulis.',false);return;}
+  const btn=$('artKirim');btn.disabled=true;say('Mengirim...');
+  try{
+   const r=await window.BaniIlyasApi({action:'kirim',jenis:'artikel',pengirim:window.rapikanNama?window.rapikanNama(nama):nama,kontak:$('artWa').value.trim(),data:{title:judul,isi},website:''});
+   say((r.pesan||'Artikel diterima dan menunggu verifikasi admin.')+' Terima kasih.');
+   $('artJudul').value='';$('artIsi').value='';$('artHitung').textContent='0 / 6000 huruf';
+  }catch(e){say('Artikel belum terkirim: '+e.message,false);}
+  btn.disabled=false;
+ });
 })();
 </script>
 </body>
