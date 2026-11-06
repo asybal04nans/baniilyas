@@ -2670,7 +2670,29 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  }
  /* anak dikelompokkan menurut ibu bila istri/suami lebih dari satu, atau anak mencatat ibu yang berbeda-beda */
  const nkI=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').replace(/\b(h|hj|r|kh|ny|nyai|ibu|hajjah|raden)\b/g,' ').replace(/\s+/g,' ').trim();
+ /* ---------- jenis kelamin otomatis dari data + nama (untuk label suami/istri, putra/putri) ---------- */
+ const NAMA_P=new Set('hj hajjah nyai ny neng eneng enok enden ibu siti sitti fatimah fatimatuzzahra aminah amanah khadijah khodijah aisyah maryam mariam halimah hamidah lilis imas ida nisa nissa salma salsabila najwa nazwa nayla najda syifa shofia zahra dewi sri putri rifa humaira huamira bilqis mahya arsylia halwa syahla syahda hanna ayra anten nahla azkia ajwa hamda rina rini yeni neneng wiwip wida sopiyatul selly ai sopiah nurmala fauziyatussolihah faridah dalpah najma malwa aas nenden euis kokom lia'.split(' '));
+ const NAMA_L=new Set('muhammad muh moch mochamad mohamad mohammad ahmad abdul abdurahman abdurrahman abdullah aceng asep deden ujang agus cep uhud uus dedi harun zaki ali rizal ilyas nanan endong enjang rois haji kh ky akmal muayyad muzakky ardi fakih farij hikam muiz yazid raihan akbar salman zahir jami asrhaf arsyad iklilul husein sibromalisi badru sohibul padlu holil anwar rahmat hasan makki aziz firman aten supyan ulum baihaqi alvi salik hafidz'.split(' '));
+ function tebakJk(nama){
+  const t=nk(nama).split(' ').filter(Boolean);let f=0,m=0;
+  t.forEach((x,i)=>{if(NAMA_P.has(x))f+=(i===0||x==='hj')?2:1;if(NAMA_L.has(x))m+=(i===0)?2:1;});
+  const tj=t.filter(x=>!GEL.has(x)||x==='hj');
+  if(tj.length&&NAMA_P.has(tj[0]))f+=1;if(tj.length&&NAMA_L.has(tj[0]))m+=1;
+  return f>m?'P':m>f?'L':'';
+ }
+ function jkOrang(a){
+  const v=String(a&&a.jk||'').trim().toUpperCase();let j=(v==='L'||v==='P')?v:(/^(LAKI|PRIA|PUTRA)/.test(v)?'L':/^(PEREMPUAN|WANITA|PUTRI)/.test(v)?'P':'');
+  const g=tebakJk(a&&a.nama);
+  if(!j)return g;
+  return g&&g!==j?g:j;   /* data jenis kelamin keliru: nama yang jelas menang */
+ }
+ function labelPasangan(a,nama){
+  const g=tebakJk(nama);if(g)return g==='L'?'Suami':'Istri';
+  const j=jkOrang(a);return j==='P'?'Suami':j==='L'?'Istri':'Pasangan';
+ }
+ window.__jkOrang=jkOrang;window.__labelPasangan=labelPasangan;
  function kelompokIbu(a,sps,kids){
+  if(jkOrang(a)==='P')return null;
   const ibuKunci=k=>nkI(k.ibu);
   const beda=new Set(kids.map(ibuKunci).filter(Boolean));
   const seb=kids.some(k=>k.hubungan==='sebapak');
@@ -2696,7 +2718,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   const row=document.createElement('span');row.className='pk-row';
   const nm=document.createElement('span');nm.textContent=a.nama;nm.className='pk-nama';nm.title='Klik untuk melihat profil '+a.nama;nm.setAttribute('role','button');nm.tabIndex=0;
   const bp=e=>{e.stopPropagation();e.preventDefault();bukaProfil(a,list);};nm.addEventListener('click',bp);nm.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')bp(e);});node.appendChild(nm);
-  const sm=document.createElement('small');sm.textContent=(a.jk==='P'?'putri':a.jk==='L'?'putra':'putra/putri')+(a.anakKe?' · anak ke-'+a.anakKe:'');node.appendChild(sm);
+  const sm=document.createElement('small');sm.textContent=(jkOrang(a)==='P'?'putri':jkOrang(a)==='L'?'putra':'putra/putri')+(a.anakKe?' · anak ke-'+a.anakKe:'');node.appendChild(sm);
   if(a.sambung){node.classList.add('sambung');const sb=document.createElement('span');sb.className='pk-sambung';sb.textContent='anak sambung';sb.title='Bukan anak kandung dari ayah/ibu sambungnya';node.appendChild(sb);}
   else if(a.hubungan==='sebapak'||a.hubungan==='seibu'){const sb=document.createElement('span');sb.className='pk-sambung';sb.textContent=a.hubungan==='seibu'?'seibu sebapak':'sebapak';sb.title=a.hubungan==='seibu'?'Seibu dan sebapak dengan anak-anak istri yang sekarang':'Bapaknya sama, ibunya lain';node.appendChild(sb);}
   if(kids.length){const c=document.createElement('span');c.className='pk-n';c.textContent=kids.length+' anak';node.appendChild(c);}
@@ -2706,7 +2728,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   const rv=document.createElement('button');rv.type='button';rv.className='secondary';rv.textContent='Update';rv.title='Usulkan update nama atau urutan anak '+a.nama;
   rv.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();bukaRevisi(a,list);});
   node.appendChild(rv);
-  const pb=document.createElement('button');pb.type='button';pb.className='secondary';pb.textContent=a.jk==='L'?'+ Istri':a.jk==='P'?'+ Suami':'+ Pasangan';pb.title='Tambah nama istri/suami '+a.nama;
+  const pb=document.createElement('button');pb.type='button';pb.className='secondary';pb.textContent=jkOrang(a)==='L'?'+ Istri':jkOrang(a)==='P'?'+ Suami':'+ Pasangan';pb.title='Tambah nama istri/suami '+a.nama;
   pb.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();if(window.__tambahPasangan)window.__tambahPasangan(a);});node.appendChild(pb);
   if(kids.length>1){const ub=document.createElement('button');ub.type='button';ub.className='secondary';ub.textContent='Update urutan anak';ub.title='Usulkan update urutan anak-anak '+a.nama;
    ub.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();bukaUrutan(a,list);});node.appendChild(ub);}
@@ -2715,8 +2737,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   if(sps.length){
    const ar=document.createElement('span');ar.className='pk-arrow';ar.setAttribute('aria-hidden','true');row.appendChild(ar);
    const col=document.createElement('span');col.className='pk-sp';
-   const lab=a.jk==='P'?'Suami':(a.jk==='L'?'Istri':'Pasangan');
-   sps.forEach(n=>{const b=document.createElement('span');b.className='pk-spbox';const sm=document.createElement('small');sm.textContent=lab;b.appendChild(sm);b.appendChild(document.createTextNode(n));col.appendChild(b);});
+   sps.forEach(n=>{const b=document.createElement('span');b.className='pk-spbox';const sm=document.createElement('small');sm.textContent=labelPasangan(a,n);b.appendChild(sm);b.appendChild(document.createTextNode(n));col.appendChild(b);});
    row.appendChild(col);
   }
   if(kids.length){
@@ -2724,7 +2745,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
    const grup=kelompokIbu(a,sps,kids);
    if(grup){
     grup.forEach(g=>{const h=document.createElement('div');h.className='pk-grup';
-     h.textContent=g.sebapak?('Anak sebapak, lain ibu ('+g.anak.length+')'):g.nama?('Anak dari '+(a.jk==='P'?'suami ':'istri ')+g.nama+' ('+g.anak.length+')'):('Ibu belum dicatat ('+g.anak.length+')');d.appendChild(h);
+     h.textContent=g.sebapak?'Anak sebapak, lain ibu':g.nama?('Anak dari istri '+g.nama):'Ibu belum dicatat';d.appendChild(h);
      const u2=document.createElement('ul');u2.className='pk';g.anak.forEach(k=>u2.appendChild(simpul(list,k,depth+1)));d.appendChild(u2);});
     li.appendChild(d);
    }else{
@@ -2826,10 +2847,10 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   pfOrang=a;pfList=list;
   $('pfNama').textContent=a.nama;
   const ayah=list.find(x=>x.id===a.ayahId);
-  $('pfSub').textContent=(a.jk==='P'?'Putri':a.jk==='L'?'Putra':'Putra/putri')+(ayah?' dari '+ayah.nama:'')+(a.anakKe?' · anak ke-'+a.anakKe:'')+(a.ibu?' · ibu: '+a.ibu:'')+(a.sambung?' · anak sambung':a.hubungan==='sebapak'?' · sebapak':a.hubungan==='seibu'?' · seibu sebapak':'');
+  $('pfSub').textContent=(jkOrang(a)==='P'?'Putri':jkOrang(a)==='L'?'Putra':'Putra/putri')+(ayah?' dari '+ayah.nama:'')+(a.anakKe?' · anak ke-'+a.anakKe:'')+(a.ibu?' · ibu: '+a.ibu:'')+(a.sambung?' · anak sambung':a.hubungan==='sebapak'?' · sebapak':a.hubungan==='seibu'?' · seibu sebapak':'');
   $('pfNasab').textContent=nasabTeks(a,list);
   const sps=(a.pasangan||[]).filter(Boolean);
-  $('pfPasangan').innerHTML='<b>'+(a.jk==='P'?'Suami':a.jk==='L'?'Istri':'Pasangan')+'</b>';
+  $('pfPasangan').innerHTML='<b>'+(jkOrang(a)==='P'?'Suami':jkOrang(a)==='L'?'Istri':'Pasangan')+'</b>';
   $('pfPasangan').appendChild(document.createTextNode(sps.length?sps.join(', '):'Belum dicatat'));
   const kids=anakDari(list,a.id);
   $('pfAnak').innerHTML='<b>Anak ('+kids.length+')</b>';
@@ -3426,7 +3447,7 @@ let dobelMode=true;
  const msg=(t,ok)=>{const m=$('psMsg');m.textContent=t;m.style.color=ok===false?'#a33':'#1f5f4a';};
  const nk=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
  window.__tambahPasangan=function(a){
-  cur=a;const kata=a.jk==='L'?'istri':a.jk==='P'?'suami':'istri/suami';
+  cur=a;const jj=window.__jkOrang?window.__jkOrang(a):a.jk;const kata=jj==='L'?'istri':jj==='P'?'suami':'istri/suami';
   $('psJudul').textContent='Tambah '+kata;$('psSub').textContent='untuk '+a.nama;$('psLabel').textContent='Nama '+kata;
   const ada=(a.pasangan||[]).filter(Boolean),b=$('psAda');
   b.hidden=!ada.length;b.textContent=ada.length?'Sudah tercatat: '+ada.join(', '):'';
