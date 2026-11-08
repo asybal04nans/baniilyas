@@ -1,6 +1,6 @@
 /* Service worker Bani Ilyas: halaman tetap bisa dibuka saat sinyal lemah. Data (Apps Script) tidak pernah disimpan. */
-const VERSI = 'bani-ilyas-v1';
-const INTI = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
+const VERSI = 'bani-ilyas-v2';
+const INTI = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png', 'icons/logo.png'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(VERSI).then((c) => c.addAll(INTI)).then(() => self.skipWaiting()));
