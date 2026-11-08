@@ -485,6 +485,7 @@ main {
    <button data-page="hubungan">Kalkulator Hubungan</button>
    <button data-page="waris">Kalkulator Waris</button>
    <button data-page="zis">Zakat, Infaq &amp; Shodaqoh</button>
+   <button data-page="ajengan">Tanya Ajengan (AI)</button>
    <button data-page="kartu">Kartu Bani Ilyas</button>
    <button data-page="chat">Chat Anak Incu</button>
    <button data-page="artikel">Artikel Agama</button>
@@ -1100,6 +1101,20 @@ main {
   <div id="zisSalur" style="display:none"><h4 class="ws-h4">Laporan penyaluran</h4><div class="note" id="zisSalurIsi"></div></div>
  </div>
 </section>
+<section id="ajengan" class="hidden">
+ <div class="hero"><div><h2>Tanya Ajengan</h2><p>Asisten AI yang menjawab pertanyaan agama dengan dalil, penjelasan, dan nasihat, mengikuti mazhab Imam Syafi'i dan kitab-kitab pesantren.</p></div><span class="pill">NGAJI &amp; NANYA</span></div>
+ <div class="panel aj-peringatan"><b>Mohon dibaca.</b> Ini asisten AI, bukan ulama dan bukan fatwa. AI bisa keliru, termasuk dalam menyebut ayat atau hadis. Periksa dalilnya kepada guru atau ajengan, dan untuk urusan penting (waris, talak, nazar, sengketa) tanyakan langsung kepada ulama setempat. Pertanyaan dan jawaban dicatat untuk ditinjau pengurus agar mutu jawaban terjaga; jangan menulis data pribadi.</div>
+ <div class="panel">
+  <div class="formgrid">
+   <div class="field"><label for="ajKode">Kode keluarga</label><input id="ajKode" type="password" autocomplete="off" placeholder="Kode dari pengurus"></div>
+  </div>
+  <div class="field" style="margin-top:8px"><label for="ajTanya">Pertanyaan Anda</label><textarea id="ajTanya" rows="4" maxlength="600" placeholder="Contoh: Bagaimana hukum membaca qunut pada shalat subuh?"></textarea><small class="note" id="ajHitung">0 / 600 huruf</small></div>
+  <div class="aj-contoh" id="ajContoh"></div>
+  <button class="primary" id="ajKirim" type="button" style="margin-top:12px">Tanyakan kepada Ajengan</button>
+  <div class="result hidden" id="ajMsg" role="status"></div>
+ </div>
+ <div id="ajJawab"></div>
+</section>
 <section id="tautan" class="hidden">
  <div class="hero"><div><h2>Tautan Web</h2><p>Kumpulan tautan web yang bermanfaat (kajian, berita, kitab, usaha keluarga, dll). Siapa pun boleh mengirim; setiap tautan diperiksa admin sebelum tampil.</p></div><span class="pill">TAUTAN</span></div>
  <div class="panel">
@@ -1481,7 +1496,7 @@ window.PancakakiDownloadGate = {
 <footer>Arsip Digital Kulawarga Bani Ilyas · Limbangan, Garut · Rarancang awal pikeun dimekarkeun babarengan ku kulawarga</footer>
 <script>
 const navButtons=document.querySelectorAll('nav button');
-const pageIds=['home','profil','add','archive','pesantren','umkm','library','calendar','donasi','haul','guide','nasab','kartu','chat','artikel','tautan','hubungan','waris','zis','verifikasi'];
+const pageIds=['home','profil','add','archive','pesantren','umkm','library','calendar','donasi','haul','guide','nasab','kartu','chat','artikel','tautan','hubungan','waris','zis','ajengan','verifikasi'];
 navButtons.forEach(btn=>btn.addEventListener('click',()=>{
  navButtons.forEach(b=>b.classList.remove('active'));
  btn.classList.add('active');
@@ -4403,6 +4418,68 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
 .zk-total{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
 .zk-kotak{border:1px solid #e5dcc8;border-radius:12px;background:#fffdf6;padding:10px 14px;display:flex;flex-direction:column}
 .zk-kotak b{font-size:19px;color:#1d4a38}.zk-kotak small{color:#777}
+</style>
+<script>
+(function(){
+ const $=id=>document.getElementById(id);
+ const esc=t=>String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const CONTOH=['Bagaimana hukum membaca qunut pada shalat subuh?','Apa keutamaan bersabar saat ditimpa musibah?','Bolehkah zakat fitrah dibayar dengan uang?'];
+ $('ajContoh').innerHTML=CONTOH.map(c=>'<button type="button" class="aj-chip">'+esc(c)+'</button>').join('');
+ $('ajContoh').addEventListener('click',e=>{const b=e.target.closest('.aj-chip');if(!b)return;$('ajTanya').value=b.textContent;hitung();$('ajTanya').focus();});
+ function hitung(){$('ajHitung').textContent=$('ajTanya').value.length+' / 600 huruf';}
+ $('ajTanya').addEventListener('input',hitung);
+ try{$('ajKode').value=sessionStorage.getItem('bani_kode_keluarga')||'';}catch(e){}
+ /* penyaji aman: teks AI di-escape dulu, baru diberi format sederhana */
+ function inline(t){
+  t=esc(t).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  return t.replace(/[؀-ۿݐ-ݿﭐ-﷿ﹰ-﻿][؀-ۿݐ-ݿﭐ-﷿ﹰ-﻿\s‌‍،؟۔]*[؀-ۿݐ-ݿﭐ-﷿ﹰ-﻿]|[؀-ۿݐ-ݿﭐ-﷿ﹰ-﻿]/g,m=>'<span class="aj-ar" dir="rtl" lang="ar">'+m+'</span>');
+ }
+ function sajikan(teks){
+  const baris=String(teks).replace(/\r/g,'').split('\n');let out='',ul=false,p=[];
+  const tutupP=()=>{if(p.length){out+='<p>'+p.join('<br>')+'</p>';p=[];}};
+  const tutupU=()=>{if(ul){out+='</ul>';ul=false;}};
+  baris.forEach(b=>{
+   const t=b.trim();
+   if(!t){tutupP();tutupU();return;}
+   let m;
+   if((m=t.match(/^#{1,4}\s+(.*)$/))){tutupP();tutupU();out+='<h4>'+inline(m[1])+'</h4>';return;}
+   if((m=t.match(/^\*\*([^*]+)\*\*:?$/))){tutupP();tutupU();out+='<h4>'+inline(m[1])+'</h4>';return;}
+   if((m=t.match(/^(?:[-*•]|\d+[.)])\s+(.*)$/))){tutupP();if(!ul){out+='<ul>';ul=true;}out+='<li>'+inline(m[1])+'</li>';return;}
+   tutupU();p.push(inline(t));
+  });
+  tutupP();tutupU();return out;
+ }
+ window.__sajikanAjengan=sajikan;
+ let sibuk=false;
+ $('ajKirim').addEventListener('click',async()=>{
+  if(sibuk)return;
+  const m=$('ajMsg'),say=(t,ok)=>{m.classList.remove('hidden');m.textContent=t;m.style.color=ok===false?'#a33':'';};
+  const kode=$('ajKode').value.trim(),tanya=$('ajTanya').value.trim();
+  if(!kode){say('Isi kode keluarga dari pengurus.',false);return;}
+  if(tanya.length<8){say('Tulis pertanyaan yang lebih jelas (minimal 8 huruf).',false);return;}
+  sibuk=true;$('ajKirim').disabled=true;say('Ajengan sedang menyusun jawaban, mohon tunggu sebentar...');$('ajJawab').innerHTML='';
+  try{
+   const r=await window.BaniIlyasApi({action:'tanyaAjengan',kode,tanya});
+   try{sessionStorage.setItem('bani_kode_keluarga',kode);}catch(e){}
+   m.classList.add('hidden');
+   $('ajJawab').innerHTML='<div class="panel aj-jawab"><div class="aj-tanya"><small>Pertanyaan</small><div>'+esc(tanya)+'</div></div><div class="aj-isi">'+sajikan(r.jawaban)+'</div><p class="note">Jawaban ini dibuat oleh AI sebagai bahan belajar, bukan fatwa. Periksa dalilnya kepada guru atau ajengan Anda.'+(typeof r.sisaHariIni==='number'?' Sisa pertanyaan hari ini untuk seluruh keluarga: '+r.sisaHariIni+'.':'')+'</p></div>';
+   $('ajJawab').scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(e){say(e.message||'Belum berhasil. Coba lagi.',false);if(/Kode keluarga/.test(e.message||'')){try{sessionStorage.removeItem('bani_kode_keluarga');}catch(er){}}}
+  setTimeout(()=>{sibuk=false;$('ajKirim').disabled=false;},3000);
+ });
+})();
+</script>
+<style>
+.aj-peringatan{background:#fff6e0;border:1px solid #e8d49a;font-size:14px;line-height:1.55}
+#ajTanya{width:100%;box-sizing:border-box;font:inherit;padding:10px;border:1px solid #d8c69b;border-radius:10px}
+.aj-contoh{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.aj-chip{border:1px solid #d8c69b;background:#fffaf0;color:#5d4a1c;border-radius:999px;padding:6px 13px;font-size:13px;cursor:pointer;text-align:left}
+.aj-chip:hover{background:#fff3d6}
+.aj-tanya{border-left:4px solid #b8893b;background:#fffaf0;border-radius:8px;padding:8px 12px;margin-bottom:12px}
+.aj-tanya small{color:#7a5f1f;text-transform:uppercase;letter-spacing:.05em;font-size:11.5px}
+.aj-isi h4{margin:14px 0 4px;color:#1d4a38;font-size:15.5px}
+.aj-isi p{margin:6px 0;line-height:1.7}.aj-isi ul{margin:6px 0;padding-left:22px;line-height:1.7}
+.aj-ar{font-family:'Amiri','Scheherazade New','Noto Naskh Arabic','Traditional Arabic',serif;font-size:1.35em;line-height:2;color:#1d4a38}
 </style>
 </body>
 </html>
