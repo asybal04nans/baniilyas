@@ -3318,6 +3318,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 .um-card{position:relative}
 #uUpModal{position:fixed;inset:0;background:rgba(20,35,28,.7);z-index:10002;display:none;align-items:flex-start;justify-content:center;padding:14px;overflow:auto}
 #uUpModal.on{display:flex}
+#uUpModal .uu-lama{display:flex;gap:8px;flex-wrap:wrap}#uUpModal .uu-g{position:relative;width:96px;border:1px solid #d8cfbb;border-radius:9px;overflow:hidden;background:#fff;text-align:center}#uUpModal .uu-g img{display:block;width:100%;height:72px;object-fit:cover}#uUpModal .uu-g small{display:block;font-size:10px;color:#4b5949;padding:2px 0}#uUpModal .uu-g button{width:100%;border:0;border-top:1px solid #d8cfbb;background:#f7efe0;color:#a33;font-size:12px;font-weight:700;padding:5px 0;cursor:pointer}#uUpModal .uu-g.x{opacity:.55;border-color:#a33}#uUpModal .uu-g.x button{background:#a33;color:#fff}
 #uUpModal .rv-box{background:#fffdf6;border:2px solid #c9a35a;border-radius:14px;max-width:560px;width:100%;padding:16px 18px;margin:auto;box-shadow:0 20px 50px rgba(0,0,0,.4)}
 #uUpModal h3{margin:0 0 4px;color:#1d4a38;font-size:17px}
 #uUpModal label{display:block;font-size:12px;font-weight:700;color:#4b5949;margin:10px 0 3px}
@@ -3332,19 +3333,22 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 <label for="uuGoods">Barang yang dijual (pisahkan dengan koma)</label><textarea id="uuGoods" rows="2" maxlength="600"></textarea>
 <label for="uuPhone">Nomor telepon / WhatsApp</label><input id="uuPhone" maxlength="40" inputmode="tel">
 <label for="uuAddress">Alamat usaha</label><input id="uuAddress" maxlength="250">
+<div id="uuLamaBox" style="display:none"><label>Gambar yang sudah ada (klik Hapus pada gambar yang ingin diganti)</label><div id="uuLama" class="uu-lama"></div></div>
 <label for="uuLogo">Ganti logo usaha (boleh kosong)</label><input id="uuLogo" type="file" accept="image/*"><div id="uuLogoPrev" class="kr-prev"></div>
 <label for="uuPics">Tambah foto produk (boleh kosong, maksimal 3)</label><input id="uuPics" type="file" accept="image/*" multiple><div id="uuPicsPrev" class="kr-prev"></div>
 <label for="uuAlasan">Keterangan update (boleh kosong)</label><input id="uuAlasan" maxlength="300">
 <label for="uuPengirim">Nama Anda</label><input id="uuPengirim" maxlength="100" autocomplete="name">
 <label for="uuKontak">WhatsApp (boleh kosong)</label><input id="uuKontak" maxlength="60" inputmode="tel" autocomplete="tel">
 <div class="rv-acts"><button type="button" class="primary" id="uuKirim">Kirim update</button><button type="button" class="secondary" id="uuBatal">Tutup</button></div>
-<div id="uuMsg" aria-live="polite" style="font-size:13px;margin-top:8px;min-height:18px"></div><p class="note" style="margin-top:6px">Update tidak langsung berubah. Admin memeriksa dulu, lalu menyetujui atau menolak. Logo baru menggantikan logo lama; foto produk baru ditambahkan ke foto yang sudah ada.</p></div></div>
+<div id="uuMsg" aria-live="polite" style="font-size:13px;margin-top:8px;min-height:18px"></div><p class="note" style="margin-top:6px">Update tidak langsung berubah. Admin memeriksa dulu, lalu menyetujui atau menolak. Logo baru menggantikan logo lama; foto produk baru ditambahkan ke foto yang sudah ada. Untuk mengganti sebuah foto: hapus foto lamanya, lalu pilih foto barunya.</p></div></div>
 <script>
 (function(){
- const $=id=>document.getElementById(id),M=$('uUpModal');if(!M)return;let asal=null;const foto={logo:'',contoh:[]};
+ const $=id=>document.getElementById(id),M=$('uUpModal');if(!M)return;let asal=null;const foto={logo:'',contoh:[]};const hapus=new Set();
  const prev=(id,arr)=>{const b=$(id);if(!b)return;b.textContent='';arr.forEach(u=>{const i=document.createElement('img');i.src=u;i.alt='';b.appendChild(i);});};
  $('uuLogo').addEventListener('change',async()=>{foto.logo='';prev('uuLogoPrev',[]);const f=$('uuLogo').files[0];if(!f)return;try{foto.logo=await window.__kecilkan(f,200);prev('uuLogoPrev',[foto.logo]);}catch(e){msg(e.message,false);$('uuLogo').value='';}});
  $('uuPics').addEventListener('change',async()=>{foto.contoh=[];prev('uuPicsPrev',[]);const fs=[...$('uuPics').files].slice(0,3);if($('uuPics').files.length>3)msg('Hanya 3 foto pertama yang dipakai.',false);try{for(const f of fs)foto.contoh.push(await window.__kecilkan(f,1400,600000));prev('uuPicsPrev',foto.contoh);}catch(e){msg(e.message,false);$('uuPics').value='';foto.contoh=[];}});
+ const lama=()=>{const g=(window.__gambarUmkm&&asal&&window.__gambarUmkm[asal.id])||{};const it=[];if(g.logo&&g.idLogo)it.push({id:g.idLogo,src:g.logo,t:'Logo'});(g.contoh||[]).forEach((u,i)=>{if(g.idContoh&&g.idContoh[i])it.push({id:g.idContoh[i],src:u,t:'Foto '+(i+1)});});return it;};
+ const gambarLama=()=>{const b=$('uuLama');b.textContent='';const it=lama();$('uuLamaBox').style.display=it.length?'block':'none';it.forEach(x=>{const d=document.createElement('div');d.className='uu-g'+(hapus.has(x.id)?' x':'');const im=document.createElement('img');im.src=x.src;im.alt=x.t;const sm=document.createElement('small');sm.textContent=hapus.has(x.id)?'Akan dihapus':x.t;const bt=document.createElement('button');bt.type='button';bt.textContent=hapus.has(x.id)?'Batal hapus':'Hapus';bt.addEventListener('click',()=>{if(hapus.has(x.id))hapus.delete(x.id);else hapus.add(x.id);gambarLama();});d.append(im,sm,bt);b.appendChild(d);});};
  const KOL=[['name','uuName'],['brand','uuBrand'],['owner','uuOwner'],['product','uuProduct'],['goods','uuGoods'],['phone','uuPhone'],['address','uuAddress']];
  const msg=(t,ok)=>{const m=$('uuMsg');m.textContent=t;m.style.color=ok===false?'#a33':'#1f5f4a';};
  const rapi=v=>window.rapikanNama?window.rapikanNama(v):v;
@@ -3353,7 +3357,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   const x=((window.__terbit&&window.__terbit.umkm)||[]).find(u=>String(u.id)===b.dataset.uupdate);if(!x)return;
   asal=x;$('uuSub').textContent='Usaha: '+x.name+'. Ubah isian yang perlu diperbarui saja.';
   KOL.forEach(k=>{$(k[1]).value=x[k[0]]||'';});$('uuAlasan').value='';
-  foto.logo='';foto.contoh=[];['uuLogo','uuPics'].forEach(i=>{$(i).value='';$(i+'Prev').textContent='';});
+  foto.logo='';foto.contoh=[];hapus.clear();gambarLama();['uuLogo','uuPics'].forEach(i=>{$(i).value='';$(i+'Prev').textContent='';});
   try{const p=JSON.parse(localStorage.getItem('bani_pengirim_v1')||'{}');$('uuPengirim').value=p.nama||'';$('uuKontak').value=p.kontak||'';}catch(er){}
   msg('');$('uuKirim').disabled=false;M.classList.add('on');
  });
@@ -3366,7 +3370,8 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   const data={target:asal.id,alasan:$('uuAlasan').value.trim()};let n=0;
   KOL.forEach(k=>{let v=$(k[1]).value.trim();if(k[0]==='owner')v=rapi(v);if(v&&v!==String(asal[k[0]]||'')){data[k[0]]=v;n++;}});
   const nf=(foto.logo?1:0)+foto.contoh.length;
-  if(!n&&!nf){msg('Belum ada isian yang diubah atau gambar yang ditambahkan.',false);return;}
+  if(hapus.size){data.hapus=[...hapus].join(',');}
+  if(!n&&!nf&&!hapus.size){msg('Belum ada isian yang diubah atau gambar yang ditambahkan/dihapus.',false);return;}
   $('uuKirim').disabled=true;msg('Mengirim...');
   try{
    const r=await window.BaniIlyasApi({action:'kirim',jenis:'revisiumkm',pengirim:rapi(pengirim),kontak:$('uuKontak').value.trim(),website:'',data,gambar:nf?{logo:foto.logo||undefined,contoh:foto.contoh}:undefined});
