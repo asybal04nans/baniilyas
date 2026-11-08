@@ -1078,25 +1078,23 @@ main {
  <div class="panel" id="zisRek" style="display:none"><h3>Rekening Zakat, Infaq &amp; Shodaqoh</h3><div class="note" id="zisRekIsi"></div></div>
  <div class="panel">
   <h3>Konfirmasi Pembayaran</h3>
-  <p class="note">Sudah menyalurkan zakat, infaq, atau shodaqoh melalui pengurus? Catat di sini agar dikonfirmasi pengurus. Data masuk ke pengurus dahulu dan baru dihitung setelah diverifikasi. Nama Anda tidak ditampilkan kecuali Anda mengizinkan.</p>
+  <p class="note">Sudah menyalurkan zakat, infaq, atau shodaqoh melalui pengurus? Catat di sini agar dikonfirmasi pengurus. Di web hanya nama yang tampil (tanpa nominal), dan setelah diverifikasi pengurus akan mengirimkan laporannya ke nomor WhatsApp Anda.</p>
   <div class="formgrid" style="margin-top:10px">
    <div class="field"><label for="zsKind">Jenis</label><select id="zsKind"><option value="zakat-maal">Zakat Maal</option><option value="zakat-penghasilan">Zakat Penghasilan</option><option value="zakat-emas">Zakat Emas &amp; Perak</option><option value="zakat-perdagangan">Zakat Perdagangan</option><option value="zakat-pertanian">Zakat Pertanian</option><option value="zakat-fitrah">Zakat Fitrah</option><option value="infaq">Infaq</option><option value="shodaqoh">Shodaqoh</option></select></div>
    <div class="field"><label for="zsAmount">Nominal (Rp)</label><input id="zsAmount" inputmode="numeric" placeholder="Contoh: 250.000"></div>
    <div class="field"><label for="zsDate">Tanggal</label><input id="zsDate" type="date"></div>
    <div class="field"><label for="zsMethod">Cara pembayaran</label><input id="zsMethod" maxlength="40" placeholder="Transfer / tunai"></div>
    <div class="field" style="grid-column:1/-1"><label for="zsNote">Keterangan (opsional)</label><input id="zsNote" maxlength="300" placeholder="Misalnya: zakat fitrah 4 jiwa"></div>
-   <div class="field"><label for="zsNama">Nama</label><input id="zsNama" placeholder="Nama lengkap Anda"></div>
-   <div class="field"><label for="zsWa">Nomor WhatsApp (opsional, hanya dilihat pengurus)</label><input id="zsWa" placeholder="08xxxxxxxxxx"></div>
-   <div class="field" style="grid-column:1/-1"><label class="ws-cek"><input type="checkbox" id="zsShown"> Boleh menampilkan nama saya pada daftar yang sudah dikonfirmasi (bila tidak dicentang, tertulis "Hamba Allah")</label></div>
+   <div class="field"><label for="zsNama">Nama yang ditampilkan di web</label><input id="zsNama" placeholder="Boleh ditulis Hamba Allah atau nama Anda"></div>
+   <div class="field"><label for="zsWa">Nomor WhatsApp untuk menerima laporan (tidak tampil di web)</label><input id="zsWa" inputmode="tel" placeholder="08xxxxxxxxxx"></div>
   </div>
   <button class="primary" id="zsKirim" type="button" style="margin-top:12px">Kirim Konfirmasi</button>
   <div class="result hidden" id="zsMsg" role="status"></div>
  </div>
  <div class="panel">
-  <div class="panelhead"><h3>Yang Sudah Terkumpul</h3><span class="pill">TERVERIFIKASI</span></div>
-  <div id="zisTotal" class="zk-total"></div>
-  <h4 class="ws-h4">Catatan terbaru</h4>
-  <div id="zisDaftar"><p class="note">Memuat...</p></div>
+  <div class="panelhead"><h3>Jazakumullahu Khairan</h3><span class="pill">TERVERIFIKASI</span></div>
+  <p class="note">Terima kasih kepada yang telah berzakat, berinfaq, dan bershodaqoh melalui pengurus. Semoga Allah menerima amal ibadah dan memberkahi harta mereka.</p>
+  <div id="zisDaftar" class="zk-nama"><p class="note">Memuat...</p></div>
   <div id="zisSalur" style="display:none"><h4 class="ws-h4">Laporan penyaluran</h4><div class="note" id="zisSalurIsi"></div></div>
  </div>
 </section>
@@ -2437,7 +2435,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  const rapi=v=>window.rapikanNama?window.rapikanNama(v):String(v||'').trim();
  const money=n=>'Rp'+new Intl.NumberFormat('id-ID').format(Number(n)||0);
  const safeLink=u=>/^https:\/\/[^\s"'<>]+$/i.test(String(u||''))?String(u):'';
- const LABEL={kind:'Jenis',shown:'Boleh tampilkan nama',alamat:'Alamat rumah baru',alamatLama:'Alamat rumah sekarang',wa:'WhatsApp baru',waLama:'WhatsApp sekarang',pasangan:'Istri/suami baru',pasanganLama:'Istri/suami sekarang',target:'Kode data asal',ringkas:'Perubahan',id:'ID orang',namaLama:'Nama sekarang',nama:'Nama baru',ayahNama:'Orang tua',anakKeLama:'Anak ke- sekarang',anakKe:'Anak ke- baru',alasan:'Alasan',catatanSistem:'Catatan sistem',name:'Nama',brand:'Merek',goods:'Barang dijual',founder:'Pendiri',leader:'Pimpinan/pengasuh',relation:'Hubungan dengan KH. R. Muhamad Ilyas',phone:'Telepon/WA',address:'Alamat',web:'Website/medsos',profile:'Profil',owner:'Pemilik',code:'Kode silsilah',product:'Produk',desc:'Keterangan',title:'Judul',author:'Pengarang',category:'Kategori',source:'Sumber/izin',link:'Tautan',description:'Keterangan',date:'Tanggal',time:'Jam',place:'Tempat',amount:'Nominal',purpose:'Peruntukan',note:'Catatan',ref:'Referensi',method:'Metode',proof:'Bukti',room:'Ruang',text:'Isi',isi:'Isi artikel',key:'Kunci'};
+ const LABEL={kind:'Jenis',alamat:'Alamat rumah baru',alamatLama:'Alamat rumah sekarang',wa:'WhatsApp baru',waLama:'WhatsApp sekarang',pasangan:'Istri/suami baru',pasanganLama:'Istri/suami sekarang',target:'Kode data asal',ringkas:'Perubahan',id:'ID orang',namaLama:'Nama sekarang',nama:'Nama baru',ayahNama:'Orang tua',anakKeLama:'Anak ke- sekarang',anakKe:'Anak ke- baru',alasan:'Alasan',catatanSistem:'Catatan sistem',name:'Nama',brand:'Merek',goods:'Barang dijual',founder:'Pendiri',leader:'Pimpinan/pengasuh',relation:'Hubungan dengan KH. R. Muhamad Ilyas',phone:'Telepon/WA',address:'Alamat',web:'Website/medsos',profile:'Profil',owner:'Pemilik',code:'Kode silsilah',product:'Produk',desc:'Keterangan',title:'Judul',author:'Pengarang',category:'Kategori',source:'Sumber/izin',link:'Tautan',description:'Keterangan',date:'Tanggal',time:'Jam',place:'Tempat',amount:'Nominal',purpose:'Peruntukan',note:'Catatan',ref:'Referensi',method:'Metode',proof:'Bukti',room:'Ruang',text:'Isi',isi:'Isi artikel',key:'Kunci'};
  const JENIS={revisi:'Update nama/urutan anak',pesantren:'Pesantren',revisipesantren:'Update data pesantren',revisiumkm:'Update data UMKM',umkm:'UMKM',buku:'Kitab/Ebook',media:'Foto/Video',kalender:'Agenda kalender',artikel:'Artikel agama',tautan:'Tautan web',zis:'Zakat/Infaq/Shodaqoh',donasi:'Donasi',haul:'Iuran Haul',chat:'Pesan chat',info:'Informasi'};
  const api=(p)=>window.BaniIlyasApi(p);
  window.__terbit=window.__terbit||{pesantren:[],umkm:[],buku:[],media:[],kalender:[],chat:[],info:{},haul:{terverifikasi:[],menunggu:0,menungguTotal:0}};
@@ -2674,18 +2672,25 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   const list=$('adminList');sec.insertBefore(p,list?list.nextSibling:null);
   const token=()=>($('adminToken')?$('adminToken').value:'');
   const msg=(t,ok)=>{const m=$('krMsg');m.textContent=t;m.style.color=ok===false?'#a33':'';};
+  const KINDLBL={'zakat-maal':'Zakat Maal','zakat-penghasilan':'Zakat Penghasilan','zakat-emas':'Zakat Emas & Perak','zakat-perdagangan':'Zakat Perdagangan','zakat-pertanian':'Zakat Pertanian','zakat-fitrah':'Zakat Fitrah','infaq':'Infaq','shodaqoh':'Shodaqoh'};
+  function nomorWa(v){let d=String(v||'').replace(/\D/g,'');if(d.indexOf('0')===0)d='62'+d.slice(1);else if(d.indexOf('8')===0)d='62'+d;return /^62\d{8,13}$/.test(d)?d:'';}
+  function tautanLaporan(x){
+   const no=nomorWa(x.kontak);if(!no)return '';
+   const tgl=x.data.date||'';const teks="Assalamu'alaikum wr. wb.\nBapak/Ibu "+x.pengirim+",\n\nAlhamdulillah, "+(KINDLBL[x.data.kind]||'kiriman')+" Anda sebesar "+money(x.data.amount)+(tgl?" tertanggal "+tgl:"")+" telah diterima dan diverifikasi oleh pengurus Keluarga Besar Bani Ilyas (kode catatan "+x.id+").\n\nJazakumullahu khairan. Semoga Allah menerima amal ibadah Anda dan memberkahi harta Anda.\n\nWassalamu'alaikum wr. wb.";
+   return 'https://wa.me/'+no+'?text='+encodeURIComponent(teks);}
   function kartu(x,terbit){
    const d=document.createElement('div');d.className='kr-card';
    const baris=Object.keys(x.data).filter(k=>x.data[k]!=='').map(k=>{
     const v=x.data[k];const isi=k==='isi'&&window.__rapikanHtml?'<div class="art-isi art-isi-adm">'+window.__rapikanHtml(v)+'</div>':(k==='link'||k==='web')&&safeLink(v)?'<a target="_blank" rel="noopener noreferrer" href="'+esc(safeLink(v))+'">'+esc(v)+'</a>':esc(k==='amount'?money(v):v);
     return '<b>'+esc(LABEL[k]||k)+':</b> '+isi;}).join('<br>');
    const gal=x.gambar?(()=>{const g=x.gambar,par=[['Logo',[g.logo].filter(Boolean)],['Contoh',g.contoh||[]],['Fisik pesantren',g.fisik||[]],['Kegiatan',g.kegiatan||[]],['Brosur',g.brosur||[]],['Foto artikel',g.foto||[]]].filter(z=>z[1].length);return par.map(z=>'<div class="kr-gal kr-prev kr-prev-besar" title="'+z[0]+'"><b style="flex-basis:100%;font-size:11px">'+z[0]+'</b>'+z[1].map(u=>'<img alt="" src="'+esc(u)+'">').join('')+'</div>').join('');})():'';
-   d.innerHTML='<h4>'+esc(JENIS[x.jenis]||x.jenis)+': '+esc(x.jenis==='haul'||x.jenis==='donasi'?money(x.data.amount):x.judul)+'</h4><div class="kr-meta"><span class="kr-tag '+(x.pengirimTerdaftar?'ok':'warn')+'">'+(x.pengirimTerdaftar?'✓ Nama ada di silsilah':'⚠ Nama belum ada di silsilah')+'</span>'+esc(x.pengirim)+(x.kontak?' · '+esc(x.kontak):'')+' · '+esc(x.waktu)+' · '+esc(x.id)+'</div><div class="kr-data">'+baris+'</div>'+gal;
+   d.innerHTML='<h4>'+esc(JENIS[x.jenis]||x.jenis)+': '+esc(x.jenis==='haul'||x.jenis==='donasi'?money(x.data.amount):(x.jenis==='zis'?(KINDLBL[x.judul]||x.judul)+' \u00B7 '+money(x.data.amount):x.judul))+'</h4><div class="kr-meta"><span class="kr-tag '+(x.pengirimTerdaftar?'ok':'warn')+'">'+(x.pengirimTerdaftar?'✓ Nama ada di silsilah':'⚠ Nama belum ada di silsilah')+'</span>'+esc(x.pengirim)+(x.kontak?' · '+esc(x.kontak):'')+' · '+esc(x.waktu)+' · '+esc(x.id)+'</div><div class="kr-data">'+baris+'</div>'+gal;
    const a=document.createElement('div');a.className='kr-actions';
    const act=(label,cls,keputusan)=>{const b=document.createElement('button');b.type='button';b.className='secondary '+cls;b.textContent=label;b.addEventListener('click',async()=>{
     if(!terbit||keputusan==='TOLAK'){if(terbit&&!confirm('Tarik kiriman ini dari website?'))return;}
-    b.disabled=true;try{const r=await api({action:'kirimanKeputusan',token:token(),id:x.id,keputusan});msg(r.pesan);await muatAdmin();window.__muatTerbit&&window.__muatTerbit(true);}catch(e){msg(e.message,false);b.disabled=false;}});a.appendChild(b);};
+    b.disabled=true;try{const r=await api({action:'kirimanKeputusan',token:token(),id:x.id,keputusan});msg(r.pesan);await muatAdmin();window.__muatTerbit&&window.__muatTerbit(true);if(x.jenis==='zis'&&keputusan==='SETUJU'){const u=tautanLaporan(x),mm=$('krMsg');if(u){const l=document.createElement('a');l.href=u;l.target='_blank';l.rel='noopener noreferrer';l.textContent='📲 Kirim laporan ke '+x.pengirim+' via WhatsApp';l.style.cssText='display:inline-block;margin-left:8px;font-weight:700';mm.appendChild(l);}else{mm.append(' Nomor WhatsApp pengirim tidak valid, laporan tidak dapat dikirim.');}}}catch(e){msg(e.message,false);b.disabled=false;}});a.appendChild(b);};
    if(terbit){act('Tarik dari website','kr-no','TOLAK');}else{act('✓ Setujui','kr-ok','SETUJU');act('✗ Tolak','kr-no','TOLAK');}
+   if(x.jenis==='zis'){const u=tautanLaporan(x);if(u&&terbit){const wa=document.createElement('a');wa.href=u;wa.target='_blank';wa.rel='noopener noreferrer';wa.className='secondary kr-ok';wa.style.cssText='display:inline-block;text-decoration:none;padding:8px 14px;border-radius:10px';wa.textContent='📲 Kirim laporan via WhatsApp';a.appendChild(wa);}else if(terbit){const k=document.createElement('small');k.className='note';k.textContent='Nomor WhatsApp tidak valid, laporan tidak dapat dikirim.';a.appendChild(k);}}
    d.appendChild(a);return d;}
   async function muatAdmin(){
    msg('Memuat...');
@@ -4372,9 +4377,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   if(info['harga-emas']&&!$('zkEmas').dataset.sentuh){const h=angka(info['harga-emas']);if(h){$('zkEmas').value=Math.round(h).toLocaleString('id-ID');$('zkEmasInfo').textContent='Harga dari pengurus; ubah bila perlu.';}}
   const rek=info['zis-rekening'];$('zisRek').style.display=rek?'':'none';if(rek)$('zisRekIsi').innerHTML=esc(rek).replace(/\n/g,'<br>');
   const sl=info['zis-penyaluran'];$('zisSalur').style.display=sl?'':'none';if(sl)$('zisSalurIsi').innerHTML=esc(sl).replace(/\n/g,'<br>');
-  const sum={zakat:[0,0],infaq:[0,0],shodaqoh:[0,0]};list.forEach(x=>{const g=String(x.kind).indexOf('zakat')===0?'zakat':x.kind==='infaq'?'infaq':'shodaqoh';sum[g][0]+=Number(x.amount)||0;sum[g][1]++;});
-  $('zisTotal').innerHTML=[['zakat','Zakat'],['infaq','Infaq'],['shodaqoh','Shodaqoh']].map(a=>'<div class="zk-kotak"><small>'+a[1]+'</small><b>'+rp(sum[a[0]][0])+'</b><small>'+sum[a[0]][1]+' catatan</small></div>').join('');
-  $('zisDaftar').innerHTML=list.length?'<div class="ws-wrap"><table class="ws-tab"><thead><tr><th>Tanggal</th><th>Jenis</th><th>Nama</th><th>Nominal</th></tr></thead><tbody>'+list.slice(0,15).map(x=>'<tr><td>'+esc(x.date||'')+'</td><td>'+esc(KIND[x.kind]||x.kind)+'</td><td>'+esc(x.pengirim||'Hamba Allah')+'</td><td class="ws-r">'+rp(Number(x.amount)||0)+'</td></tr>').join('')+'</tbody></table></div>':'<p class="note">Belum ada catatan yang terverifikasi.</p>';
+  $('zisDaftar').innerHTML=list.length?list.slice(0,80).map(x=>'<span class="zk-chip">'+esc(x.pengirim||'Hamba Allah')+'</span>').join(''):'<p class="note">Belum ada yang tercatat.</p>';
  }
  async function muat(){try{if(window.__muatTerbit)await window.__muatTerbit();}catch(e){}tampil();setTimeout(tampil,1800);}
  $('zkJenis').addEventListener('change',bangun);$('zkHitung').addEventListener('click',hitung);
@@ -4384,10 +4387,10 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
  try{$('zsDate').value=new Date(Date.now()+7*3600e3).toISOString().slice(0,10);}catch(e){}
  $('zsKirim').addEventListener('click',async()=>{
   const m=$('zsMsg'),say=(t,ok)=>{m.classList.remove('hidden');m.textContent=t;m.style.color=ok===false?'#a33':'';};
-  const amount=angka($('zsAmount').value),nama=$('zsNama').value.trim();
-  if(!amount||amount<1){say('Isi nominal.',false);return;}if(!$('zsDate').value){say('Isi tanggal.',false);return;}if(!nama){say('Isi nama.',false);return;}
+  const amount=angka($('zsAmount').value),nama=$('zsNama').value.trim(),wa=$('zsWa').value.trim();
+  if(!amount||amount<1){say('Isi nominal.',false);return;}if(!$('zsDate').value){say('Isi tanggal.',false);return;}if(!nama){say('Isi nama yang akan ditampilkan (boleh Hamba Allah).',false);return;}if(wa.replace(/\D/g,'').length<9){say('Isi nomor WhatsApp agar laporan dapat dikirim pengurus.',false);return;}
   const b=$('zsKirim');b.disabled=true;say('Mengirim...');
-  try{const r=await window.BaniIlyasApi({action:'kirim',jenis:'zis',pengirim:window.rapikanNama?window.rapikanNama(nama):nama,kontak:$('zsWa').value.trim(),data:{kind:$('zsKind').value,amount:String(Math.round(amount)),date:$('zsDate').value,method:$('zsMethod').value.trim(),note:$('zsNote').value.trim(),shown:$('zsShown').checked?'ya':''},website:''});
+  try{const r=await window.BaniIlyasApi({action:'kirim',jenis:'zis',pengirim:window.rapikanNama?window.rapikanNama(nama):nama,kontak:wa,data:{kind:$('zsKind').value,amount:String(Math.round(amount)),date:$('zsDate').value,method:$('zsMethod').value.trim(),note:$('zsNote').value.trim()},website:''});
    say((r.pesan||'Konfirmasi diterima dan menunggu verifikasi pengurus.')+' Jazakumullahu khairan.');$('zsAmount').value='';$('zsNote').value='';
   }catch(e){say('Belum terkirim: '+e.message,false);}b.disabled=false;});
  const nb=document.querySelector('nav button[data-page="zis"]');if(nb)nb.addEventListener('click',muat);
@@ -4403,6 +4406,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
 .zk-total{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
 .zk-kotak{border:1px solid #e5dcc8;border-radius:12px;background:#fffdf6;padding:10px 14px;display:flex;flex-direction:column}
 .zk-kotak b{font-size:19px;color:#1d4a38}.zk-kotak small{color:#777}
+.zk-nama{display:flex;flex-wrap:wrap;gap:8px}.zk-chip{background:#eaf4ee;border:1px solid #b9d9c6;color:#1d4a38;border-radius:999px;padding:5px 14px;font-size:14px}
 </style>
 </body>
 </html>
