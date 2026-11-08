@@ -1,0 +1,42 @@
+name: Perbarui harga toko
+
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: harga-toko
+  cancel-in-progress: false
+
+jobs:
+  harga:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Ambil harga dari Digiflazz
+        env:
+          DIGIFLAZZ_USERNAME: ${{ secrets.DIGIFLAZZ_USERNAME }}
+          DIGIFLAZZ_KEY: ${{ secrets.DIGIFLAZZ_KEY }}
+          HARGA_AKTIF: ${{ vars.HARGA_AKTIF }}
+          MARGIN_PERSEN: ${{ vars.MARGIN_PERSEN }}
+          MARGIN_RUPIAH: ${{ vars.MARGIN_RUPIAH }}
+          PEMBULATAN: ${{ vars.PEMBULATAN }}
+        run: node scripts/ambil-harga.mjs
+      - name: Simpan bila berubah
+        run: |
+          if [ -n "$(git status --porcelain toko/harga.json)" ]; then
+            git config user.name "harga-otomatis"
+            git config user.email "harga-otomatis@users.noreply.github.com"
+            git add toko/harga.json
+            git commit -m "Harga: pembaruan otomatis"
+            git push
+          else
+            echo "Tidak ada yang perlu disimpan."
+          fi

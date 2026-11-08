@@ -58,6 +58,9 @@ input:focus,select:focus{border-color:var(--focus);outline:none;box-shadow:0 0 0
 .nom{font:inherit;text-align:center;padding:10px 4px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer;min-width:0}
 .nom b{display:block;font-family:var(--mono);font-size:.95rem}
 .nom span{display:block;font-size:.75rem;color:var(--muted)}
+.noms.lebar{grid-template-columns:repeat(auto-fill,minmax(170px,1fr));max-height:360px;overflow:auto;padding:2px}
+.noms.lebar .nom{text-align:left}
+.noms.lebar .nom b{font-family:var(--body);font-size:.88rem;line-height:1.3}
 .nom[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
 .nom[aria-pressed="true"] span{color:var(--accent-fg)}
 
@@ -155,7 +158,7 @@ footer p{margin:0}
         <h3 id="namaStruk">Kos Kuota</h3>
         <div class="sub">Pratinjau pesanan Anda</div>
         <dl id="rows"></dl>
-        <div class="foot">Harga dan cara bayar dikirim admin lewat balasan WhatsApp.</div>
+        <div class="foot" id="foot">Harga dan cara bayar dikirim admin lewat balasan WhatsApp.</div>
       </div>
       <div class="cta">
         <button class="go" type="button" id="kirim">Pesan lewat WhatsApp</button>
@@ -204,14 +207,23 @@ footer p{margin:0}
   var DEF={nama:'Kos Kuota',wa:'6282120243139',jam:'',catatan:'Pesanan diproses setelah pembayaran diterima. Harga dapat berubah sewaktu-waktu mengikuti harga penyedia.',
     layanan:{pulsa:[5000,10000,20000,25000,50000,100000].map(function(n){return{label:n.toLocaleString('id-ID'),harga:null}}),
       token:[20000,50000,100000,200000,500000].map(function(n){return{label:n.toLocaleString('id-ID'),harga:null}})}};
-  var cfg=DEF,k='pulsa',pilih=null;
+  var cfg=DEF,k='pulsa',pilih=null,HG=null;
   var NM={pulsa:'Pulsa',data:'Paket data',token:'Token listrik PLN',tagihan:'Tagihan'};
   function $(i){return document.getElementById(i)}
+  function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  // Daftar pilihan: harga otomatis (harga.json) bila aktif, selain itu daftar dari produk.json.
+  function daftar(){
+    if(HG&&HG.aktif){
+      if(k==='token'&&HG.token&&HG.token.length)return HG.token;
+      if(k==='pulsa'||k==='data'){var l=HG[k]&&HG[k][$('op').value];if(l&&l.length)return l}
+    }
+    return (cfg.layanan&&cfg.layanan[k])||[];
+  }
+  function ubahOp(){if(HG&&HG.aktif&&(k==='pulsa'||k==='data'))ganti(k);else struk()}
   function rp(n){return 'Rp'+Math.round(n).toLocaleString('id-ID')}
   var PRE=[['Telkomsel',['0811','0812','0813','0821','0822','0823','0851','0852','0853']],['Indosat',['0814','0815','0816','0855','0856','0857','0858']],
     ['XL',['0817','0818','0819','0859','0877','0878']],['Axis',['0831','0832','0833','0838']],['Tri',['0895','0896','0897','0898','0899']],['Smartfren',['0881','0882','0883','0884','0885','0886','0887','0888','0889']]];
   function deteksi(no){for(var i=0;i<PRE.length;i++)if(PRE[i][1].indexOf(no.slice(0,4))>=0)return PRE[i][0];return''}
-  function adaDaftar(){var d=(cfg.layanan&&cfg.layanan[k])||[];return d.length>0}
 
   function terap(){
     document.title=cfg.nama+' - Pulsa, Kuota, dan Tagihan';
@@ -223,35 +235,36 @@ footer p{margin:0}
   function ganti(x){
     k=x;pilih=null;$('err').textContent='';
     Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(b){b.setAttribute('aria-pressed',b.getAttribute('data-k')===k?'true':'false')});
-    var hp=(k==='pulsa'||k==='data'),daftar=(cfg.layanan&&cfg.layanan[k])||[];
+    var hp=(k==='pulsa'||k==='data'),dft=daftar();
     $('opBox').hidden=!hp;
     $('nomorL').textContent=hp?'Nomor HP tujuan':(k==='token'?'Nomor meter atau ID pelanggan PLN':'Nomor atau ID pelanggan');
     $('nomor').placeholder=hp?'08xxxxxxxxxx':'Nomor meter atau ID pelanggan';
-    $('nomBox').hidden=!daftar.length;
-    $('bebasBox').hidden=!!daftar.length;
+    $('nomBox').hidden=!dft.length;
+    $('bebasBox').hidden=!!dft.length;
     $('bebasL').textContent=k==='data'?'Paket data yang diinginkan':'Jenis tagihan (BPJS, PDAM, internet, dan lainnya)';
     $('bebas').placeholder=k==='data'?'Misalnya: kuota 10 GB 30 hari':'Misalnya: BPJS Kesehatan, atas nama ...';
     $('deteksi').textContent=hp?deteksiTeks($('nomor').value.replace(/[^0-9]/g,'')):'';
     var h='';
-    daftar.forEach(function(n,i){h+='<button type="button" class="nom" data-i="'+i+'" aria-pressed="false"><b>'+n.label+'</b><span>'+(n.harga?rp(n.harga):'Harga via WhatsApp')+'</span></button>'});
+    dft.forEach(function(n,i){h+='<button type="button" class="nom" data-i="'+i+'" aria-pressed="false"><b>'+esc(n.label)+'</b><span>'+(n.harga?rp(n.harga):'Harga via WhatsApp')+'</span></button>'});
+    $('noms').className='noms'+(k==='data'?' lebar':'');
     $('noms').innerHTML=h;
     struk();
   }
   function deteksiTeks(no){var o=deteksi(no);return o?('Terdeteksi: '+o+'. Ubah operator bila nomor sudah pindah.'):'Operator terisi otomatis dari awalan nomor.'}
 
   function harga(){
-    var d=(cfg.layanan&&cfg.layanan[k])||[];
+    var d=daftar();
     if(!d.length)return'Dikonfirmasi admin';
     if(pilih===null)return'';
     return d[pilih].harga?rp(d[pilih].harga):'Dikonfirmasi admin';
   }
   function struk(){
-    var hp=(k==='pulsa'||k==='data'),no=$('nomor').value.replace(/[^0-9]/g,''),d=(cfg.layanan&&cfg.layanan[k])||[],ps='';
+    var hp=(k==='pulsa'||k==='data'),no=$('nomor').value.replace(/[^0-9]/g,''),d=daftar(),ps='';
     if(d.length){ps=pilih===null?'':d[pilih].label}else{ps=$('bebas').value.trim()}
     var r=[['Layanan',NM[k]]];
     if(hp)r.push(['Operator',$('op').value]);
     r.push([hp?'Nomor HP':'No. pelanggan',no]);
-    r.push([d.length?'Nominal':(k==='data'?'Paket':'Tagihan'),ps]);
+    r.push([k==='data'?'Paket':(d.length?'Nominal':'Tagihan'),ps]);
     r.push(['Harga',harga()]);
     var dl=$('rows');dl.innerHTML='';
     r.forEach(function(x){
@@ -269,18 +282,20 @@ footer p{margin:0}
   });
   $('nomor').addEventListener('input',function(){
     var no=this.value.replace(/[^0-9]/g,'');this.value=no;
-    if(k==='pulsa'||k==='data'){var o=deteksi(no);$('deteksi').textContent=deteksiTeks(no);if(o)$('op').value=o}
-    else $('deteksi').textContent='';
+    if(k==='pulsa'||k==='data'){
+      var o=deteksi(no),lama=$('op').value;$('deteksi').textContent=deteksiTeks(no);
+      if(o){$('op').value=o;if(o!==lama){ubahOp();return}}
+    }else $('deteksi').textContent='';
     struk();
   });
-  $('op').addEventListener('change',struk);
+  $('op').addEventListener('change',ubahOp);
   $('bebas').addEventListener('input',struk);
 
   $('kirim').addEventListener('click',function(){
-    var hp=(k==='pulsa'||k==='data'),no=$('nomor').value.replace(/[^0-9]/g,''),d=(cfg.layanan&&cfg.layanan[k])||[],err=$('err');
+    var hp=(k==='pulsa'||k==='data'),no=$('nomor').value.replace(/[^0-9]/g,''),d=daftar(),err=$('err');
     if(no.length<8){err.textContent='Isi nomor tujuan dengan benar.';return}
     var pes;
-    if(d.length){if(pilih===null){err.textContent='Pilih nominal terlebih dahulu.';return}pes=(k==='pulsa'?'Pulsa ':'Token PLN ')+d[pilih].label+(d[pilih].harga?' ('+rp(d[pilih].harga)+')':'')}
+    if(d.length){if(pilih===null){err.textContent=(k==='data'?'Pilih paket':'Pilih nominal')+' terlebih dahulu.';return}pes=(k==='pulsa'?'Pulsa ':(k==='token'?'Token PLN ':'Paket data '))+d[pilih].label+(d[pilih].harga?' ('+rp(d[pilih].harga)+')':'')}
     else{pes=$('bebas').value.trim().replace(/[\r\n]+/g,' ').slice(0,150);if(!pes){err.textContent='Tulis paket atau tagihan yang diinginkan.';return}}
     err.textContent='';
     var t="Assalamu'alaikum, saya ingin memesan di "+cfg.nama+".\n"+'Layanan: '+NM[k]+'\n'+(hp?'Operator: '+$('op').value+'\n':'')+
@@ -303,6 +318,16 @@ footer p{margin:0}
   terap();
   fetch('produk.json',{cache:'no-cache'}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){
     cfg={nama:j.nama||DEF.nama,wa:String(j.wa||DEF.wa).replace(/[^0-9]/g,''),jam:j.jam||'',catatan:j.catatan||'',layanan:j.layanan||DEF.layanan};terap();
+  }).catch(function(){});
+  // Harga otomatis dari Digiflazz (diperbarui tiap jam oleh GitHub Actions). Bila tidak ada atau belum aktif, halaman memakai produk.json.
+  fetch('harga.json',{cache:'no-cache'}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){
+    if(!j||!j.aktif)return;
+    HG=j;
+    if(j.diperbarui){
+      var w=new Date(j.diperbarui);
+      if(!isNaN(w))$('foot').textContent='Harga per '+w.toLocaleString('id-ID',{timeZone:'Asia/Jakarta',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+' WIB. Harga dapat berubah mengikuti penyedia. Cara bayar dikirim admin lewat balasan WhatsApp.';
+    }
+    ganti(k);
   }).catch(function(){});
 })();
 </script>
