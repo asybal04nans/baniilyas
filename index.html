@@ -3870,7 +3870,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
  const NAMA_LEL={3:'Buyut',4:'Canggah',5:'Wareng',6:'Udeg-udeg',7:'Gantung siwur'};
  function anc(d,j){if(d===1)return j==='L'?'Ayah':j==='P'?'Ibu':'Ayah/Ibu';if(d===2)return j==='L'?'Kakek':j==='P'?'Nenek':'Kakek/Nenek';return NAMA_LEL[d]||('Leluhur ke-'+d);}
  function desc(d,j){if(d===1)return j==='L'?'Anak laki-laki':j==='P'?'Anak perempuan':'Anak';if(d===2)return 'Cucu';if(d===3)return 'Cicit';return NAMA_LEL[d]||('Keturunan ke-'+d);}
- function sedarah(a,b,da,db){
+ function sedarah(a,b,da,db,urut){
   if(da===0&&db===0)return 'Orang yang sama';
   const jb=JK(b);
   if(da===0)return desc(db,jb);
@@ -3884,6 +3884,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   if(da===1)return db===2?'Keponakan':desc(db-1,'')+' keponakan';
   if(db===1)return da===2?(jb==='L'?'Paman':jb==='P'?'Bibi':'Paman/Bibi'):'Saudara '+anc(da-1,'').toLowerCase();
   const k=Math.min(da,db)-1,r=Math.abs(da-db);
+  if(k===1&&r===0&&urut)return (urut==='kakak'?'Kakak':'Adik')+' sepupu';
   let t='Sepupu '+(k===1?'sekali':k===2?'dua kali':k===3?'tiga kali':k+' kali');
   if(r)t+=' ('+(db>da?'lebih muda ':'lebih tua ')+r+' generasi)';
   return t;}
@@ -3898,13 +3899,27 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   let da=-1,db=-1;for(let i=0;i<pa.length;i++){if(idxB.has(String(pa[i].id))){da=i;db=idxB.get(String(pa[i].id));break;}}
   if(da<0)return {galat:'Keduanya tidak tersambung dalam silsilah yang tercatat.'};
   const atas=pa.slice(0,da+1),bawah=pb.slice(0,db+1).reverse();
-  return {A,B,da,db,lca:pa[da],atas,bawah,AdariB:null};
+  let urut=null;
+  if(da>=1&&db>=1){const ha=atas[da-1],hb=bawah[1],x=Number(ha.anakKe),y=Number(hb.anakKe);if(x&&y&&x!==y)urut=y<x?'kakak':'adik';}
+  return {A,B,da,db,lca:pa[da],atas,bawah,urut,headA:da>=1?atas[da-1]:null,headB:db>=1?bawah[1]:null};
  }
  function paparan(h){
   const {A,B,da,db,lca}=h;
-  const bKeA=sedarah(A,B,da,db),aKeB=sedarah(B,A,db,da);
-  const kal=bKeA==='Orang yang sama'?esc(A.nama)+' dan '+esc(B.nama)+' adalah orang yang sama.':'<b>'+esc(B.nama)+'</b> adalah <b>'+esc(bKeA.toLowerCase())+'</b> dari <b>'+esc(A.nama)+'</b>.';
-  const kal2=bKeA==='Orang yang sama'?'':'Sebaliknya, <b>'+esc(A.nama)+'</b> adalah <b>'+esc(aKeB.toLowerCase())+'</b> dari <b>'+esc(B.nama)+'</b>.';
+  const inv=u=>u==='kakak'?'adik':u==='adik'?'kakak':null;
+  const bKeA=sedarah(A,B,da,db,h.urut),aKeB=sedarah(B,A,db,da,inv(h.urut));
+  const N=x=>'<b>'+esc(x.nama)+'</b>';
+  const urutKata=(x,y)=>{const a=Number(x.anakKe),b=Number(y.anakKe);return (a&&b&&a!==b)?(a<b?'kakak':'adik'):null;};
+  const hub=(x,y)=>{const u=urutKata(x,y);return u?'adalah '+u+' dari '+N(y):'bersaudara dengan '+N(y);};
+  const rantaiNaik=arr=>arr.slice(0,-1).map((x,i)=>N(x)+' adalah '+naik(x,JK(x))+' '+N(arr[i+1])).join(', ');
+  let sebab='';
+  if(da===0&&db>0)sebab='karena '+(db===1?N(B)+' adalah '+naik(B,JK(B))+' '+N(A):rantaiNaik(h.bawah.slice().reverse()));
+  else if(db===0&&da>0)sebab='karena '+(da===1?N(A)+' adalah '+naik(A,JK(A))+' '+N(B):rantaiNaik(h.atas));
+  else if(da===1&&db===1)sebab='karena keduanya sama-sama anak dari '+N(lca);
+  else if(da===1)sebab='karena '+N(A)+' '+hub(A,h.headB)+', yang merupakan '+anc(db-1,JK(h.headB)).toLowerCase()+' dari '+N(B);
+  else if(db===1)sebab='karena '+N(h.headA)+', '+anc(da-1,JK(h.headA)).toLowerCase()+' dari '+N(A)+', '+hub(h.headA,B);
+  else sebab='karena '+N(h.headA)+' ('+anc(da-1,JK(h.headA)).toLowerCase()+' dari '+esc(A.nama)+') '+hub(h.headA,h.headB)+' ('+anc(db-1,JK(h.headB)).toLowerCase()+' dari '+esc(B.nama)+'), keduanya anak dari '+N(lca);
+  const kal=bKeA==='Orang yang sama'?esc(A.nama)+' dan '+esc(B.nama)+' adalah orang yang sama.':N(A)+' adalah <b>'+esc(aKeB.toLowerCase())+'</b> dari '+N(B)+', '+sebab+'.';
+  const kal2=bKeA==='Orang yang sama'?'':'Sebaliknya, '+N(B)+' adalah <b>'+esc(bKeA.toLowerCase())+'</b> dari '+N(A)+'.';
   /* rantai: dari A naik ke leluhur bersama, lalu turun ke B */
   const node=(x,peran,kelas)=>'<div class="hb-node '+kelas+'"><b>'+esc(x.nama)+'</b><small>'+esc(peran)+'</small></div>';
   let rantai='';
@@ -3925,14 +3940,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
    const peran=adaB?'B (orang kedua) · '+sedarah(A,x,da,j+1).toLowerCase()+' dari A':sedarah(A,x,da,j+1)+' dari A';
    rantai+=node(x,peran,adaB?'hb-b':'');
   });
-  /* teks langkah */
-  const langkah=[];
-  if(da>0)langkah.push('Dari A naik '+da+' tingkat ke leluhur bersama (<b>'+esc(lca.nama)+'</b>).');
-  if(db>0)langkah.push('Dari leluhur bersama turun '+db+' tingkat sampai ke B.');
-  if(da===0||db===0)langkah.push('Keduanya satu garis keturunan langsung.');
-  else if(da===1&&db===1)langkah.push('Keduanya anak dari orang tua yang sama.');
-  else langkah.push('Keduanya bertemu pada leluhur yang sama, yaitu <b>'+esc(lca.nama)+'</b>.');
-  return '<div class="hb-hasil"><p class="hb-kal">'+kal+'</p>'+(kal2?'<p>'+kal2+'</p>':'')+'<div class="hb-rantai" aria-label="Jalur hubungan">'+rantai+'</div><ul class="hb-lang">'+langkah.map(t=>'<li>'+t+'</li>').join('')+'</ul></div>';
+  return '<div class="hb-hasil"><p class="hb-kal">'+kal+'</p>'+(kal2?'<p>'+kal2+'</p>':'')+'<div class="hb-rantai" aria-label="Jalur hubungan">'+rantai+'</div></div>';
  }
  window.__hubungan={hitung,sedarah,paparan};
  let petaLabel=new Map(),labelId=new Map();
