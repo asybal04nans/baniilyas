@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Keluarga Besar Seweu Siwi Bani Ilyas Limbangan</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1d4a38">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bani Ilyas">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+
 <style>
 :root{--navy:#17365d;--navy2:#244b78;--gold:#c99b4b;--cream:#f7f4ed;--ink:#243247;--muted:#718096;--line:#e5e9ef;--white:#fff;--green:#287653}
 *{box-sizing:border-box}body{margin:0;background:#f3f5f8;color:var(--ink);font-family:Arial,Helvetica,sans-serif}
@@ -4717,6 +4725,33 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
  terapkanFs();tampilDaftar();
  (function(){const buka=()=>{const m=(location.hash||'').match(/^#surat-(\d+)$/i);if(!m)return;const n=Number(m[1]);if(!SURAT.some(x=>x.n===n&&!x.kecil))return;const b=document.querySelector('nav button[data-page="surat"]');if(b)b.click();bukaSurat(n);};window.addEventListener('hashchange',buka);buka();})();
  window.__surat={SURAT,JML,muatSurat,teksDoa};
+})();
+</script>
+<style>
+#pwaPasang{position:fixed;left:12px;right:12px;bottom:12px;max-width:440px;margin:auto;z-index:9000;display:none;align-items:center;gap:10px;background:#fffdf6;border:2px solid #c9a35a;border-radius:14px;padding:10px 12px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+#pwaPasang.on{display:flex}#pwaPasang img{width:40px;height:40px;border-radius:9px}#pwaPasang span{flex:1;font-size:13px;line-height:1.35;color:#1d4a38}
+#pwaPasang button{font:inherit;font-size:13px;border-radius:9px;padding:8px 12px;cursor:pointer}#pwaPasang .pw-ya{border:0;background:#1d4a38;color:#fff;font-weight:700}#pwaPasang .pw-tdk{border:1px solid #c9a35a;background:#fff;color:#6b5b2c}
+@media print{#pwaPasang{display:none!important}}
+</style>
+<div id="pwaPasang" role="dialog" aria-label="Pasang aplikasi"><img src="icons/icon-192.png" alt=""><span><b>Pasang di HP</b><br>Buka Bani Ilyas langsung dari layar utama, seperti aplikasi.</span><button type="button" class="pw-ya" id="pwaYa">Pasang</button><button type="button" class="pw-tdk" id="pwaTdk" aria-label="Tutup">Nanti</button></div>
+<script>
+(function(){
+ var $=function(id){return document.getElementById(id)},tunda=null;
+ function sudah(){try{return window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;}catch(e){return false;}}
+ if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){
+  window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});
+ }
+ window.addEventListener('beforeinstallprompt',function(e){
+  e.preventDefault();tunda=e;
+  try{if(localStorage.getItem('pwa_tutup')==='1')return;}catch(er){}
+  if(!sudah())$('pwaPasang').classList.add('on');
+ });
+ $('pwaYa').addEventListener('click',function(){
+  if(!tunda)return;tunda.prompt();
+  tunda.userChoice.then(function(){tunda=null;$('pwaPasang').classList.remove('on');}).catch(function(){});
+ });
+ $('pwaTdk').addEventListener('click',function(){$('pwaPasang').classList.remove('on');try{localStorage.setItem('pwa_tutup','1');}catch(e){}});
+ window.addEventListener('appinstalled',function(){$('pwaPasang').classList.remove('on');});
 })();
 </script>
 </body>

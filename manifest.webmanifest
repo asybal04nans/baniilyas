@@ -1,0 +1,17 @@
+{
+  "name": "Keluarga Besar Seweu Siwi Bani Ilyas Limbangan",
+  "short_name": "Bani Ilyas",
+  "description": "Silsilah, kalender, UMKM, kalkulator waris, tahlil dan layanan keluarga besar Bani Ilyas Limbangan.",
+  "lang": "id",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f3a28",
+  "theme_color": "#1d4a38",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
