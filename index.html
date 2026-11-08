@@ -4151,7 +4151,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
 .hb-node.hb-a{border:2px solid #1d4a38;background:#eaf4ee}.hb-node.hb-b{border:2px solid #b8893b;background:#fff3d6}.hb-node.hb-l{box-shadow:0 0 0 3px #f1d98a55}
 .hb-pnl{display:flex;flex-direction:column;align-items:center;color:#7a5f1f;line-height:1.1;padding:3px 0}
 .hb-pnl span{font-size:20px}.hb-pnl em{font-size:12.5px;font-style:normal;background:#f4e3b5;border-radius:999px;padding:1px 10px;margin-top:2px;color:#5d4a1c}
-.ws-langkah{margin:6px 0 0;padding-left:20px;display:grid;gap:10px;font-size:14.5px;line-height:1.55}.ws-langkah li{padding-left:2px}
+.ws-langkah{margin:6px 0 0;padding-left:20px;display:grid;gap:10px;font-size:14.5px;line-height:1.55}.ws-langkah li{padding-left:2px}.ws-ring{background:#f3f8f4;border:1px solid #cfe3d6;border-left:4px solid #1d4a38;border-radius:10px;padding:10px 14px;margin:12px 0}.ws-ring ul{margin:6px 0 0;padding-left:18px;line-height:1.7}.ws-kamus{margin-top:12px;font-size:14px}.ws-kamus summary{cursor:pointer;font-weight:700;color:#1d4a38}.ws-kamus ul{margin:8px 0 0;padding-left:18px;line-height:1.6}
 .hb-lang{margin:0;padding-left:20px;color:#444;font-size:14px;line-height:1.6}
 .secondary{border:1px solid #1d4a38;background:#fff;color:#1d4a38;border-radius:10px;padding:9px 16px;cursor:pointer;font:inherit}
 </style>
@@ -4320,7 +4320,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   }
   const dapat=r.baris.filter(x=>!x.terhalang),tdk=r.baris.filter(x=>x.terhalang);
   const kepala='<tr><th>Ahli waris</th><th>Jumlah</th><th>Bagian</th><th>Persen</th>'+(pakaiRp?'<th>Total (Rp)</th><th>Per orang (Rp)</th>':'')+'<th>Dasar</th></tr>';
-  const baris=dapat.map(x=>{const pr=x.bagian.n/x.bagian.d;return '<tr'+(nol(x.bagian)?' class="ws-nol"':'')+'><td data-l="Ahli waris"><b>'+esc(x.label)+'</b></td><td data-l="Jumlah">'+x.n+'</td><td data-l="Bagian"><b>'+ft(x.bagian)+'</b></td><td data-l="Persen">'+(pr*100).toFixed(2).replace('.',',')+'%</td>'+(pakaiRp?'<td data-l="Total (Rp)">'+rp(warisan*pr)+'</td><td data-l="Per orang (Rp)">'+rp(warisan*pr/x.n)+'</td>':'')+'<td data-l="Dasar" class="ws-dasar">'+esc(x.dasar)+'</td></tr>';}).join('');
+  const baris=dapat.map(x=>{const pr=x.bagian.n/x.bagian.d;return '<tr'+(nol(x.bagian)?' class="ws-nol"':'')+'><td data-l="Ahli waris"><b>'+esc(x.label)+'</b></td><td data-l="Jumlah">'+x.n+'</td><td data-l="Bagian"><b>'+ft(x.bagian)+'</b></td><td data-l="Persen">'+(pr*100).toFixed(2).replace('.',',')+'%</td>'+(pakaiRp?'<td data-l="Total (Rp)">'+rp(warisan*pr)+'</td><td data-l="Per orang (Rp)">'+rp(warisan*pr/x.n)+'</td>':'')+'<td data-l="Dasar" class="ws-dasar">'+esc(String(x.dasar||'').replace(/‘?[Aa]shabah(?: ma‘al ghair)?/g,'penerima sisa').replace(/keturunan/g,'anak atau cucu').replace(/[Ff]urudh/g,'bagian pasti'))+'</td></tr>';}).join('');
   let extra='';
   if(!nol(r.baitul)){const pr=r.baitul.n/r.baitul.d;extra='<tr class="ws-bm"><td><b>Sisa tanpa penerima (baitul mal)</b></td><td>\u2013</td><td><b>'+ft(r.baitul)+'</b></td><td>'+(pr*100).toFixed(2).replace('.',',')+'%</td>'+(pakaiRp?'<td>'+rp(warisan*pr)+'</td><td>\u2013</td>':'')+'<td class="ws-dasar">Tidak ada \u2018ashabah; menurut pendapat klasik masuk baitul mal</td></tr>';}
   let html='<div class="panel"><h3>Hasil Pembagian</h3>'+(rincian?'<h4 class="ws-h4">Harta yang dibagi</h4>'+rincian:'')+'<div class="ws-wrap"><table class="ws-tab ws-hasil"><thead>'+kepala+'</thead><tbody>'+baris+extra+'</tbody></table></div>'
@@ -4328,36 +4328,39 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   if(tdk.length)html+='<h4 class="ws-h4">Tidak mendapat bagian</h4><ul class="ws-tdk">'+tdk.map(x=>'<li><b>'+esc(x.label)+'</b> ('+x.n+') \u2014 '+esc(x.terhalang)+'</li>').join('')+'</ul>';
   {
    const pc=f=>(Math.round(f.n/f.d*10000)/100).toLocaleString('id-ID')+'%';
-   const mn=f=>pakaiRp?rp(warisan*f.n/f.d):'';
-   const baris1=x=>esc(x.label)+' '+ft(x.bagian)+' ('+pc(x.bagian)+')'+(pakaiRp?' × '+rp(warisan)+' = <b>'+mn(x.bagian)+'</b>':'');
+   const awam=t=>String(t||'').replace(/‘?[Aa]shabah(?: ma‘al ghair)?/g,'penerima sisa').replace(/keturunan/g,'anak atau cucu').replace(/[Ff]urudh/g,'bagian pasti');
+   const bn=x=>warisan*x.n/x.d;
    const L=[];const li=t=>L.push('<li>'+t+'</li>');
-   if(pakaiRp)li('<b>Tentukan harta yang dibagi.</b><br>Total harta dikurangi biaya jenazah, utang, dan wasiat (paling banyak 1/3). Hasilnya <b>'+rp(warisan)+'</b>, itulah yang dibagikan.');
-   else li('<b>Hitung dalam pecahan.</b><br>Karena nominal harta tidak diisi, pembagian ditampilkan sebagai pecahan dari seluruh harta (1 bagian utuh).');
-   li('<b>Periksa siapa yang terhalang (hijab).</b><br>'+(tdk.length?tdk.map(x=>esc(x.label)+': '+esc(x.terhalang)).join('<br>'):'Tidak ada ahli waris yang terhalang. Semua yang diisi berhak mendapat bagian.'));
+   const lab=x=>'<b>'+esc(x.label)+'</b>';
+   li('<b>Bayangkan seluruh harta sebagai satu kue utuh.</b><br>Kue itu akan dipotong untuk para ahli waris. Seluruh potongan harus berjumlah tepat satu kue (100%).');
+   if(pakaiRp)li('<b>Siapkan dulu harta yang boleh dibagi.</b><br>Sebelum warisan dibagi, harta dipakai untuk biaya jenazah, melunasi utang, dan menunaikan wasiat (paling banyak sepertiga). Setelah itu, harta yang tersisa dan boleh dibagi adalah <b>'+rp(warisan)+'</b>.');
+   else li('<b>Karena jumlah harta tidak diisi,</b> hasil hanya ditampilkan sebagai pecahan dan persen dari seluruh harta.');
+   li('<b>Lihat siapa yang tidak mendapat bagian.</b><br>Dalam aturan waris, kerabat yang lebih dekat menutup kerabat yang lebih jauh. Karena itu, ada yang tidak mendapat bagian (istilahnya terhalang atau hijab).<br>'+(tdk.length?tdk.map(x=>lab(x)+': '+esc(awam(x.terhalang)).toLowerCase()).join('<br>'):'Pada kasus ini <b>tidak ada</b> yang terhalang, semua yang Anda isi mendapat bagian.'));
    const tetap=dapat.filter(x=>x.fard);
-   li('<b>Keluarkan bagian pasti (furudh) lebih dulu.</b><br>'+(tetap.length?tetap.map(x=>esc(x.label)+' '+ft(x.fard)+' ('+pc(x.fard)+')'+(pakaiRp?' × '+rp(warisan)+' = <b>'+rp(warisan*x.fard.n/x.fard.d)+'</b>':'')+' — '+esc(r.mus&&/^ibu[LP]$/.test(x.k)?'⅓ dibagi rata antar saudara seibu':x.dasar.split(' →')[0])).join('<br>'):'Tidak ada ahli waris yang menerima bagian pasti; seluruh harta untuk penerima sisa (‘ashabah).'));
+   li('<b>Bagikan jatah yang sudah ditetapkan.</b><br>Sebagian ahli waris sudah ditentukan jatahnya berupa pecahan dari harta (istilahnya bagian pasti).<br>'+(tetap.length?tetap.map(x=>lab(x)+' mendapat '+ft(x.fard)+' bagian ('+pc(x.fard)+')'+(pakaiRp?' = '+rp(bn(x.fard)):'')+'. Alasan: '+esc(r.mus&&/^ibu[LP]$/.test(x.k)?'sepertiga dibagi rata antar saudara seibu':awam(x.dasar.split(' →')[0]).replace(/^[½¼⅛⅙⅓⅔]\s*\+\s*/,'ditambah ').replace(/^[½¼⅛⅙⅓⅔]\s*/,''))+'.').join('<br>'):'Pada kasus ini tidak ada yang mendapat jatah tetap; seluruh harta untuk penerima sisa.'));
    if(r.aul){
-    li('<b>Jumlahkan bagian pasti.</b><br>Jumlahnya '+ft(r.sumF)+' ('+pc(r.sumF)+'), lebih dari satu. Harta tidak cukup bila semua mendapat bagian penuh, maka terjadi ‘aul.');
-    li('<b>Kurangi semua bagian secara sebanding.</b><br>Setiap bagian dibagi dengan '+ft(r.sumF)+'. Hasil akhirnya:<br>'+dapat.map(baris1).join('<br>'));
+    li('<b>Jatah ternyata melebihi harta.</b><br>Bila jatah semua orang dijumlahkan, hasilnya '+ft(r.sumF)+' ('+pc(r.sumF)+'). Artinya lebih dari satu kue, padahal kuenya hanya satu. Agar adil, <b>jatah semua orang dikecilkan sama-sama</b> dengan cara membagi setiap jatah dengan '+ft(r.sumF)+' (istilahnya ‘aul). Hasilnya:<br>'+dapat.map(x=>lab(x)+' mendapat '+ft(x.bagian)+' bagian ('+pc(x.bagian)+')'+(pakaiRp?' = '+rp(bn(x.bagian)):'')).join('<br>'));
    }else if(r.mus){
-    li('<b>Bagian pasti sudah habis.</b><br>Jumlahnya tepat satu, sehingga saudara kandung (penerima sisa) tidak mendapat apa-apa bila dihitung biasa.');
-    li('<b>Terapkan musytarakah.</b><br>Sepertiga bagian saudara seibu dibagi rata kepada '+r.mus.tn+' orang (saudara seibu dan saudara kandung, laki-laki maupun perempuan sama). Hasilnya:<br>'+dapat.filter(x=>/^(ibu[LP]|kand[LP])$/.test(x.k)).map(baris1).join('<br>'));
+    li('<b>Kasus khusus: jatah sudah habis.</b><br>Jatah tetap sudah menghabiskan seluruh harta, sehingga saudara kandung tidak kebagian sisa. Menurut mazhab Syafi‘i, dalam kasus ini saudara kandung ikut berbagi <b>sepertiga</b> milik saudara seibu (istilahnya musytarakah). Sepertiga itu dibagi <b>sama rata</b> kepada '+r.mus.tn+' orang, laki-laki maupun perempuan. Hasilnya:<br>'+dapat.filter(x=>/^(ibu[LP]|kand[LP])$/.test(x.k)).map(x=>lab(x)+' mendapat '+ft(x.bagian)+' bagian ('+pc(x.bagian)+')'+(pakaiRp?' = '+rp(bn(x.bagian)):'')).join('<br>'));
    }else{
     const sisa=r.sisaF;
-    li('<b>Hitung sisanya.</b><br>1 − '+ft(r.sumF)+' = '+ft(sisa)+(pakaiRp?', yaitu '+rp(warisan)+' − '+rp(warisan*r.sumF.n/r.sumF.d)+' = <b>'+rp(warisan*sisa.n/sisa.d)+'</b>':''));
+    li('<b>Hitung sisa kue.</b><br>1 − '+ft(r.sumF)+' = '+ft(sisa)+(pakaiRp?', yaitu '+rp(warisan)+' − '+rp(bn(r.sumF))+' = <b>'+rp(bn(sisa))+'</b>':'')+'.');
     if(r.asbG&&!nol(sisa)){
      const G=r.asbG,jum=G.g.reduce((t,x)=>t+x.n,0),samaB=G.g.every(x=>x.asb.b===G.g[0].asb.b);
-     const sRp=pakaiRp?warisan*sisa.n/sisa.d:0;
-     if(G.g.length===1&&G.w===G.g[0].n*G.g[0].asb.b&&jum===1)li('<b>Berikan sisa kepada penerima sisa (‘ashabah).</b><br>Seluruh sisa diterima '+esc(G.g[0].label.toLowerCase())+': <b>'+(pakaiRp?rp(sRp):ft(sisa))+'</b>');
-     else if(samaB)li('<b>Bagi sisa sama rata.</b><br>'+(pakaiRp?rp(sRp):ft(sisa))+' dibagi '+jum+' orang'+(pakaiRp?' = <b>'+rp(sRp/jum)+'</b> per orang':''));
-     else li('<b>Bagi sisa dengan hitungan “kepala”.</b> Laki-laki dihitung 2, perempuan 1.<br>'+G.g.map(x=>x.n+' '+esc(x.label.toLowerCase())+' × '+x.asb.b).join(' + ')+' = <b>'+G.w+' kepala</b>'+(pakaiRp?'<br>'+rp(sRp)+' ÷ '+G.w+' = <b>'+rp(sRp/G.w)+'</b> per kepala<br>'+G.g.map(x=>esc(x.label)+': '+x.asb.b+' × '+rp(sRp/G.w)+' = <b>'+rp(sRp/G.w*x.asb.b)+'</b> per orang').join('<br>'):'<br>Setiap kepala mendapat '+ft(F(sisa.n,sisa.d*G.w))+' bagian.'));
-    }else if(r.asbG)li('<b>Sisa kosong.</b><br>Bagian pasti sudah menghabiskan harta, sehingga penerima sisa (‘ashabah) tidak mendapat bagian.');
-    else if(r.radd)li('<b>Sisa dikembalikan (radd).</b><br>Tidak ada penerima sisa, maka sisa dibagikan lagi kepada penerima bagian pasti selain suami atau istri, sebanding dengan bagiannya. Hasil akhirnya:<br>'+dapat.map(baris1).join('<br>'));
-    else if(!nol(r.baitul))li('<b>Sisa belum ada penerimanya.</b><br>Sisa '+ft(r.baitul)+' menjadi hak baitul mal menurut pilihan Anda (lihat catatan).');
+     const sRp=pakaiRp?bn(sisa):0;
+     if(jum===1&&G.w===G.g[0].n*G.g[0].asb.b)li('<b>Berikan sisa kepada penerima sisa.</b><br>Sisa kue seluruhnya diterima '+lab(G.g[0])+(pakaiRp?': <b>'+rp(sRp)+'</b>':' ('+ft(sisa)+' bagian)')+'.');
+     else if(samaB)li('<b>Bagi sisa sama rata.</b><br>Sisa'+(pakaiRp?' '+rp(sRp):'')+' dibagi '+jum+' orang'+(pakaiRp?' = <b>'+rp(sRp/jum)+'</b> per orang':'')+'.');
+     else li('<b>Bagi sisa dengan aturan laki-laki dua kali perempuan.</b><br>Caranya: setiap laki-laki dihitung <b>2 jatah</b>, setiap perempuan <b>1 jatah</b>.<br>'+G.g.map(x=>x.n+' '+esc(x.label.toLowerCase())+' × '+x.asb.b+' jatah').join(' + ')+' = <b>'+G.w+' jatah</b>'+(pakaiRp?'<br>Sisa '+rp(sRp)+' dibagi '+G.w+' jatah = <b>'+rp(sRp/G.w)+'</b> untuk satu jatah.<br>'+G.g.map(x=>lab(x)+': '+x.asb.b+' jatah = <b>'+rp(sRp/G.w*x.asb.b)+'</b> per orang').join('<br>'):'<br>Satu jatah = '+ft(F(sisa.n,sisa.d*G.w))+' bagian dari seluruh harta.'));
+    }else if(r.asbG)li('<b>Sisa kue kosong.</b><br>Jatah tetap sudah menghabiskan seluruh harta, sehingga penerima sisa tidak mendapat bagian.');
+    else if(r.radd)li('<b>Sisa dikembalikan.</b><br>Sisa kue tidak ada penerimanya. Maka sisa dibagikan lagi kepada para penerima jatah tetap (selain suami atau istri), sesuai perbandingan jatah masing-masing (istilahnya radd). Hasilnya:<br>'+dapat.map(x=>lab(x)+' mendapat '+ft(x.bagian)+' bagian ('+pc(x.bagian)+')'+(pakaiRp?' = '+rp(bn(x.bagian)):'')).join('<br>'));
+    else if(!nol(r.baitul))li('<b>Sisa kue belum ada penerimanya.</b><br>Sisa '+ft(r.baitul)+' bagian menjadi hak baitul mal (kas umat) menurut pilihan Anda.');
    }
-   li('<b>Hasil per orang.</b><br>'+dapat.map(x=>esc(x.label)+': <b>'+ft(x.bagian)+'</b>'+(pakaiRp?' = <b>'+mn(x.bagian)+'</b>'+(x.n>1?', dibagi '+x.n+' orang = <b>'+rp(warisan*x.bagian.n/x.bagian.d/x.n)+'</b> per orang':''):'')).join('<br>'));
-   li('<b>Periksa.</b><br>Semua bagian dijumlahkan harus tepat 1 (100%)'+(pakaiRp?', yaitu '+rp(warisan):'')+'.');
-   html+='<h4 class="ws-h4">Cara hitung, langkah demi langkah</h4><ol class="ws-langkah">'+L.join('')+'</ol>';
+   li('<b>Hasil akhir tiap orang.</b><br>'+dapat.map(x=>lab(x)+': '+ft(x.bagian)+' bagian ('+pc(x.bagian)+')'+(pakaiRp?' = <b>'+rp(bn(x.bagian))+'</b>'+(x.n>1?'. Karena ada '+x.n+' orang, dibagi rata: <b>'+rp(bn(x.bagian)/x.n)+'</b> per orang':''):'')).join('<br>'));
+   li('<b>Periksa.</b><br>Semua potongan dijumlahkan hasilnya satu kue utuh (100%)'+(pakaiRp?', yaitu '+rp(warisan):'')+'.');
+   const ring=dapat.filter(x=>!nol(x.bagian));
+   html+='<div class="ws-ring"><b>Hasil singkat</b><ul>'+ring.map(x=>'<li>'+esc(x.label)+': <b>'+(pakaiRp?rp(bn(x.bagian))+(x.n>1?' ('+rp(bn(x.bagian)/x.n)+' per orang)':''):ft(x.bagian)+' bagian ('+pc(x.bagian)+')')+'</b></li>').join('')+'</ul></div>';
+   html+='<h4 class="ws-h4">Cara menghitungnya, langkah demi langkah</h4><ol class="ws-langkah">'+L.join('')+'</ol>';
+   html+='<details class="ws-kamus"><summary>Arti istilah yang dipakai</summary><ul><li><b>Bagian pasti (furudh)</b>: jatah berupa pecahan yang sudah ditetapkan, misalnya 1/2 atau 1/6.</li><li><b>Penerima sisa (‘ashabah)</b>: yang menerima sisa harta setelah jatah tetap dibagikan.</li><li><b>Terhalang (hijab)</b>: tidak mendapat bagian karena ada kerabat yang lebih dekat.</li><li><b>‘Aul</b>: jatah dikecilkan sama-sama karena jumlahnya melebihi harta.</li><li><b>Radd</b>: sisa harta dikembalikan kepada penerima jatah tetap.</li><li><b>Musytarakah</b>: saudara kandung berbagi sepertiga dengan saudara seibu.</li></ul></details>';
   }
   if(r.catatan.length)html+='<h4 class="ws-h4">Catatan</h4><ul class="ws-tdk">'+r.catatan.map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul>';
   html+='</div>';
