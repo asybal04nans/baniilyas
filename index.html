@@ -3937,9 +3937,10 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   if(da===1)return db===2?'Keponakan':desc(db-1,'')+' keponakan';
   if(db===1)return da===2?(jb==='L'?'Paman':jb==='P'?'Bibi':'Paman/Bibi'):'Saudara '+anc(da-1,'').toLowerCase();
   const k=Math.min(da,db)-1,r=Math.abs(da-db);
-  if(k===1&&r===0&&urut)return (urut==='kakak'?'Kakak':'Adik')+' sepupu';
   let t='Sepupu '+(k===1?'sekali':k===2?'dua kali':k===3?'tiga kali':k+' kali');
-  if(r)t+=' ('+(db>da?'lebih muda ':'lebih tua ')+r+' generasi)';
+  if(r===0){if(urut)t+=' ('+urut+')';}
+  else if(db>da)t+=' ('+(r===1?'keponakan':desc(r,'').toLowerCase()+' keponakan')+')';
+  else t+=' ('+(r===1?(jb==='L'?'paman':jb==='P'?'bibi':'paman/bibi'):'saudara '+anc(r,'').toLowerCase())+')';
   return t;}
  function naik(c,j){return j==='L'?'putra dari':j==='P'?'putri dari':'anak dari';}
  function turun(p,j){return j==='L'?'ayah dari':j==='P'?'ibu dari':'orang tua dari';}
