@@ -485,7 +485,7 @@ main {
    <button data-page="hubungan">Kalkulator Nasab</button>
    <button data-page="waris">Kalkulator Waris</button>
    <button data-page="zis">Zakat, Infaq &amp; Shodaqoh</button>
-   <button data-page="surat">Surat &amp; Tahlil Pilihan</button>
+   <button data-page="surat">Surat-Surat Pilihan dan Tahlil</button>
    <button data-page="kartu">Kartu Bani Ilyas</button>
    <button data-page="chat">Chat Anak Incu</button>
    <button data-page="artikel">Artikel Agama</button>
@@ -1100,7 +1100,7 @@ main {
  </div>
 </section>
 <section id="surat" class="hidden">
- <div class="hero"><div><h2>Surat &amp; Tahlil Pilihan</h2><p>Kumpulan surat dan bacaan yang biasa dibaca dalam majelis, seperti Yasin, Al-Waqi'ah, Al-Mulk, Ar-Rahman, serta susunan tahlil. Tampil dengan huruf Arab, latin, dan terjemah.</p></div><span class="pill">MAJMU'</span></div>
+ <div class="hero"><div><h2>Surat-Surat Pilihan dan Tahlil</h2><p>Surat-surat yang biasa dibaca dalam majelis, seperti Yasin, Al-Waqi'ah, Al-Mulk, dan Ar-Rahman, serta susunan tahlil. Tampil dengan huruf Arab, latin, dan terjemah.</p></div><span class="pill">MAJMU'</span></div>
  <div class="panel">
   <div class="sr-tabs" role="tablist"><button type="button" class="sr-tab on" data-sr="daftar">Surat Pilihan</button><button type="button" class="sr-tab" data-sr="tahlil">Tahlil &amp; Doa</button></div>
   <div id="srDaftar"></div>
@@ -4448,7 +4448,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
  const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const AR='٠١٢٣٤٥٦٧٨٩';const angka=n=>String(n).replace(/\d/g,d=>AR[d]);
  const SURAT=[
-  {n:1,ar:'الفاتحة',lt:'Al-Fātiḥah',arti:'Pembukaan',ket:'Dibaca pada setiap rakaat salat; juga pembuka dan penutup majelis doa.'},
+  {kecil:1,n:1,ar:'الفاتحة',lt:'Al-Fātiḥah',arti:'Pembukaan',ket:'Dibaca pada setiap rakaat salat; juga pembuka dan penutup majelis doa.'},
   {n:36,ar:'يس',lt:'Yā Sīn',arti:'Yā Sīn',ket:'Biasa dibaca dalam majelis doa dan untuk yang wafat.'},
   {n:56,ar:'الواقعة',lt:'Al-Wāqiʿah',arti:'Hari Kiamat',ket:'Biasa diamalkan sebagai wirid harian.'},
   {n:55,ar:'الرحمن',lt:'Ar-Raḥmān',arti:'Yang Maha Pengasih',ket:'Surat yang banyak dibaca dalam majelis pengajian.'},
@@ -4456,9 +4456,9 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   {n:18,ar:'الكهف',lt:'Al-Kahf',arti:'Gua',ket:'Dianjurkan dibaca pada hari atau malam Jumat.'},
   {n:32,ar:'السجدة',lt:'As-Sajdah',arti:'Sujud',ket:'Biasa dibaca bersama Al-Mulk sebelum tidur.'},
   {n:44,ar:'الدخان',lt:'Ad-Dukhān',arti:'Kabut',ket:'Biasa dibaca pada malam Jumat.'},
-  {n:112,ar:'الإخلاص',lt:'Al-Ikhlāṣ',arti:'Memurnikan Keesaan Allah',ket:''},
-  {n:113,ar:'الفلق',lt:'Al-Falaq',arti:'Waktu Subuh',ket:''},
-  {n:114,ar:'الناس',lt:'An-Nās',arti:'Manusia',ket:''}
+  {kecil:1,n:112,ar:'الإخلاص',lt:'Al-Ikhlāṣ',arti:'Memurnikan Keesaan Allah',ket:''},
+  {kecil:1,n:113,ar:'الفلق',lt:'Al-Falaq',arti:'Waktu Subuh',ket:''},
+  {kecil:1,n:114,ar:'الناس',lt:'An-Nās',arti:'Manusia',ket:''}
  ];
  const JML={1:7,2:286,11:123,14:52,18:110,32:30,33:73,36:83,44:59,55:78,56:96,59:24,67:30,112:4,113:5,114:6};
  const mem={};
@@ -4495,10 +4495,11 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
  }
  /* ===== daftar surat ===== */
  function tampilDaftar(){
-  $('srDaftar').innerHTML='<div class="sr-grid">'+SURAT.map(s=>'<button type="button" class="sr-card" data-n="'+s.n+'"><span class="ar">'+esc(s.ar)+'</span><b>'+esc(s.lt)+'</b><small>'+esc(s.arti)+' · '+JML[s.n]+' ayat</small>'+(s.ket?'<small>'+esc(s.ket)+'</small>':'')+'</button>').join('')+'</div>';
+  $('srDaftar').innerHTML='<div class="sr-grid">'+SURAT.filter(s=>!s.kecil).map(s=>'<button type="button" class="sr-card" data-n="'+s.n+'"><span class="ar">'+esc(s.ar)+'</span><b>'+esc(s.lt)+'</b><small>'+esc(s.arti)+' · '+JML[s.n]+' ayat</small>'+(s.ket?'<small>'+esc(s.ket)+'</small>':'')+'</button>').join('')+'</div>';
   $('srDaftar').querySelectorAll('.sr-card').forEach(b=>b.onclick=()=>bukaSurat(Number(b.dataset.n)));
  }
  function tampilTab(k){
+  const tb=document.querySelector('#surat .sr-tabs');if(tb)tb.classList.remove('hidden');
   document.querySelectorAll('#surat .sr-tab').forEach(b=>b.classList.toggle('on',b.dataset.sr===k));
   $('srDaftar').classList.toggle('hidden',k!=='daftar');$('srTahlil').classList.toggle('hidden',k!=='tahlil');$('srBaca').classList.add('hidden');
   if(k==='tahlil')tampilTahlil();
@@ -4510,11 +4511,12 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
  async function bukaSurat(n){
   const s=SURAT.find(x=>x.n===n);sedang=n;
   $('srDaftar').classList.add('hidden');$('srTahlil').classList.add('hidden');
+  const tb=document.querySelector('#surat .sr-tabs');if(tb)tb.classList.add('hidden');
   const box=$('srBaca');box.classList.remove('hidden');
   const kepala='<button type="button" class="secondary" id="srKembali">← Daftar surat</button><div class="sr-judul"><div class="ar">'+esc(s.ar)+'</div><b>'+esc(s.lt)+'</b><br><small>'+esc(s.arti)+' · '+JML[n]+' ayat</small></div>';
   box.innerHTML=kepala+'<div id="srIsi"><div class="sr-sk"></div><div class="sr-sk"></div><div class="sr-sk"></div><p class="note">Memuat ayat…</p></div>';
   $('srKembali').onclick=()=>{box.classList.add('hidden');tampilTab('daftar');};
-  window.scrollTo({top:0});
+  const hero=document.querySelector('#surat .hero');window.scrollTo({top:hero?hero.offsetTop:0});
   try{
    const ay=await muatSurat(n);if(sedang!==n)return;
    const gambar=()=>{$('srIsi').innerHTML=panel()+(n!==1?'<div class="sr-bsm">'+BSM+'</div>':'')+ay.map(baris).join('');pasangKontrol($('srIsi'),gambar);};
@@ -4589,6 +4591,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   $('srJk').onchange=e=>{g=e.target.value;gambar();};
  }
  terapkanFs();tampilDaftar();
+ (function(){const buka=()=>{const m=(location.hash||'').match(/^#surat-(\d+)$/i);if(!m)return;const n=Number(m[1]);if(!SURAT.some(x=>x.n===n&&!x.kecil))return;const b=document.querySelector('nav button[data-page="surat"]');if(b)b.click();bukaSurat(n);};window.addEventListener('hashchange',buka);buka();})();
  window.__surat={SURAT,JML,muatSurat,teksDoa};
 })();
 </script>
