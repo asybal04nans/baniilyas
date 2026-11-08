@@ -1105,9 +1105,10 @@ main {
 <section id="surat" class="hidden">
  <div class="hero"><div><h2>Surat-Surat Pilihan dan Tahlil</h2><p>Surat-surat yang biasa dibaca dalam majelis, seperti Yasin, Al-Waqi'ah, Al-Mulk, dan Ar-Rahman, serta susunan tahlil beserta doanya. Tampil dengan huruf Arab, latin, dan terjemah.</p></div><span class="pill">MAJMU'</span></div>
  <div class="panel">
-  <div class="sr-tabs" role="tablist"><button type="button" class="sr-tab on" data-sr="daftar">Surat Pilihan</button><button type="button" class="sr-tab" data-sr="tahlil">Tahlil</button></div>
+  <div class="sr-tabs" role="tablist"><button type="button" class="sr-tab on" data-sr="daftar">Surat Pilihan</button><button type="button" class="sr-tab" data-sr="tahlil">Tahlil</button><button type="button" class="sr-tab" data-sr="doa">Doa</button><button type="button" class="sr-tab" data-sr="wirid">Wirid</button><button type="button" class="sr-tab" data-sr="maulid">Maulid</button></div>
   <div id="srDaftar"></div>
   <div id="srTahlil" class="hidden"></div>
+  <div id="srLuar" class="hidden"></div>
   <div id="srBaca" class="hidden"></div>
  </div>
  <div class="panel"><p class="note"><b>Catatan:</b> teks surat pilihan dimuat dari sumber digital terbuka (equran.id, cadangan: alquran.cloud), sehingga perlu sambungan internet saat pertama dibuka dan selanjutnya tersimpan di perangkat. Susunan tahlil beserta doanya sudah ada di dalam web dan dapat dibuka tanpa internet; teks Arab, latin, dan terjemahnya mengikuti tahlil NU Online sebagaimana diberikan pengelola web. Bila keluarga memakai Majmu' Syarif atau pegangan guru tertentu, ikuti yang itu. Jumlah bacaan dapat berbeda antar-daerah.</p></div>
@@ -4473,6 +4474,10 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
 .sr-x{color:#8a6a1f;font-weight:bold;font-size:15px}
 .sr-alir{text-align:justify;text-align-last:right;text-justify:inter-word}.sr-inl{color:#1d4a38}.sr-grp{padding:10px 4px;border-bottom:1px solid #eee4cd}
 .um-wa{font-weight:bold;color:#1d7a46;text-decoration:underline}.um-tel{font-size:12px;border:1px solid #cbd5e1;border-radius:999px;padding:1px 8px;color:var(--navy);text-decoration:none;margin-left:4px}
+.sr-lgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.sr-lk{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid #e3d5ad;border-radius:14px;padding:14px 16px;text-decoration:none;color:inherit}
+.sr-lk:hover{box-shadow:0 6px 16px #20344d18}.sr-lk b{display:block;color:var(--navy)}.sr-lk small{color:var(--muted)}
+.sr-ik{flex:0 0 auto;width:44px;height:44px;border-radius:12px;background:#e1f1ee;display:grid;place-items:center;font-size:20px}.sr-pn{margin-left:auto;color:#a8b5b0;font-size:22px}
 .sr-fat{margin:2px 0 6px}.sr-fat summary{cursor:pointer;color:#1d4a38;font-size:14px;padding:4px 0}
 .sr-sk{height:16px;background:#f0e9d6;border-radius:6px;margin:12px 0}
 @media(max-width:650px){.sr-ar,.sr-bsm{font-size:calc(var(--sr-fs,30px) - 4px)}}
@@ -4536,18 +4541,30 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
  function tampilTab(k){
   const tb=document.querySelector('#surat .sr-tabs');if(tb)tb.classList.remove('hidden');
   document.querySelectorAll('#surat .sr-tab').forEach(b=>b.classList.toggle('on',b.dataset.sr===k));
-  $('srDaftar').classList.toggle('hidden',k!=='daftar');$('srTahlil').classList.toggle('hidden',k!=='tahlil');$('srBaca').classList.add('hidden');
+  $('srDaftar').classList.toggle('hidden',k!=='daftar');$('srTahlil').classList.toggle('hidden',k!=='tahlil');const luar=LUAR[k];$('srLuar').classList.toggle('hidden',!luar);if(luar)tampilLuar(k);$('srBaca').classList.add('hidden');
   if(k!=='tahlil')$('srTahlil').innerHTML='';
   if(k==='tahlil')tampilBacaan(k);
   window.scrollTo({top:0});
  }
  document.querySelectorAll('#surat .sr-tab').forEach(b=>b.onclick=()=>tampilTab(b.dataset.sr));
  /* ===== pembaca satu surat ===== */
+
+ /* Daftar bacaan lain (Doa, Wirid, Maulid) mengikuti susunan NU Online; isinya dibuka di quran.nu.or.id */
+ const NUO='https://quran.nu.or.id/';
+ const LUAR={
+  doa:{judul:'Doa',jalan:'doa',item:[['Doa Keseharian','doa-keseharian',19],['Doa Rezeki','doa-rezeki',9],['Doa Tolak Bala','doa-tolak-bala',13],['Doa Kesehatan','doa-kesehatan',5],['Doa Perjalanan','doa-perjalanan',7],['Doa Ilmu','doa-ilmu',9],['Doa Waktu Tertentu','doa-waktu-tertentu',12],['Doa Kualitas Diri','doa-kualitas-diri',10],['Doa Pernikahan & Rumah Tangga','doa-pernikahan-rumah-tangga',10],['Doa Hamil & Persalinan','doa-hamil-dan-persalinan',7],['Doa Wudhu','doa-wudhu',11],['Doa para Nabi di Al-Quran','doa-para-nabi-di-al-quran',14],['Doa Baca Al-Quran','doa-baca-al-quran',7],['Doa Shalat','doa-shalat',20],['Doa Haji & Umrah','doa-haji-umrah',21],['Doa Kematian','doa-kematian',6]]},
+  wirid:{judul:'Wirid',jalan:'wirid',item:[['Wirid Harian','wirid-harian',6],['Shalawat','shalawat',35],['Asmaul Husna','munajat',3],['Istighotsah & Mujahadah','istighotsah-mujahadah',7],['Ratib','ratib',6],['Hizib','hizib',9],['Manaqib Syekh Abdul Qadir','manaqib-syekh-abdul-qadir',9],['Dalailul Khairat','dalailul-khairat',13]]},
+  maulid:{judul:'Maulid',jalan:'maulid',item:[['Maulid Diba\'i','maulid-dibai',29],['Maulid Barzanji','maulidul-barzanji',20],['Maulid Syarafil Anam','syaraful-anam',39],['Simthud Durar','maulid-simthud-duror',17],['Qasidah Burdah','qasidah-burdah',10],['Adl-Dliyaul Lami\'','adl-dliyaul-lami',11],['Maulid \'Azab','maulid-al-azab',11]]}
+ };
+ function tampilLuar(k){
+  const L=LUAR[k];
+  $('srLuar').innerHTML='<h3 style="text-align:center;margin:6px 0 14px">'+esc(L.judul)+'</h3><div class="sr-lgrid">'+L.item.map(x=>'<a class="sr-lk" href="'+NUO+L.jalan+'/'+x[1]+'" target="_blank" rel="noopener noreferrer"><span class="sr-ik">📖</span><span><b>'+esc(x[0])+'</b><small>'+x[2]+' bacaan</small></span><span class="sr-pn">›</span></a>').join('')+'</div><p class="note" style="margin-top:12px">Teks lengkap Arab, latin, dan terjemah dibuka di NU Online (quran.nu.or.id) pada tab baru.</p>';
+ }
  let sedang=0;
  async function bukaSurat(n,tanpaRiwayat){
   const s=SURAT.find(x=>x.n===n);sedang=n;
   if(!tanpaRiwayat){try{history.pushState({p:'surat',sr:n},'');}catch(e){}}
-  $('srDaftar').classList.add('hidden');$('srTahlil').classList.add('hidden');
+  $('srDaftar').classList.add('hidden');$('srTahlil').classList.add('hidden');$('srLuar').classList.add('hidden');
   const tb=document.querySelector('#surat .sr-tabs');if(tb)tb.classList.add('hidden');
   const box=$('srBaca');box.classList.remove('hidden');
   const kepala='<button type="button" class="secondary" id="srKembali">← Daftar surat</button><div class="sr-judul"><div class="ar">'+esc(s.ar)+'</div><b>'+esc(s.lt)+'</b><br><small>'+esc(s.arti)+' · '+JML[n]+' ayat</small></div>';
