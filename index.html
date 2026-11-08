@@ -2450,9 +2450,9 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 #uGoods{font:inherit;padding:11px;border:1px solid #d9cdae;border-radius:10px;width:100%;box-sizing:border-box}
 .kr-prev{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.kr-prev img{height:56px;width:56px;object-fit:cover;border-radius:8px;border:1px solid #d8c99f}
 .um-card{display:flex;gap:14px;border:1px solid #e0d5b8;border-radius:12px;padding:12px;margin:10px 0;background:#fffdf6}
-.um-logo{width:84px;height:84px;object-fit:cover;border-radius:12px;border:1px solid #d8c99f;background:#f4ecd6;flex:none}
+.um-logo{cursor:zoom-in;width:84px;height:84px;object-fit:cover;border-radius:12px;border:1px solid #d8c99f;background:#f4ecd6;flex:none}
 .um-body{flex:1;min-width:0}.um-body h4{margin:0}.um-brand{font-size:13px;color:#8a5f14;font-weight:700}.um-meta{font-size:12px;color:#6d6652;margin:3px 0}.um-goods{margin:6px 0;font-size:13px;line-height:1.6}.um-goods span{display:inline-block;background:#efe6cd;color:#5e4a16;border-radius:999px;padding:2px 9px;margin:2px 4px 2px 0;font-size:12px}.um-pics{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.um-pics img{height:90px;width:90px;object-fit:cover;border-radius:10px;border:1px solid #d8c99f;cursor:zoom-in}
-#kr-lightbox{position:fixed;inset:0;background:rgba(0,0,0,.82);display:none;align-items:center;justify-content:center;z-index:9999;cursor:zoom-out}#kr-lightbox img{max-width:92vw;max-height:88vh;border-radius:10px}
+#kr-lightbox{position:fixed;inset:0;background:rgba(0,0,0,.86);display:none;z-index:9999;cursor:zoom-out;overflow:auto;padding:14px;box-sizing:border-box;-webkit-overflow-scrolling:touch}#kr-lightbox img{max-width:none;max-height:none;width:auto;height:auto;margin:auto;border-radius:6px;display:block}#kr-lightbox .lb-x{position:fixed;top:10px;right:12px;width:38px;height:38px;border-radius:50%;border:0;background:#fff;color:#222;font-size:22px;line-height:1;cursor:pointer;z-index:1;box-shadow:0 2px 8px #0006}
 .calendar-day.has-event{box-shadow:inset 0 -4px 0 #c99b4b;font-weight:700}
 </style>
 <script>
@@ -2593,9 +2593,10 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
    return '<div class="um-card"><div style="position:absolute;top:8px;right:10px"><button class="secondary" type="button" data-uupdate="'+esc(x.id)+'" style="font-size:12px;padding:4px 10px">Update data</button></div><img class="um-logo" alt="" '+(g.logo?'src="'+esc(g.logo)+'"':'style="visibility:hidden"')+'><div class="um-body"><h4>'+esc(x.name)+'</h4>'+(x.brand?'<div class="um-brand">Merek: '+esc(x.brand)+'</div>':'')+'<div class="um-meta">'+esc([x.product,'Pemilik: '+x.owner].filter(Boolean).join(' · '))+'</div>'+(x.goods?'<div class="um-goods">'+barangChip(x.goods)+'</div>':'')+(g.contoh.length?'<div class="um-pics">'+g.contoh.map(u=>'<img alt="Contoh produk" src="'+esc(u)+'">').join('')+'</div>':'')+'<div class="um-meta">'+(x.address?'📍 '+esc(x.address)+'<br>':'')+(x.phone?'☎ '+kontakUmkm(x.phone,x.name):'')+'</div></div></div>';}).join(''):'<p class="note">Belum ada UMKM yang disetujui admin.</p>';
   it.forEach(x=>{if(window.__gambarUmkm[x.id]||ambil[x.id])return;ambil[x.id]=1;
    api({action:'gambar',id:x.id}).then(r=>{window.__gambarUmkm[x.id]=r.gambar||{logo:'',contoh:[]};renderUmkmT();}).catch(()=>{ambil[x.id]=0;});});}
- (function(){const lb=document.createElement('div');lb.id='kr-lightbox';lb.innerHTML='<img alt="">';document.body.appendChild(lb);
+ (function(){const lb=document.createElement('div');lb.id='kr-lightbox';lb.innerHTML='<button type="button" class="lb-x" aria-label="Tutup">\u00D7</button><img alt="">';document.body.appendChild(lb);
   lb.addEventListener('click',()=>{lb.style.display='none';});
-  document.addEventListener('click',e=>{const i=e.target.closest('.um-pics img,.kr-gal img');if(!i)return;lb.firstChild.src=i.src;lb.style.display='flex';});})();
+  document.addEventListener('click',e=>{const i=e.target.closest('.um-pics img,.kr-gal img,.um-logo');if(!i||!i.getAttribute('src'))return;lb.querySelector('img').src=i.src;lb.style.display='flex';lb.scrollTop=0;lb.scrollLeft=0;});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&lb.style.display==='flex')lb.style.display='none';});})();
  /* Tautan kitab: dikenali otomatis (Google Drive/Docs, Dropbox, dll.) lalu diarahkan langsung ke file */
  function arahFile(u){
   u=safeLink(u);if(!u)return null;
