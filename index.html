@@ -485,6 +485,7 @@ main {
    <button data-page="kartu">Kartu Bani Ilyas</button>
    <button data-page="chat">Chat Anak Incu</button>
    <button data-page="artikel">Artikel Agama</button>
+   <button data-page="tautan">Tautan</button>
    <button data-page="verifikasi">Verifikasi Admin</button>
   </nav>
  </div>
@@ -975,6 +976,29 @@ main {
  </div>
 </section>
 
+<section id="tautan" class="hidden">
+ <div class="hero"><div><h2>Tautan Web</h2><p>Kumpulan tautan web yang bermanfaat (kajian, berita, kitab, usaha keluarga, dll). Siapa pun boleh mengirim; setiap tautan diperiksa admin sebelum tampil.</p></div><span class="pill">TAUTAN</span></div>
+ <div class="panel">
+  <div class="panelhead"><h3>Daftar Tautan</h3><input id="tauCari" placeholder="Cari judul, keterangan, atau alamat web..."></div>
+  <div id="tauKategori" class="art-kat"></div>
+  <div id="tauDaftar"><p class="note">Memuat tautan...</p></div>
+  <p class="note">Tautan membuka situs lain di tab baru. Isinya dikirim pengunjung dan hanya diperiksa singkat oleh admin; tetap berhati-hati dan jangan memasukkan data pribadi atau kata sandi di situs luar.</p>
+ </div>
+ <div class="panel">
+  <h3>Kirim Tautan</h3>
+  <p class="note">Tulis judul, alamat web, dan keterangan singkat. Admin akan memeriksa dahulu sebelum tautan tampil.</p>
+  <div class="formgrid" style="margin-top:12px">
+   <div class="field" style="grid-column:1/-1"><label for="tauJudul">Judul tautan</label><input id="tauJudul" maxlength="160" placeholder="Contoh: Kajian Kitab Ta'lim Muta'allim"></div>
+   <div class="field" style="grid-column:1/-1"><label for="tauLink">Alamat web (tautan)</label><input id="tauLink" maxlength="400" inputmode="url" placeholder="https://contoh.com/halaman"></div>
+   <div class="field" style="grid-column:1/-1"><label for="tauKet">Keterangan (opsional)</label><textarea id="tauKet" maxlength="500" rows="3" placeholder="Jelaskan singkat isi tautan ini"></textarea></div>
+   <div class="field"><label for="tauKat">Kategori (opsional)</label><input id="tauKat" maxlength="60" placeholder="Contoh: Kajian, Berita, Usaha"></div>
+   <div class="field"><label for="tauNama">Nama pengirim</label><input id="tauNama" placeholder="Nama lengkap Anda"></div>
+   <div class="field"><label for="tauWa">Nomor WhatsApp (opsional, hanya dilihat admin)</label><input id="tauWa" placeholder="08xxxxxxxxxx"></div>
+  </div>
+  <button class="primary" id="tauKirim" type="button" style="margin-top:14px">Kirim Tautan untuk Verifikasi</button>
+  <div class="result hidden" id="tauMsg" role="status"></div>
+ </div>
+</section>
 <section id="library" class="hidden">
  <div class="hero"><div><h2>Perpustakaan Digital Bani Ilyas</h2><p>Kumpulan kitab, buku keagamaan, ebook, dan bahan bacaan keluarga yang dapat dibaca atau diunduh sesuai izin penggunaan.</p></div><span class="pill">ILMU & LITERASI</span></div>
  <div class="panel">
@@ -1333,7 +1357,7 @@ window.PancakakiDownloadGate = {
 <footer>Arsip Digital Kulawarga Bani Ilyas · Limbangan, Garut · Rarancang awal pikeun dimekarkeun babarengan ku kulawarga</footer>
 <script>
 const navButtons=document.querySelectorAll('nav button');
-const pageIds=['home','profil','add','archive','pesantren','umkm','library','calendar','donasi','haul','guide','nasab','kartu','chat','artikel','verifikasi'];
+const pageIds=['home','profil','add','archive','pesantren','umkm','library','calendar','donasi','haul','guide','nasab','kartu','chat','artikel','tautan','verifikasi'];
 navButtons.forEach(btn=>btn.addEventListener('click',()=>{
  navButtons.forEach(b=>b.classList.remove('active'));
  btn.classList.add('active');
@@ -2290,7 +2314,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  const money=n=>'Rp'+new Intl.NumberFormat('id-ID').format(Number(n)||0);
  const safeLink=u=>/^https:\/\/[^\s"'<>]+$/i.test(String(u||''))?String(u):'';
  const LABEL={alamat:'Alamat rumah baru',alamatLama:'Alamat rumah sekarang',wa:'WhatsApp baru',waLama:'WhatsApp sekarang',pasangan:'Istri/suami baru',pasanganLama:'Istri/suami sekarang',target:'Kode data asal',ringkas:'Perubahan',id:'ID orang',namaLama:'Nama sekarang',nama:'Nama baru',ayahNama:'Orang tua',anakKeLama:'Anak ke- sekarang',anakKe:'Anak ke- baru',alasan:'Alasan',catatanSistem:'Catatan sistem',name:'Nama',brand:'Merek',goods:'Barang dijual',founder:'Pendiri',leader:'Pimpinan/pengasuh',relation:'Hubungan dengan KH. R. Muhamad Ilyas',phone:'Telepon/WA',address:'Alamat',web:'Website/medsos',profile:'Profil',owner:'Pemilik',code:'Kode silsilah',product:'Produk',desc:'Keterangan',title:'Judul',author:'Pengarang',category:'Kategori',source:'Sumber/izin',link:'Tautan',description:'Keterangan',date:'Tanggal',time:'Jam',place:'Tempat',amount:'Nominal',purpose:'Peruntukan',note:'Catatan',ref:'Referensi',method:'Metode',proof:'Bukti',room:'Ruang',text:'Isi',isi:'Isi artikel',key:'Kunci'};
- const JENIS={revisi:'Update nama/urutan anak',pesantren:'Pesantren',revisipesantren:'Update data pesantren',revisiumkm:'Update data UMKM',umkm:'UMKM',buku:'Kitab/Ebook',media:'Foto/Video',kalender:'Agenda kalender',artikel:'Artikel agama',donasi:'Donasi',haul:'Iuran Haul',chat:'Pesan chat',info:'Informasi'};
+ const JENIS={revisi:'Update nama/urutan anak',pesantren:'Pesantren',revisipesantren:'Update data pesantren',revisiumkm:'Update data UMKM',umkm:'UMKM',buku:'Kitab/Ebook',media:'Foto/Video',kalender:'Agenda kalender',artikel:'Artikel agama',tautan:'Tautan web',donasi:'Donasi',haul:'Iuran Haul',chat:'Pesan chat',info:'Informasi'};
  const api=(p)=>window.BaniIlyasApi(p);
  window.__terbit=window.__terbit||{pesantren:[],umkm:[],buku:[],media:[],kalender:[],chat:[],info:{},haul:{terverifikasi:[],menunggu:0,menungguTotal:0}};
  const say=(el,t,ok)=>{if(!el)return;el.classList.remove('hidden');el.textContent=t;el.style.color=ok===false?'#a33':'';};
@@ -3201,7 +3225,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  kp.parentNode.insertBefore(p,kp.nextSibling);
  let data=[],timer=null;
  const label=a=>{
-  if(a.indexOf('MASUK_')===0){const j=a.substring(6);const m={PENGAJUAN:'Pengajuan nama silsilah',DUPLIKAT:'Pengajuan nama (sudah ada)',PESANTREN:'Pesantren',UMKM:'UMKM',BUKU:'Kitab/Ebook',MEDIA:'Foto/Video',KALENDER:'Agenda',ARTIKEL:'Artikel agama',DONASI:'Donasi',HAUL:'Iuran Haul',CHAT:'Chat',REVISI:'Update nama/urutan/pasangan/alamat',REVISIPESANTREN:'Update data pesantren',REVISIUMKM:'Update data UMKM'};return ['Masuk: '+(m[j]||j),'lg-masuk'];}
+  if(a.indexOf('MASUK_')===0){const j=a.substring(6);const m={PENGAJUAN:'Pengajuan nama silsilah',DUPLIKAT:'Pengajuan nama (sudah ada)',PESANTREN:'Pesantren',UMKM:'UMKM',BUKU:'Kitab/Ebook',MEDIA:'Foto/Video',KALENDER:'Agenda',ARTIKEL:'Artikel agama',TAUTAN:'Tautan web',DONASI:'Donasi',HAUL:'Iuran Haul',CHAT:'Chat',REVISI:'Update nama/urutan/pasangan/alamat',REVISIPESANTREN:'Update data pesantren',REVISIUMKM:'Update data UMKM'};return ['Masuk: '+(m[j]||j),'lg-masuk'];}
   if(/SETUJU|TERBIT|DITERAPKAN|^UPDATE_/.test(a))return ['Disetujui/diterapkan ('+a+')','lg-ok'];
   if(/TOLAK/.test(a))return ['Ditolak ('+a+')','lg-no'];
   return [a,''];
@@ -3766,5 +3790,62 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
  render();
 })();
 </script>
+<script>
+(function(){
+ const $=id=>document.getElementById(id);
+ const esc=t=>String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ let kat='';
+ const semua=()=>((window.__terbit&&window.__terbit.tautan)||[]).slice().reverse();
+ function urlAman(u){try{u=String(u||'');if(!/^https:\/\/[^\s"'<>]+$/i.test(u))return null;const o=new URL(u);if(o.username||o.password)return null;return o;}catch(e){return null;}}
+ function render(){
+  const box=$('tauDaftar');if(!box)return;
+  const all=semua().map(x=>({x,o:urlAman(x.link)})).filter(a=>a.o);
+  const kats=[...new Set(all.map(a=>(a.x.category||'').trim()).filter(Boolean))].sort();
+  if(kat&&kats.indexOf(kat)<0)kat='';
+  $('tauKategori').innerHTML=kats.length?'<button type="button" data-k="" class="'+(kat?'':'on')+'">Semua</button>'+kats.map(k=>'<button type="button" data-k="'+esc(k)+'" class="'+(k===kat?'on':'')+'">'+esc(k)+'</button>').join(''):'';
+  const q=($('tauCari').value||'').toLowerCase().trim();
+  const L=all.filter(a=>(!kat||(a.x.category||'').trim()===kat)&&(!q||[a.x.title,a.x.description,a.o.hostname].join(' ').toLowerCase().indexOf(q)>=0));
+  box.innerHTML=L.length?L.map(a=>{const x=a.x,host=a.o.hostname.replace(/^www\./,'');
+   return '<article class="tau-item"><a class="tau-judul" href="'+esc(a.o.href)+'" target="_blank" rel="noopener noreferrer nofollow ugc">'+esc(x.title)+' <span aria-hidden="true">↗</span></a>'
+    +'<div class="tau-host">'+esc(host)+(x.category?' · <span class="tau-kat">'+esc(x.category)+'</span>':'')+'</div>'
+    +(x.description?'<p>'+esc(x.description)+'</p>':'')
+    +'<small>Dikirim oleh '+esc(x.pengirim||'-')+(x.waktu?' · '+esc(String(x.waktu).slice(0,10)):'')+'</small></article>';}).join(''):'<p class="note">'+(all.length?'Tidak ada tautan yang cocok.':'Belum ada tautan yang disetujui. Jadilah yang pertama mengirim.')+'</p>';
+ }
+ $('tauKategori').addEventListener('click',e=>{const b=e.target.closest('button[data-k]');if(!b)return;kat=b.dataset.k;render();});
+ $('tauCari').addEventListener('input',render);
+ async function muat(){try{if(window.__muatTerbit)await window.__muatTerbit();}catch(e){}render();setTimeout(render,1800);}
+ const nb=document.querySelector('nav button[data-page="tautan"]');
+ if(nb)nb.addEventListener('click',muat);
+ if(location.hash==='#tautan'&&nb)nb.click();
+ $('tauKirim').addEventListener('click',async()=>{
+  const m=$('tauMsg'),say=(t,ok)=>{m.classList.remove('hidden');m.textContent=t;m.style.color=ok===false?'#a33':'';};
+  const judul=$('tauJudul').value.trim(),nama=$('tauNama').value.trim();let link=$('tauLink').value.trim();
+  if(!judul){say('Isi judul tautan.',false);return;}
+  if(!link){say('Isi alamat web.',false);return;}
+  if(/^http:\/\//i.test(link)){say('Alamat harus https:// (aman). Coba ganti http menjadi https.',false);return;}
+  if(!/^https:\/\//i.test(link)&&!/^[a-z][a-z0-9+.-]*:/i.test(link))link='https://'+link;
+  if(!urlAman(link)){say('Alamat web tidak valid. Contoh: https://contoh.com/halaman',false);return;}
+  if(!nama){say('Isi nama pengirim.',false);return;}
+  const btn=$('tauKirim');btn.disabled=true;say('Mengirim...');
+  try{
+   const r=await window.BaniIlyasApi({action:'kirim',jenis:'tautan',pengirim:window.rapikanNama?window.rapikanNama(nama):nama,kontak:$('tauWa').value.trim(),data:{title:judul,link,description:$('tauKet').value.trim(),category:$('tauKat').value.trim()},website:''});
+   say((r.pesan||'Tautan diterima dan menunggu verifikasi admin.')+' Terima kasih.');
+   ['tauJudul','tauLink','tauKet','tauKat'].forEach(i=>$(i).value='');
+  }catch(e){say('Tautan belum terkirim: '+e.message,false);}
+  btn.disabled=false;
+ });
+ render();
+})();
+</script>
+<style>
+.tau-item{border:1px solid #e5dcc8;border-left:4px solid #1d4a38;border-radius:12px;background:#fffdf6;margin:8px 0;padding:12px 15px}
+.tau-judul{font-weight:700;font-size:16px;color:#1d4a38;text-decoration:none;word-break:break-word}
+.tau-judul:hover{text-decoration:underline}
+.tau-host{font-size:12.5px;color:#7a5f1f;margin:2px 0 4px}
+.tau-kat{background:#f4e3b5;border-radius:999px;padding:1px 8px;color:#5d4a1c}
+.tau-item p{margin:6px 0;white-space:pre-line}
+.tau-item small{color:#777}
+#tauKet{width:100%;box-sizing:border-box;font:inherit;padding:10px;border:1px solid #d8c69b;border-radius:10px}
+</style>
 </body>
 </html>
