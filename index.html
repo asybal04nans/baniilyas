@@ -3999,7 +3999,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   if(db===1)return da===2?(jb==='L'?'Paman':jb==='P'?'Bibi':'Paman/Bibi'):'Saudara '+anc(da-1,'').toLowerCase();
   const k=Math.min(da,db)-1,r=Math.abs(da-db);
   let t='Sepupu';
-  if(r===0){if(urut)t+=' ('+urut+')';}
+  if(r===0){if(urut)t=(urut==='kakak'?'Kakak':'Adik')+' sepupu';}
   else if(db>da)t+=' ('+(r===1?'keponakan':desc(r,'').toLowerCase()+' keponakan')+')';
   else t+=' ('+(r===1?(jb==='L'?'paman':jb==='P'?'bibi':'paman/bibi'):'saudara '+anc(r,'').toLowerCase())+')';
   return t;}
@@ -4052,7 +4052,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
    const par=h.bawah[j];
    rantai+='<div class="hb-pnl dn"><span>▼</span><em>'+turun(par,JK(par))+'</em></div>';
    const adaB=(j===h.bawah.length-2);
-   const peran=adaB?'B (orang kedua) · '+sedarah(A,x,da,j+1).toLowerCase()+' dari A':sedarah(A,x,da,j+1)+' dari A';
+   const peran=adaB?'B (orang kedua) · '+sedarah(A,x,da,j+1,h.urut).toLowerCase()+' dari A':sedarah(A,x,da,j+1)+' dari A';
    rantai+=node(x,peran,adaB?'hb-b':'');
   });
   return '<div class="hb-hasil"><p class="hb-kal">'+kal+'</p>'+(kal2?'<p>'+kal2+'</p>':'')+'<div class="hb-rantai" aria-label="Jalur hubungan">'+rantai+'</div></div>';
