@@ -470,6 +470,7 @@ main {
 .multi-family-panel .mini-actions button{font-size:12px;padding:6px 9px}
 .multi-family-panel .child-entry{margin:6px 0 6px 12px;padding-left:10px;border-left:2px solid #d6c49a}
 .multi-family-panel .helper{font-size:11px;color:#687564;line-height:1.5}
+.unduh-app{display:flex;gap:14px;align-items:center;border-left:5px solid #1d4a38;background:linear-gradient(135deg,#fffdf6,#f6efdc)}.unduh-app img{flex:none;width:84px;height:84px;object-fit:contain}.unduh-app h3{margin:0 0 4px;font-size:17px}.unduh-app p{margin:0 0 8px;font-size:14px;line-height:1.45}.ua-aksi{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.ua-btn{display:inline-block;background:#1d4a38;color:#fff!important;font-weight:800;text-decoration:none;border-radius:10px;padding:10px 16px}.ua-cara{color:#1d4a38;font-weight:700;font-size:14px}.unduh-app small{display:block;margin-top:6px;color:#6b5b2c;font-size:12.5px}@media(max-width:520px){.unduh-app{flex-direction:column;text-align:center}.ua-aksi{justify-content:center}}@media print{.unduh-app{display:none!important}}
 </style>
 
 </head>
@@ -547,6 +548,7 @@ main {
   <div class="stat"><strong>2</strong><span>Jalur rumah tangga</span></div>
   <div class="stat"><strong id="statLine">BI-0</strong><span>Runtuyan turunan</span></div>
  </div>
+<div class="panel unduh-app" id="unduhApp"><img src="icons/logo.png" alt="" width="84" height="84"><div class="ua-isi"><h3>Aplikasi Bani Ilyas untuk Android</h3><p>Buka silsilah, kalender, UMKM, kalkulator waris dan tahlil langsung dari layar utama HP.</p><div class="ua-aksi"><a class="ua-btn" href="BaniIlyas.apk" download="BaniIlyas.apk">Unduh Aplikasi (APK)</a><a class="ua-cara" href="?pasang">Cara memasang</a></div><small>Setelah terunduh, ketuk berkasnya lalu pilih <b>Pasang</b>. Jika diminta izin, pilih <b>Izinkan</b>.</small></div></div>
  <div class="panel" id="sorotan" style="display:none" aria-label="Sorotan">
   <div class="panelhead"><h3>✨ Sorotan</h3><small class="note" style="margin:0">Yang terbaru dari keluarga besar</small></div>
   <div class="sorot-grid">
@@ -4750,6 +4752,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
  if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){
   window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});
  }
+ try{if(sudah()){var ua=$('unduhApp');if(ua)ua.style.display='none';}}catch(e){}
  window.addEventListener('beforeinstallprompt',function(e){
   e.preventDefault();tunda=e;
   try{if(localStorage.getItem('pwa_tutup')==='1')return;}catch(er){}
