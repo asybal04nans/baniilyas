@@ -7,107 +7,195 @@
 <meta name="description" content="Beli pulsa, paket data, token listrik PLN, dan bayar tagihan. Pesan mudah lewat WhatsApp.">
 <meta name="theme-color" content="#12355b">
 <style>
-:root{--bg:#f5f7fa;--surface:#fff;--fg:#14202e;--muted:#5a6b7d;--line:#d9e0e8;--brand:#12355b;--brand-ink:#fff;--accent:#e8892b;--accent-ink:#2a1500;--soft:#fdf0e0;--ok:#1d7a4a;--err:#b3261e}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1620;--surface:#16212e;--fg:#e8eef5;--muted:#9bb0c4;--line:#2a3a4d;--brand:#0b2440;--brand-ink:#fff;--accent:#f0a14d;--accent-ink:#2a1500;--soft:#2d2417;--ok:#5bc98a;--err:#ff8a80;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#0e1620;--surface:#16212e;--fg:#e8eef5;--muted:#9bb0c4;--line:#2a3a4d;--brand:#0b2440;--brand-ink:#fff;--accent:#f0a14d;--accent-ink:#2a1500;--soft:#2d2417;--ok:#5bc98a;--err:#ff8a80;color-scheme:dark}
+/* Papan nama biru tua dengan kanopi kuning, formulir di kiri, pratinjau struk pesanan di kanan. */
+:root{
+  --bg:#eef2f7;--surface:#fff;--fg:#10243a;--muted:#526579;--line:#d3dce7;
+  --sign:#12355b;--sign-fg:#f4f8fc;--accent:#f2a900;--accent-fg:#1a1300;--accent-soft:#fff3d1;
+  --focus:#1b6fd1;--err:#b3261e;
+  --display:"Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1622;--surface:#12263a;--fg:#e7eef6;--muted:#9bb0c5;--line:#243c54;--sign:#08121d;--sign-fg:#f4f8fc;--accent:#f2b429;--accent-fg:#1a1300;--accent-soft:#2e2810;--focus:#6fb0ff;--err:#ff8a80;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b1622;--surface:#12263a;--fg:#e7eef6;--muted:#9bb0c5;--line:#243c54;--sign:#08121d;--sign-fg:#f4f8fc;--accent:#f2b429;--accent-fg:#1a1300;--accent-soft:#2e2810;--focus:#6fb0ff;--err:#ff8a80;color-scheme:dark}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
 [hidden]{display:none!important}
-.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-header{background:var(--brand);color:var(--brand-ink);padding-block:22px}
-header h1{margin:0;font-size:1.5rem;line-height:1.2}
-header p{margin:6px 0 0;opacity:.85;font-size:.95rem}
-main{padding-block:22px 40px;display:grid;gap:18px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:grid;gap:16px;min-width:0}
-h2{margin:0;font-size:1.1rem}
-.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-.tab{font:inherit;font-size:.9rem;font-weight:600;padding:10px 4px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer;min-width:0}
-.tab[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
-label{display:block;font-weight:600;font-size:.92rem;margin-bottom:6px}
-input,select{width:100%;font:inherit;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg)}
-input:focus,select:focus,.tab:focus-visible,.nom:focus-visible,.go:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
-.noms{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
-.nom{font:inherit;text-align:left;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer;min-width:0}
-.nom b{display:block;font-size:1rem}
-.nom span{display:block;font-size:.8rem;color:var(--muted)}
-.nom[aria-pressed="true"]{border-color:var(--accent);background:var(--soft)}
-.go{font:inherit;font-weight:700;padding:14px 18px;border:0;border-radius:10px;background:var(--accent);color:var(--accent-ink);cursor:pointer;width:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 var(--body);-webkit-text-size-adjust:100%}
+.wrap{max-width:1040px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);margin:0;line-height:1.1;text-wrap:balance}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+header{background:var(--sign);color:var(--sign-fg);padding-top:max(28px,env(safe-area-inset-top,0px))}
+header .wrap{padding-bottom:26px;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px 32px}
+header h1{font-size:clamp(2.4rem,8vw,4rem);font-weight:800;letter-spacing:-.02em}
+header p{margin:8px 0 0;max-width:34ch;opacity:.85}
+.svc-list{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none;font-size:.85rem}
+.svc-list li{border:1px solid rgba(244,248,252,.35);padding:4px 11px;border-radius:99px}
+.awning{height:14px;background:repeating-linear-gradient(90deg,var(--accent) 0 28px,var(--sign-fg) 28px 56px)}
+
+main{padding-block:28px 24px;display:grid;gap:24px}
+.grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px;min-width:0}
+.panel h2{font-size:1.35rem;font-weight:800;margin-bottom:16px}
+
+.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:20px}
+@media (max-width:460px){.tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tab{font:inherit;font-weight:600;font-size:.92rem;padding:10px 6px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer;min-width:0}
+.tab[aria-pressed="true"]{background:var(--sign);color:var(--sign-fg);border-color:var(--sign)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tab[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}}
+:root[data-theme="dark"] .tab[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+
+.field{display:grid;gap:6px;margin-bottom:16px;min-width:0}
+.field>label,.field>.lbl{font-weight:600;font-size:.9rem}
+.hint{font-size:.8rem;color:var(--muted)}
+input,select{width:100%;font:inherit;color:var(--fg);background:var(--bg);border:1.5px solid var(--line);border-radius:8px;padding:11px 12px;min-width:0}
+input.mono{font-family:var(--mono);letter-spacing:.03em}
+input:focus,select:focus{border-color:var(--focus);outline:none;box-shadow:0 0 0 3px rgba(27,111,209,.25)}
+
+.noms{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}
+.nom{font:inherit;text-align:center;padding:10px 4px;border-radius:8px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer;min-width:0}
+.nom b{display:block;font-family:var(--mono);font-size:.95rem}
+.nom span{display:block;font-size:.75rem;color:var(--muted)}
+.nom[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.nom[aria-pressed="true"] span{color:var(--accent-fg)}
+
+.go{display:inline-flex;align-items:center;justify-content:center;font:inherit;font-weight:700;padding:13px 20px;border:0;border-radius:8px;background:var(--accent);color:var(--accent-fg);cursor:pointer;width:100%;text-decoration:none}
+.go.ghost{background:transparent;color:var(--fg);border:1.5px solid var(--line);width:auto;padding:9px 14px;font-size:.9rem}
+.err{color:var(--err);font-size:.9rem;font-weight:600;min-height:1.4em}
 .muted{color:var(--muted);font-size:.85rem}
-.err{color:var(--err);font-size:.9rem;font-weight:600}
-.info{background:var(--soft);border-radius:10px;padding:10px 12px;font-size:.9rem}
-.ring{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-weight:600}
-footer{padding-block:6px 30px}
-footer p{margin:4px 0}
+
+/* struk */
+.struk{background:var(--surface);border:1px solid var(--line);border-radius:10px 10px 0 0;padding:22px 22px 18px;font-family:var(--mono);font-size:.86rem;position:relative}
+.struk::after{content:"";position:absolute;left:-1px;right:-1px;bottom:-9px;height:10px;background:linear-gradient(-45deg,transparent 6px,var(--surface) 0) 0 0/14px 10px repeat-x,linear-gradient(45deg,transparent 6px,var(--surface) 0) 0 0/14px 10px repeat-x;filter:drop-shadow(0 1px 0 var(--line))}
+.struk h3{font-family:var(--mono);font-size:1rem;font-weight:600;text-align:center;letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px}
+.struk .sub{text-align:center;color:var(--muted);font-size:.78rem;margin-bottom:14px;border-bottom:1.5px dashed var(--line);padding-bottom:12px}
+.struk dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:7px 14px}
+.struk dt{color:var(--muted)}
+.struk dd{margin:0;text-align:right;overflow-wrap:anywhere;font-weight:600}
+.struk dd.kosong{color:var(--muted);font-weight:400}
+.struk .foot{margin-top:14px;border-top:1.5px dashed var(--line);padding-top:12px;color:var(--muted);font-size:.78rem}
+.cta{margin-top:26px;display:grid;gap:10px}
+.info{background:var(--accent-soft);border-radius:8px;padding:10px 12px;font-size:.88rem}
+
+.steps{margin:0;padding:0;list-style:none;display:grid;gap:12px;counter-reset:s}
+.steps li{display:grid;grid-template-columns:30px minmax(0,1fr);gap:12px;counter-increment:s}
+.steps li::before{content:counter(s);width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--sign);color:var(--sign-fg);font-weight:700;font-size:.85rem}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .steps li::before{background:var(--accent);color:var(--accent-fg)}}
+:root[data-theme="dark"] .steps li::before{background:var(--accent);color:var(--accent-fg)}
+
+.mitra{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px;align-items:center}
+@media (max-width:820px){.mitra{grid-template-columns:minmax(0,1fr)}}
+.mitra p{margin:0 0 12px}
+.mitra .links{display:flex;flex-wrap:wrap;gap:10px}
+.mitra .links .go{width:auto}
+.code-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.code{font-family:var(--mono);font-weight:600;font-size:1.5rem;letter-spacing:.14em;background:var(--accent-soft);border:1.5px dashed var(--accent);border-radius:8px;padding:8px 16px;user-select:all}
+
+footer{padding-block:0 40px;display:grid;gap:6px;border-top:1px solid var(--line);padding-top:16px;margin-top:0}
+footer p{margin:0}
+@media (prefers-reduced-motion:no-preference){.go,.nom,.tab{transition:background .15s,border-color .15s}}
 </style>
 </head>
 <body>
 <header>
   <div class="wrap">
-    <h1 id="nama">Kios Nans</h1>
-    <p>Pulsa, paket data, token listrik, dan tagihan. Pesan lewat WhatsApp.</p>
-  </div>
-</header>
-<main class="wrap">
-  <section class="card" aria-labelledby="h-pesan">
-    <h2 id="h-pesan">Buat pesanan</h2>
-    <div class="tabs" role="group" aria-label="Jenis layanan" id="tabs">
-      <button class="tab" type="button" data-k="pulsa" aria-pressed="true">Pulsa</button>
-      <button class="tab" type="button" data-k="data" aria-pressed="false">Paket data</button>
-      <button class="tab" type="button" data-k="token" aria-pressed="false">Token PLN</button>
-      <button class="tab" type="button" data-k="tagihan" aria-pressed="false">Tagihan</button>
-    </div>
-
     <div>
-      <label for="nomor" id="nomorL">Nomor HP tujuan</label>
-      <input id="nomor" type="text" inputmode="numeric" autocomplete="off" placeholder="08xxxxxxxxxx">
-      <div class="muted" id="deteksi" aria-live="polite"></div>
+      <h1 id="nama">Kios Nans</h1>
+      <p>Pulsa, paket data, token listrik, dan tagihan. Pesan lewat WhatsApp.</p>
     </div>
+    <ul class="svc-list" aria-label="Layanan">
+      <li>Pulsa</li><li>Paket data</li><li>Token PLN</li><li>Tagihan</li>
+    </ul>
+  </div>
+  <div class="awning" aria-hidden="true"></div>
+</header>
 
-    <div id="opBox">
-      <label for="op">Operator</label>
-      <select id="op">
-        <option>Telkomsel</option><option>Indosat</option><option>XL</option><option>Axis</option>
-        <option>Tri</option><option>Smartfren</option><option>by.U</option><option>Lainnya</option>
-      </select>
-    </div>
+<main class="wrap">
+  <div class="grid">
+    <section class="panel" aria-labelledby="h-pesan">
+      <h2 id="h-pesan">Buat pesanan</h2>
+      <div class="tabs" role="group" aria-label="Jenis layanan" id="tabs">
+        <button class="tab" type="button" data-k="pulsa" aria-pressed="true">Pulsa</button>
+        <button class="tab" type="button" data-k="data" aria-pressed="false">Paket data</button>
+        <button class="tab" type="button" data-k="token" aria-pressed="false">Token PLN</button>
+        <button class="tab" type="button" data-k="tagihan" aria-pressed="false">Tagihan</button>
+      </div>
 
-    <div id="nomBox">
-      <label>Pilih nominal</label>
-      <div class="noms" id="noms"></div>
-    </div>
+      <div class="field">
+        <label for="nomor" id="nomorL">Nomor HP tujuan</label>
+        <input class="mono" id="nomor" type="text" inputmode="numeric" autocomplete="off" placeholder="08xxxxxxxxxx">
+        <span class="hint" id="deteksi" aria-live="polite"></span>
+      </div>
 
-    <div id="bebasBox" hidden>
-      <label for="bebas" id="bebasL">Paket atau tagihan</label>
-      <input id="bebas" type="text" autocomplete="off" placeholder="">
-    </div>
+      <div class="field" id="opBox">
+        <label for="op">Operator</label>
+        <select id="op">
+          <option>Telkomsel</option><option>Indosat</option><option>XL</option><option>Axis</option>
+          <option>Tri</option><option>Smartfren</option><option>by.U</option><option>Lainnya</option>
+        </select>
+      </div>
 
-    <div class="ring"><span>Harga</span><span id="harga">Pilih nominal dulu</span></div>
-    <div class="err" id="err" role="alert"></div>
-    <button class="go" type="button" id="kirim">Pesan lewat WhatsApp</button>
-    <div class="info" id="catatan"></div>
-  </section>
+      <div class="field" id="nomBox">
+        <span class="lbl">Pilih nominal</span>
+        <div class="noms" id="noms"></div>
+      </div>
 
-  <section class="card">
-    <h2>Cara pesan</h2>
-    <ol style="margin:0;padding-left:20px;display:grid;gap:6px">
-      <li>Pilih layanan, isi nomor tujuan, dan pilih nominal atau tulis paketnya.</li>
-      <li>Tekan <em>Pesan lewat WhatsApp</em>. Pesan sudah tertata dan tinggal Anda kirim.</li>
-      <li>Admin membalas dengan harga dan cara pembayaran.</li>
-      <li>Setelah pembayaran diterima, pesanan diproses dan Anda dikabari.</li>
+      <div class="field" id="bebasBox" hidden>
+        <label for="bebas" id="bebasL">Paket atau tagihan</label>
+        <input id="bebas" type="text" autocomplete="off" placeholder="">
+      </div>
+
+      <div class="err" id="err" role="alert"></div>
+    </section>
+
+    <aside aria-label="Ringkasan pesanan">
+      <div class="struk" aria-live="polite">
+        <h3 id="namaStruk">Kios Nans</h3>
+        <div class="sub">Pratinjau pesanan Anda</div>
+        <dl id="rows"></dl>
+        <div class="foot">Harga dan cara bayar dikirim admin lewat balasan WhatsApp.</div>
+      </div>
+      <div class="cta">
+        <button class="go" type="button" id="kirim">Pesan lewat WhatsApp</button>
+        <div class="info" id="catatan"></div>
+      </div>
+    </aside>
+  </div>
+
+  <section class="panel" aria-labelledby="h-cara">
+    <h2 id="h-cara">Cara pesan</h2>
+    <ol class="steps">
+      <li><span>Pilih layanan, isi nomor tujuan, dan pilih nominal atau tulis paketnya.</span></li>
+      <li><span>Tekan <em>Pesan lewat WhatsApp</em>. Pesan sudah tertata dan tinggal Anda kirim.</span></li>
+      <li><span>Admin membalas dengan harga dan cara pembayaran.</span></li>
+      <li><span>Setelah pembayaran diterima, pesanan diproses dan Anda dikabari.</span></li>
     </ol>
   </section>
-  <section class="card">
-    <h2>Beli sendiri atau jadi agen</h2>
-    <p style="margin:0">Anda juga bisa membeli langsung lewat aplikasi mitra kami, Agen Pulsa Termurah. Saat mendaftar, masukkan kode referal <strong id="refKode">91AE76AD</strong>.</p>
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <a class="go" style="width:auto;text-decoration:none;display:inline-block" href="https://isipulsa.web.id/" target="_blank" rel="noopener sponsored">Buka Agen Pulsa Termurah</a>
-      <button class="tab" type="button" id="refSalin" style="width:auto;padding:12px 16px">Salin kode referal</button>
+
+  <section class="panel mitra" aria-labelledby="h-mitra">
+    <div>
+      <h2 id="h-mitra">Beli sendiri atau jadi agen</h2>
+      <p>Anda juga bisa membeli langsung lewat aplikasi mitra kami, Agen Pulsa Termurah. Saat mendaftar, masukkan kode referal di samping.</p>
+      <div class="links">
+        <a class="go" href="https://isipulsa.web.id/" target="_blank" rel="noopener sponsored">Buka Agen Pulsa Termurah</a>
+      </div>
     </div>
-    <div class="muted" id="refStatus" aria-live="polite">Keterbukaan: kode referal ini milik pengelola situs, yang dapat memperoleh imbalan dari pendaftaran lewat kode tersebut. Situs mitra dikelola pihak lain.</div>
+    <div class="field" style="margin:0">
+      <span class="lbl">Kode referal</span>
+      <div class="code-row">
+        <strong class="code" id="refKode">91AE76AD</strong>
+        <button class="go ghost" type="button" id="refSalin">Salin kode referal</button>
+      </div>
+      <span class="hint" id="refStatus" aria-live="polite"></span>
+    </div>
   </section>
 </main>
+
 <footer class="wrap">
   <p class="muted" id="jam"></p>
+  <p class="muted"><strong>Keterbukaan:</strong> kode referal ini milik pengelola situs, yang dapat memperoleh imbalan dari pendaftaran lewat kode tersebut. Situs mitra dikelola pihak lain.</p>
   <p class="muted">Layanan ini adalah usaha pribadi pengelola situs. Tidak terkait dengan kas keluarga besar maupun penerimaan donasi pihak mana pun.</p>
 </footer>
 
@@ -117,49 +205,77 @@ footer p{margin:4px 0}
     layanan:{pulsa:[5000,10000,20000,25000,50000,100000].map(function(n){return{label:n.toLocaleString('id-ID'),harga:null}}),
       token:[20000,50000,100000,200000,500000].map(function(n){return{label:n.toLocaleString('id-ID'),harga:null}})}};
   var cfg=DEF,k='pulsa',pilih=null;
+  var NM={pulsa:'Pulsa',data:'Paket data',token:'Token listrik PLN',tagihan:'Tagihan'};
   function $(i){return document.getElementById(i)}
   function rp(n){return 'Rp'+Math.round(n).toLocaleString('id-ID')}
   var PRE=[['Telkomsel',['0811','0812','0813','0821','0822','0823','0851','0852','0853']],['Indosat',['0814','0815','0816','0855','0856','0857','0858']],
     ['XL',['0817','0818','0819','0859','0877','0878']],['Axis',['0831','0832','0833','0838']],['Tri',['0895','0896','0897','0898','0899']],['Smartfren',['0881','0882','0883','0884','0885','0886','0887','0888','0889']]];
   function deteksi(no){for(var i=0;i<PRE.length;i++)if(PRE[i][1].indexOf(no.slice(0,4))>=0)return PRE[i][0];return''}
+  function adaDaftar(){var d=(cfg.layanan&&cfg.layanan[k])||[];return d.length>0}
+
   function terap(){
-    document.title=cfg.nama+' - Pulsa, Kuota, dan Tagihan';$('nama').textContent=cfg.nama;
+    document.title=cfg.nama+' - Pulsa, Kuota, dan Tagihan';
+    $('nama').textContent=cfg.nama;$('namaStruk').textContent=cfg.nama;
     $('catatan').textContent=cfg.catatan||'';$('catatan').hidden=!cfg.catatan;
-    $('jam').textContent=cfg.jam?('Jam layanan: '+cfg.jam):'';
+    $('jam').textContent=cfg.jam?('Jam layanan: '+cfg.jam):'';$('jam').hidden=!cfg.jam;
     ganti(k);
   }
   function ganti(x){
     k=x;pilih=null;$('err').textContent='';
     Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(b){b.setAttribute('aria-pressed',b.getAttribute('data-k')===k?'true':'false')});
-    var hp=(k==='pulsa'||k==='data');
+    var hp=(k==='pulsa'||k==='data'),daftar=(cfg.layanan&&cfg.layanan[k])||[];
     $('opBox').hidden=!hp;
     $('nomorL').textContent=hp?'Nomor HP tujuan':(k==='token'?'Nomor meter atau ID pelanggan PLN':'Nomor atau ID pelanggan');
     $('nomor').placeholder=hp?'08xxxxxxxxxx':'Nomor meter atau ID pelanggan';
-    var daftar=(cfg.layanan&&cfg.layanan[k])||null;
-    $('nomBox').hidden=!(daftar&&daftar.length);
-    $('bebasBox').hidden=!!(daftar&&daftar.length);
+    $('nomBox').hidden=!daftar.length;
+    $('bebasBox').hidden=!!daftar.length;
     $('bebasL').textContent=k==='data'?'Paket data yang diinginkan':'Jenis tagihan (BPJS, PDAM, internet, dan lainnya)';
     $('bebas').placeholder=k==='data'?'Misalnya: kuota 10 GB 30 hari':'Misalnya: BPJS Kesehatan, atas nama ...';
+    $('deteksi').textContent=hp?deteksiTeks($('nomor').value.replace(/[^0-9]/g,'')):'';
     var h='';
-    (daftar||[]).forEach(function(n,i){h+='<button type="button" class="nom" data-i="'+i+'" aria-pressed="false"><b>'+n.label+'</b><span>'+(n.harga?rp(n.harga):'Harga via WhatsApp')+'</span></button>'});
-    $('noms').innerHTML=h;hargaTampil();
+    daftar.forEach(function(n,i){h+='<button type="button" class="nom" data-i="'+i+'" aria-pressed="false"><b>'+n.label+'</b><span>'+(n.harga?rp(n.harga):'Harga via WhatsApp')+'</span></button>'});
+    $('noms').innerHTML=h;
+    struk();
   }
-  function hargaTampil(){
+  function deteksiTeks(no){var o=deteksi(no);return o?('Terdeteksi: '+o+'. Ubah operator bila nomor sudah pindah.'):'Operator terisi otomatis dari awalan nomor.'}
+
+  function harga(){
     var d=(cfg.layanan&&cfg.layanan[k])||[];
-    if(!d.length){$('harga').textContent='Dikonfirmasi admin';return}
-    if(pilih===null){$('harga').textContent='Pilih nominal dulu';return}
-    $('harga').textContent=d[pilih].harga?rp(d[pilih].harga):'Dikonfirmasi admin';
+    if(!d.length)return'Dikonfirmasi admin';
+    if(pilih===null)return'';
+    return d[pilih].harga?rp(d[pilih].harga):'Dikonfirmasi admin';
   }
+  function struk(){
+    var hp=(k==='pulsa'||k==='data'),no=$('nomor').value.replace(/[^0-9]/g,''),d=(cfg.layanan&&cfg.layanan[k])||[],ps='';
+    if(d.length){ps=pilih===null?'':d[pilih].label}else{ps=$('bebas').value.trim()}
+    var r=[['Layanan',NM[k]]];
+    if(hp)r.push(['Operator',$('op').value]);
+    r.push([hp?'Nomor HP':'No. pelanggan',no]);
+    r.push([d.length?'Nominal':(k==='data'?'Paket':'Tagihan'),ps]);
+    r.push(['Harga',harga()]);
+    var dl=$('rows');dl.innerHTML='';
+    r.forEach(function(x){
+      var dt=document.createElement('dt');dt.textContent=x[0];
+      var dd=document.createElement('dd');
+      if(x[1])dd.textContent=x[1];else{dd.textContent='belum diisi';dd.className='kosong'}
+      dl.appendChild(dt);dl.appendChild(dd);
+    });
+  }
+
   $('tabs').addEventListener('click',function(e){var b=e.target.closest('.tab');if(b)ganti(b.getAttribute('data-k'))});
   $('noms').addEventListener('click',function(e){
-    var b=e.target.closest('.nom');if(!b)return;pilih=+b.getAttribute('data-i');
-    Array.prototype.forEach.call(document.querySelectorAll('.nom'),function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});hargaTampil();
+    var b=e.target.closest('.nom');if(!b)return;pilih=+b.getAttribute('data-i');$('err').textContent='';
+    Array.prototype.forEach.call(document.querySelectorAll('.nom'),function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});struk();
   });
   $('nomor').addEventListener('input',function(){
     var no=this.value.replace(/[^0-9]/g,'');this.value=no;
-    if(k==='pulsa'||k==='data'){var o=deteksi(no);$('deteksi').textContent=o?('Terdeteksi: '+o+' (ubah di bawah bila nomor sudah pindah operator)'):'';if(o)$('op').value=o}
+    if(k==='pulsa'||k==='data'){var o=deteksi(no);$('deteksi').textContent=deteksiTeks(no);if(o)$('op').value=o}
     else $('deteksi').textContent='';
+    struk();
   });
+  $('op').addEventListener('change',struk);
+  $('bebas').addEventListener('input',struk);
+
   $('kirim').addEventListener('click',function(){
     var hp=(k==='pulsa'||k==='data'),no=$('nomor').value.replace(/[^0-9]/g,''),d=(cfg.layanan&&cfg.layanan[k])||[],err=$('err');
     if(no.length<8){err.textContent='Isi nomor tujuan dengan benar.';return}
@@ -167,18 +283,23 @@ footer p{margin:4px 0}
     if(d.length){if(pilih===null){err.textContent='Pilih nominal terlebih dahulu.';return}pes=(k==='pulsa'?'Pulsa ':'Token PLN ')+d[pilih].label+(d[pilih].harga?' ('+rp(d[pilih].harga)+')':'')}
     else{pes=$('bebas').value.trim().replace(/[\r\n]+/g,' ').slice(0,150);if(!pes){err.textContent='Tulis paket atau tagihan yang diinginkan.';return}}
     err.textContent='';
-    var nm={pulsa:'Pulsa',data:'Paket data',token:'Token listrik PLN',tagihan:'Tagihan'}[k];
-    var t="Assalamu'alaikum, saya ingin memesan di "+cfg.nama+".\n"+'Layanan: '+nm+'\n'+(hp?'Operator: '+$('op').value+'\n':'')+
+    var t="Assalamu'alaikum, saya ingin memesan di "+cfg.nama+".\n"+'Layanan: '+NM[k]+'\n'+(hp?'Operator: '+$('op').value+'\n':'')+
       (hp?'Nomor HP tujuan: ':'Nomor/ID pelanggan: ')+no+'\nPesanan: '+pes+'\n\nMohon info harga dan cara pembayarannya.';
     window.open('https://wa.me/'+cfg.wa+'?text='+encodeURIComponent(t),'_blank','noopener');
   });
+
   var rs=$('refSalin');
-  if(rs)rs.addEventListener('click',function(){
+  rs.addEventListener('click',function(){
     var kd=$('refKode').textContent,o=$('refStatus');
     function ok(){rs.textContent='Kode tersalin'}
-    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(kd).then(ok,function(){o.textContent='Salin manual kode: '+kd})}
-    else o.textContent='Salin manual kode: '+kd;
+    function manual(){
+      var r=document.createRange();r.selectNodeContents($('refKode'));
+      var s=window.getSelection();s.removeAllRanges();s.addRange(r);
+      o.textContent='Salin manual kode: '+kd;
+    }
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(kd).then(ok,manual)}else manual();
   });
+
   terap();
   fetch('produk.json',{cache:'no-cache'}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){
     cfg={nama:j.nama||DEF.nama,wa:String(j.wa||DEF.wa).replace(/[^0-9]/g,''),jam:j.jam||'',catatan:j.catatan||'',layanan:j.layanan||DEF.layanan};terap();
