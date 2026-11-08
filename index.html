@@ -1100,12 +1100,11 @@ main {
  </div>
 </section>
 <section id="surat" class="hidden">
- <div class="hero"><div><h2>Surat-Surat Pilihan dan Tahlil</h2><p>Surat-surat yang biasa dibaca dalam majelis, seperti Yasin, Al-Waqi'ah, Al-Mulk, dan Ar-Rahman, serta susunan tahlil dan doa-doanya. Tampil dengan huruf Arab, latin, dan terjemah.</p></div><span class="pill">MAJMU'</span></div>
+ <div class="hero"><div><h2>Surat-Surat Pilihan dan Tahlil</h2><p>Surat-surat yang biasa dibaca dalam majelis, seperti Yasin, Al-Waqi'ah, Al-Mulk, dan Ar-Rahman, serta susunan tahlil beserta doanya. Tampil dengan huruf Arab, latin, dan terjemah.</p></div><span class="pill">MAJMU'</span></div>
  <div class="panel">
-  <div class="sr-tabs" role="tablist"><button type="button" class="sr-tab on" data-sr="daftar">Surat Pilihan</button><button type="button" class="sr-tab" data-sr="tahlil">Tahlil</button><button type="button" class="sr-tab" data-sr="doa">Doa-Doa</button></div>
+  <div class="sr-tabs" role="tablist"><button type="button" class="sr-tab on" data-sr="daftar">Surat Pilihan</button><button type="button" class="sr-tab" data-sr="tahlil">Tahlil</button></div>
   <div id="srDaftar"></div>
   <div id="srTahlil" class="hidden"></div>
-  <div id="srDoa" class="hidden"></div>
   <div id="srBaca" class="hidden"></div>
  </div>
  <div class="panel"><p class="note"><b>Catatan:</b> ayat Al-Qur'an dimuat dari sumber digital terbuka (equran.id, cadangan: alquran.cloud), sehingga perlu sambungan internet dan selanjutnya tersimpan di perangkat. Urutan dan jumlah bacaan tahlil mengikuti susunan yang dimuat NU Online (quran.nu.or.id/tahlil); teks dzikir dan doanya kami ketik sendiri sehingga mohon dicocokkan dengan buku tahlil pegangan. Jumlah bacaan dapat berbeda antar-daerah. Bila keluarga memakai Majmu' Syarif atau pegangan guru tertentu, ikuti yang itu, dan mohon ditashih oleh ustaz atau kiai setempat.</p></div>
@@ -4519,9 +4518,9 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
  function tampilTab(k){
   const tb=document.querySelector('#surat .sr-tabs');if(tb)tb.classList.remove('hidden');
   document.querySelectorAll('#surat .sr-tab').forEach(b=>b.classList.toggle('on',b.dataset.sr===k));
-  $('srDaftar').classList.toggle('hidden',k!=='daftar');$('srTahlil').classList.toggle('hidden',k!=='tahlil');$('srDoa').classList.toggle('hidden',k!=='doa');$('srBaca').classList.add('hidden');
-  if(k!=='tahlil')$('srTahlil').innerHTML='';if(k!=='doa')$('srDoa').innerHTML='';
-  if(k==='tahlil'||k==='doa')tampilBacaan(k);
+  $('srDaftar').classList.toggle('hidden',k!=='daftar');$('srTahlil').classList.toggle('hidden',k!=='tahlil');$('srBaca').classList.add('hidden');
+  if(k!=='tahlil')$('srTahlil').innerHTML='';
+  if(k==='tahlil')tampilBacaan(k);
   window.scrollTo({top:0});
  }
  document.querySelectorAll('#surat .sr-tab').forEach(b=>b.onclick=()=>tampilTab(b.dataset.sr));
@@ -4530,7 +4529,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
  async function bukaSurat(n,tanpaRiwayat){
   const s=SURAT.find(x=>x.n===n);sedang=n;
   if(!tanpaRiwayat){try{history.pushState({p:'surat',sr:n},'');}catch(e){}}
-  $('srDaftar').classList.add('hidden');$('srTahlil').classList.add('hidden');$('srDoa').classList.add('hidden');
+  $('srDaftar').classList.add('hidden');$('srTahlil').classList.add('hidden');
   const tb=document.querySelector('#surat .sr-tabs');if(tb)tb.classList.add('hidden');
   const box=$('srBaca');box.classList.remove('hidden');
   const kepala='<button type="button" class="secondary" id="srKembali">← Daftar surat</button><div class="sr-judul"><div class="ar">'+esc(s.ar)+'</div><b>'+esc(s.lt)+'</b><br><small>'+esc(s.arti)+' · '+JML[n]+' ayat</small></div>';
@@ -4613,15 +4612,16 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   return '<div class="formgrid" style="margin:8px 0"><div class="field"><label for="srNama">Nama yang didoakan</label><input id="srNama" value="'+esc(nama)+'" placeholder="Contoh: almarhum KH. R. Muhamad Ilyas"></div><div class="field"><label for="srJk">Untuk</label><select id="srJk"><option value="L"'+(g==='L'?' selected':'')+'>Satu orang laki-laki</option><option value="P"'+(g==='P'?' selected':'')+'>Satu orang perempuan</option><option value="J"'+(g==='J'?' selected':'')+'>Beberapa orang / kaum muslimin</option></select></div>'+(adaIkhlas?'<div class="field"><label for="srIkh">Jumlah bacaan Al-Ikhlāṣ</label><select id="srIkh">'+[3,5,7].map(x=>'<option'+(cIkh===x?' selected':'')+'>'+x+'</option>').join('')+'</select></div>':'')+'</div>';
  }
  async function tampilBacaan(kunci){
-  const box=$(kunci==='tahlil'?'srTahlil':'srDoa');
-  const dapat=()=>kunci==='tahlil'?langkahTahlil():langkahDoa();
+  const box=$('srTahlil');
+  const dapat=()=>langkahTahlil().concat([{bagian:'Doa Tahlil'}],langkahDoa().map(x=>x.doa?{j:x.j,parts:[{teks:[teksDoa('J')]}]}:x));
   const uniq=[...new Set(dapat().flatMap(x=>(x.parts||[]).filter(p=>p.ref).map(p=>p.ref.n)).concat(kunci==='tahlil'?[1]:[]))];
-  box.innerHTML='<p class="note">'+(kunci==='tahlil'?'Susunan bacaan tahlil.':'Doa-doa setelah tahlil. Isi nama yang didoakan bila perlu (hanya tampil di layar ini, tidak disimpan).')+'</p>'+(kunci==='tahlil'?'':kontrolNama(kunci,false))+'<div id="srTIsi"><div class="sr-sk"></div><div class="sr-sk"></div><p class="note">Memuat ayat…</p></div>';
+  box.innerHTML='<p class="note">'+'Susunan bacaan tahlil, ditutup dengan doa tahlil.'+'</p>'+'<div id="srTIsi"><div class="sr-sk"></div><div class="sr-sk"></div><p class="note">Memuat ayat…</p></div>';
   let data={},gagal=false;
   await Promise.all(uniq.map(n=>muatSurat(n).then(a=>{data[n]=a;}).catch(()=>{gagal=true;})));
   if(!document.body.contains($('srTIsi')))return;
   const gambar=()=>{
    $('srTIsi').innerHTML=panel()+(gagal?'<p class="note">Sebagian ayat belum dapat dimuat (periksa sambungan internet). <button type="button" class="secondary" id="srTUlang">Coba lagi</button></p>':'')+dapat().map((s,i)=>{
+    if(s.bagian)return '<div class="sr-bag"><h4>'+esc(s.bagian)+'</h4></div>';
     const gabung=kunci==='tahlil';
     let h=gabung?'':'<div class="sr-bag"><h4>'+(i+1)+'. '+esc(s.j)+'</h4>'+(s.k?'<small>'+esc(s.k)+'</small>':'')+(s.doa&&nama?'<br><small><b>'+esc(nama)+'</b></small>':'')+'</div>';
     if(s.doa)return h+barisTeks(teksDoa(g));
