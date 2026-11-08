@@ -471,6 +471,7 @@ main {
 .multi-family-panel .child-entry{margin:6px 0 6px 12px;padding-left:10px;border-left:2px solid #d6c49a}
 .multi-family-panel .helper{font-size:11px;color:#687564;line-height:1.5}
 .unduh-app{display:flex;gap:14px;align-items:center;border-left:5px solid #1d4a38;background:linear-gradient(135deg,#fffdf6,#f6efdc)}.unduh-app img{flex:none;width:84px;height:84px;object-fit:contain}.unduh-app h3{margin:0 0 4px;font-size:17px}.unduh-app p{margin:0 0 8px;font-size:14px;line-height:1.45}.ua-aksi{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.ua-btn{display:inline-block;background:#1d4a38;color:#fff!important;font-weight:800;text-decoration:none;border-radius:10px;padding:10px 16px}.ua-cara{color:#1d4a38;font-weight:700;font-size:14px}.unduh-app small{display:block;margin-top:6px;color:#6b5b2c;font-size:12.5px}@media(max-width:520px){.unduh-app{flex-direction:column;text-align:center}.ua-aksi{justify-content:center}}@media print{.unduh-app{display:none!important}}
+.pulsa-kartu{display:flex;gap:16px;align-items:flex-start;border-left:5px solid #1d4a38}.pk-ikon{flex:none;width:64px;height:64px;border-radius:16px;background:linear-gradient(145deg,#1d4a38,#0f3a28);color:#f2d89d;font-size:32px;display:grid;place-items:center}.pk-isi h3{margin:0 0 6px}.pk-isi p{margin:0 0 8px;line-height:1.5}.pk-daftar{margin:0 0 12px;padding-left:20px;line-height:1.7}.pk-btn{display:inline-block;background:#1d4a38;color:#fff!important;font-weight:800;text-decoration:none;border-radius:10px;padding:11px 18px}.pk-isi small{display:block;margin-top:8px;color:#6b5b2c;font-size:12.5px}@media(max-width:520px){.pulsa-kartu{flex-direction:column}}
 </style>
 
 </head>
@@ -494,6 +495,7 @@ main {
    <button data-page="hubungan">Kalkulator Nasab</button>
    <button data-page="waris">Kalkulator Waris</button>
    <button data-page="zis">Zakat, Infaq &amp; Shodaqoh</button>
+   <button data-page="pulsa">Beli Pulsa &amp; Kuota</button>
    <button data-page="surat">Surat-Surat Pilihan dan Tahlil</button>
    <button data-page="kartu">Kartu Bani Ilyas</button>
    <button data-page="chat">Chat Anak Incu</button>
@@ -1117,6 +1119,19 @@ main {
   <div id="zisSalur" style="display:none"><h4 class="ws-h4">Laporan penyaluran</h4><div class="note" id="zisSalurIsi"></div></div>
  </div>
 </section>
+<section id="pulsa" class="hidden">
+ <div class="hero"><div><h2>Beli Pulsa &amp; Kuota</h2><p>Isi pulsa dan paket data untuk keluarga dengan mudah dan harga bersahabat, langsung dari web Bani Ilyas.</p></div><span class="pill">LAYANAN KELUARGA</span></div>
+ <div class="panel pulsa-kartu">
+  <div class="pk-ikon" aria-hidden="true">📱</div>
+  <div class="pk-isi">
+   <h3>Toko Pulsa &amp; Kuota Bani Ilyas</h3>
+   <p>Pilih operator, masukkan nomor HP, lalu pilih nominal pulsa atau paket data yang dibutuhkan. Pesanan diproses otomatis oleh sistem toko.</p>
+   <ul class="pk-daftar"><li>Pulsa semua operator</li><li>Paket data / kuota internet</li><li>Harga agen, lebih hemat untuk keluarga</li></ul>
+   <a class="pk-btn" href="toko/">Buka Toko Pulsa &amp; Kuota</a>
+   <small>Tautan toko: <b>asybal04nans.github.io/baniilyas/toko/</b></small>
+  </div>
+ </div>
+</section>
 <section id="surat" class="hidden">
  <div class="hero"><div><h2>Surat-Surat Pilihan dan Tahlil</h2><p>Surat-surat yang biasa dibaca dalam majelis, seperti Yasin, Al-Waqi'ah, Al-Mulk, dan Ar-Rahman, serta susunan tahlil beserta doanya. Tampil dengan huruf Arab, latin, dan terjemah.</p></div><span class="pill">MAJMU'</span></div>
  <div class="panel">
@@ -1509,7 +1524,7 @@ window.PancakakiDownloadGate = {
 <footer>Arsip Digital Kulawarga Bani Ilyas · Limbangan, Garut · Rarancang awal pikeun dimekarkeun babarengan ku kulawarga</footer>
 <script>
 const navButtons=document.querySelectorAll('nav button');
-const pageIds=['home','profil','add','archive','pesantren','umkm','library','calendar','donasi','haul','guide','nasab','kartu','chat','artikel','tautan','hubungan','waris','zis','surat','verifikasi'];
+const pageIds=['home','profil','add','archive','pesantren','umkm','library','calendar','donasi','haul','guide','nasab','kartu','chat','artikel','tautan','hubungan','waris','zis','pulsa','surat','verifikasi'];
 let __dariRiwayat=false;
 const __halAwal=(document.querySelector('nav button.active')||navButtons[0]||{dataset:{}}).dataset.page||'home';
 try{history.replaceState({p:__halAwal},'');}catch(e){}
