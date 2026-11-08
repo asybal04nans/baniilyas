@@ -27,6 +27,12 @@ jobs:
           HARGA_AKTIF: ${{ vars.HARGA_AKTIF }}
           MARGIN_PERSEN: ${{ vars.MARGIN_PERSEN }}
           MARGIN_RUPIAH: ${{ vars.MARGIN_RUPIAH }}
+          MARGIN_PULSA_PERSEN: ${{ vars.MARGIN_PULSA_PERSEN }}
+          MARGIN_PULSA_RUPIAH: ${{ vars.MARGIN_PULSA_RUPIAH }}
+          MARGIN_DATA_PERSEN: ${{ vars.MARGIN_DATA_PERSEN }}
+          MARGIN_DATA_RUPIAH: ${{ vars.MARGIN_DATA_RUPIAH }}
+          MARGIN_TOKEN_PERSEN: ${{ vars.MARGIN_TOKEN_PERSEN }}
+          MARGIN_TOKEN_RUPIAH: ${{ vars.MARGIN_TOKEN_RUPIAH }}
           PEMBULATAN: ${{ vars.PEMBULATAN }}
         run: node scripts/ambil-harga.mjs
       - name: Simpan bila berubah

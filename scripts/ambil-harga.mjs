@@ -6,8 +6,20 @@ import { readFile, writeFile } from 'node:fs/promises';
 const USERNAME = process.env.DIGIFLAZZ_USERNAME || '';
 const KEY = process.env.DIGIFLAZZ_KEY || '';
 const AKTIF = String(process.env.HARGA_AKTIF || '').toLowerCase() === 'true';
-const PERSEN = Number(process.env.MARGIN_PERSEN || 0);
-const RUPIAH = Number(process.env.MARGIN_RUPIAH || 0);
+// Margin per jenis (pulsa, data, token). Yang tidak diisi memakai MARGIN_PERSEN dan MARGIN_RUPIAH umum.
+function angka(nama) {
+  const v = process.env[nama];
+  if (v === undefined || String(v).trim() === '') return null;
+  const n = Number(String(v).replace(',', '.'));
+  return isFinite(n) && n >= 0 ? n : null;
+}
+const MARGIN = {};
+for (const jenis of ['pulsa', 'data', 'token']) {
+  const J = jenis.toUpperCase();
+  const persen = angka('MARGIN_' + J + '_PERSEN') ?? angka('MARGIN_PERSEN') ?? 0;
+  const rupiah = angka('MARGIN_' + J + '_RUPIAH') ?? angka('MARGIN_RUPIAH') ?? 0;
+  MARGIN[jenis] = { persen, rupiah, ok: persen > 0 || rupiah > 0 };
+}
 const BULAT = Number(process.env.PEMBULATAN || 100) || 100;
 const DATA_MAKS = Number(process.env.DATA_MAKS || 30) || 30;
 const KELUAR = process.env.HARGA_KELUAR || 'toko/harga.json';
@@ -28,8 +40,9 @@ function nominalDari(nama) {
   return n >= 1000 && n <= 10000000 ? n : 0;
 }
 const idr = (n) => n.toLocaleString('id-ID');
-function harga(modal) {
-  const jual = modal * (1 + PERSEN / 100) + RUPIAH;
+function harga(modal, jenis) {
+  const m = MARGIN[jenis];
+  const jual = modal * (1 + m.persen / 100) + m.rupiah;
   return Math.ceil(jual / BULAT) * BULAT;
 }
 function tersedia(p) {
@@ -86,16 +99,17 @@ function susun(produk) {
     }
   }
   const keluar = { pulsa: {}, data: {}, token: [] };
-  for (const op of Object.keys(pulsa).sort()) {
+  // Jenis yang marginnya belum diisi dilewati: halaman tetap menulis "Harga via WhatsApp" untuk jenis itu.
+  if (MARGIN.pulsa.ok) for (const op of Object.keys(pulsa).sort()) {
     keluar.pulsa[op] = murahPerLabel(pulsa[op]).sort((a, b) => a.nilai - b.nilai)
-      .map((x) => ({ label: x.label, harga: harga(x.modal) }));
+      .map((x) => ({ label: x.label, harga: harga(x.modal, 'pulsa') }));
   }
-  for (const op of Object.keys(data).sort()) {
+  if (MARGIN.data.ok) for (const op of Object.keys(data).sort()) {
     keluar.data[op] = murahPerLabel(data[op]).sort((a, b) => a.modal - b.modal).slice(0, DATA_MAKS)
-      .map((x) => ({ label: x.label, harga: harga(x.modal) }));
+      .map((x) => ({ label: x.label, harga: harga(x.modal, 'data') }));
   }
-  keluar.token = murahPerLabel(token).sort((a, b) => a.nilai - b.nilai)
-    .map((x) => ({ label: x.label, harga: harga(x.modal) }));
+  if (MARGIN.token.ok) keluar.token = murahPerLabel(token).sort((a, b) => a.nilai - b.nilai)
+    .map((x) => ({ label: x.label, harga: harga(x.modal, 'token') }));
   return keluar;
 }
 
@@ -111,9 +125,11 @@ async function main() {
     console.log('HARGA_AKTIF belum true: harga tidak ditampilkan di halaman.');
   } else {
     if (!USERNAME || !KEY) throw new Error('DIGIFLAZZ_USERNAME dan DIGIFLAZZ_KEY belum diisi di GitHub Secrets.');
-    if (!(PERSEN > 0 || RUPIAH > 0)) {
-      throw new Error('Margin belum diisi. Isi MARGIN_PERSEN atau MARGIN_RUPIAH di GitHub Variables agar harga jual tidak sama dengan harga modal.');
+    const tanpaMargin = Object.keys(MARGIN).filter((j) => !MARGIN[j].ok);
+    if (tanpaMargin.length === 3) {
+      throw new Error('Margin belum diisi. Isi MARGIN_PULSA_PERSEN, MARGIN_DATA_PERSEN, MARGIN_TOKEN_RUPIAH (atau MARGIN_PERSEN dan MARGIN_RUPIAH untuk semua) di GitHub Variables agar harga jual tidak sama dengan harga modal.');
     }
+    for (const j of tanpaMargin) console.log('Margin ' + j + ' belum diisi: harga ' + j + ' tidak ditampilkan.');
     const produk = await ambil();
     const s = susun(produk);
     const jumlah = Object.values(s.pulsa).flat().length + Object.values(s.data).flat().length + s.token.length;
