@@ -4455,6 +4455,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
 .sr-bag h4{margin:0;color:#1d4a38}.sr-bag small{color:#4a5b73}
 .sr-x{text-align:center;margin:2px 0 10px}.sr-x{display:block}.sr-x::before{content:'';}
 .sr-x{color:#8a6a1f;font-weight:bold;font-size:15px}
+.sr-alir{text-align:justify;text-align-last:right;text-justify:inter-word}.sr-inl{color:#1d4a38}.sr-grp{padding:10px 4px;border-bottom:1px solid #eee4cd}
 .sr-fat{margin:2px 0 6px}.sr-fat summary{cursor:pointer;color:#1d4a38;font-size:14px;padding:4px 0}
 .sr-sk{height:16px;background:#f0e9d6;border-radius:6px;margin:12px 0}
 @media(max-width:650px){.sr-ar,.sr-bsm{font-size:calc(var(--sr-fs,30px) - 4px)}}
@@ -4574,9 +4575,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
    {j:'Al-Falaq lalu tahlil',k:'Dibaca 1×',parts:[{ref:{n:113}},{teks:[T('لَا إِلٰهَ إِلَّا اللهُ وَاللهُ أَكْبَرُ','Lā ilāha illallāhu wallāhu akbar','')]}]},
    {j:'An-Nās lalu tahlil',k:'Dibaca 1×',parts:[{ref:{n:114}},{teks:[T('لَا إِلٰهَ إِلَّا اللهُ وَاللهُ أَكْبَرُ','Lā ilāha illallāhu wallāhu akbar','')]}]},
    {j:'Al-Fātiḥah',k:'Dibaca 1×',parts:[{ref:{n:1}}]},
-   {j:'Al-Baqarah ayat 1–5 lalu tahlil',k:'Dibaca 1×',parts:[{ref:{n:2,r:[[1,5]]}},{teks:[T('لَا إِلٰهَ إِلَّا اللهُ وَاللهُ أَكْبَرُ','Lā ilāha illallāhu wallāhu akbar','')]}]},
-   {j:'Al-Baqarah ayat 163',k:'Dibaca 1×',parts:[{ref:{n:2,r:[[163,163]]}}]},
-   {j:'Ayat Kursi (Al-Baqarah 255)',k:'Dibaca 1×',parts:[{ref:{n:2,r:[[255,255]]}}]},
+   {j:'Al-Baqarah',k:'Dibaca 1×',parts:[{ref:{n:2,r:[[1,5]]}},{teks:[T('لَا إِلٰهَ إِلَّا اللهُ وَاللهُ أَكْبَرُ','Lā ilāha illallāhu wallāhu akbar','')]},{ref:{n:2,r:[[163,163],[255,255],[284,286]]}}]},
    {j:'Istighfar',k:'Dibaca 3×',parts:[{teks:[T('أَسْتَغْفِرُ اللهَ الْعَظِيمَ','Astaghfirullāhal-ʿaẓīm','Aku memohon ampun kepada Allah Yang Maha Agung.')]}]},
    {j:'Kalimat tahlil dengan sifat Allah',k:'Dibaca 1×',parts:[{teks:[T('لَا إِلٰهَ إِلَّا اللهُ حَيٌّ مَوْجُودٌ','Lā ilāha illallāh, ḥayyun mawjūd','Tiada tuhan selain Allah, Yang Maha Hidup lagi Maha Ada.'),T('لَا إِلٰهَ إِلَّا اللهُ حَيٌّ مَعْبُودٌ','Lā ilāha illallāh, ḥayyun maʿbūd','Tiada tuhan selain Allah, Yang Maha Hidup lagi disembah.'),T('لَا إِلٰهَ إِلَّا اللهُ حَيٌّ بَاقٍ لَا يَمُوتُ','Lā ilāha illallāh, ḥayyun bāqin lā yamūt','Tiada tuhan selain Allah, Yang Maha Hidup lagi Kekal, tidak mati.')]}]},
    {j:'Tahlil',k:'Dibaca 100×',parts:[{teks:[T('لَا إِلٰهَ إِلَّا اللهُ','Lā ilāha illallāh','Tiada tuhan selain Allah.')]}]},
@@ -4598,6 +4597,19 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   ];
  }
  const barisTeks=t=>'<div class="sr-ay"><div class="sr-ar">'+esc(t.arab)+'</div>'+(opt.lt?'<div class="sr-lt">'+esc(t.lt)+'</div>':'')+(opt.id&&t.id?'<div class="sr-id">'+esc(t.id)+'</div>':'')+'</div>';
+ function alir(parts,data){
+  let ar='',lt=[],id=[],fat=false,hilang=false;
+  parts.forEach(p=>{
+   if(p.fat){fat=true;return;}
+   if(p.ref){const ay=data[p.ref.n];if(!ay){hilang=true;return;}rentang(ay,p.ref.r).forEach(a=>{ar+=esc(a.ar)+' <span class="sr-no">﴿'+angka(a.n)+'﴾</span> ';if(a.lt)lt.push(a.lt);if(a.id)id.push('('+a.n+') '+a.id);});}
+   else if(p.teks)p.teks.forEach(t=>{ar+='<span class="sr-inl">'+esc(t.arab)+'</span> ';if(t.lt)lt.push(t.lt+'.');if(t.id)id.push(t.id);});
+  });
+  let h=hilang?'<p class="note">(ayat belum termuat)</p>':(ar?'<div class="sr-ar sr-alir">'+ar+'</div>':'');
+  if(opt.lt&&lt.length)h+='<div class="sr-lt">'+esc(lt.join(' '))+'</div>';
+  if(opt.id&&id.length)h+='<div class="sr-id">'+esc(id.join(' '))+'</div>';
+  if(fat)h+='<div class="sr-x">Al-Fātiḥah 1×</div>';
+  return '<div class="sr-grp">'+h+'</div>';
+ }
  function kontrolNama(boxId,adaIkhlas){
   return '<div class="formgrid" style="margin:8px 0"><div class="field"><label for="srNama">Nama yang didoakan</label><input id="srNama" value="'+esc(nama)+'" placeholder="Contoh: almarhum KH. R. Muhamad Ilyas"></div><div class="field"><label for="srJk">Untuk</label><select id="srJk"><option value="L"'+(g==='L'?' selected':'')+'>Satu orang laki-laki</option><option value="P"'+(g==='P'?' selected':'')+'>Satu orang perempuan</option><option value="J"'+(g==='J'?' selected':'')+'>Beberapa orang / kaum muslimin</option></select></div>'+(adaIkhlas?'<div class="field"><label for="srIkh">Jumlah bacaan Al-Ikhlāṣ</label><select id="srIkh">'+[3,5,7].map(x=>'<option'+(cIkh===x?' selected':'')+'>'+x+'</option>').join('')+'</select></div>':'')+'</div>';
  }
@@ -4614,10 +4626,10 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
     const gabung=kunci==='tahlil';
     let h=gabung?'':'<div class="sr-bag"><h4>'+(i+1)+'. '+esc(s.j)+'</h4>'+(s.k?'<small>'+esc(s.k)+'</small>':'')+(s.doa&&nama?'<br><small><b>'+esc(nama)+'</b></small>':'')+'</div>';
     if(s.doa)return h+barisTeks(teksDoa(g));
-    s.parts.forEach(p=>{
+    if(gabung)h+=alir(s.parts,data);
+    else s.parts.forEach(p=>{
      if(p.ref){const ay=data[p.ref.n];h+=ay?rentang(ay,p.ref.r).map(baris).join(''):'<p class="note">(ayat belum termuat)</p>';}
      else if(p.teks)h+=p.teks.map(barisTeks).join('');
-     else if(p.fat){const ay=data[1];h+='<details class="sr-fat" open><summary>Al-Fātiḥah</summary>'+(ay?ay.map(baris).join(''):'<p class="note">(ayat belum termuat)</p>')+'</details>';}
     });
     if(gabung){const m=(s.k||'').match(/(\d+×(?:, lalu \d+×)?)/);if(m&&m[1]!=='1×')h+='<div class="sr-x">'+esc(m[1])+'</div>';}
     return h;}).join('');
