@@ -485,6 +485,7 @@ main {
    <button data-page="hubungan">Kalkulator Nasab</button>
    <button data-page="waris">Kalkulator Waris</button>
    <button data-page="zis">Zakat, Infaq &amp; Shodaqoh</button>
+   <button data-page="surat">Surat &amp; Tahlil Pilihan</button>
    <button data-page="kartu">Kartu Bani Ilyas</button>
    <button data-page="chat">Chat Anak Incu</button>
    <button data-page="artikel">Artikel Agama</button>
@@ -1098,6 +1099,16 @@ main {
   <div id="zisSalur" style="display:none"><h4 class="ws-h4">Laporan penyaluran</h4><div class="note" id="zisSalurIsi"></div></div>
  </div>
 </section>
+<section id="surat" class="hidden">
+ <div class="hero"><div><h2>Surat &amp; Tahlil Pilihan</h2><p>Kumpulan surat dan bacaan yang biasa dibaca dalam majelis, seperti Yasin, Al-Waqi'ah, Al-Mulk, Ar-Rahman, serta susunan tahlil. Tampil dengan huruf Arab, latin, dan terjemah.</p></div><span class="pill">MAJMU'</span></div>
+ <div class="panel">
+  <div class="sr-tabs" role="tablist"><button type="button" class="sr-tab on" data-sr="daftar">Surat Pilihan</button><button type="button" class="sr-tab" data-sr="tahlil">Tahlil &amp; Doa</button></div>
+  <div id="srDaftar"></div>
+  <div id="srTahlil" class="hidden"></div>
+  <div id="srBaca" class="hidden"></div>
+ </div>
+ <div class="panel"><p class="note"><b>Catatan:</b> ayat Al-Qur'an dimuat dari sumber digital terbuka (equran.id, cadangan: alquran.cloud), sehingga perlu sambungan internet dan selanjutnya tersimpan di perangkat. Bacaan tahlil dan doa di sini disusun ringkas mengikuti kebiasaan umum; urutan dan jumlah bacaan dapat berbeda antar-daerah atau antar-pegangan. Bila keluarga memakai Majmu' Syarif atau pegangan guru tertentu, ikuti yang itu, dan mohon ditashih oleh ustaz atau kiai setempat.</p></div>
+</section>
 <section id="tautan" class="hidden">
  <div class="hero"><div><h2>Tautan Web</h2><p>Kumpulan tautan web yang bermanfaat (kajian, berita, kitab, usaha keluarga, dll). Siapa pun boleh mengirim; setiap tautan diperiksa admin sebelum tampil.</p></div><span class="pill">TAUTAN</span></div>
  <div class="panel">
@@ -1479,7 +1490,7 @@ window.PancakakiDownloadGate = {
 <footer>Arsip Digital Kulawarga Bani Ilyas · Limbangan, Garut · Rarancang awal pikeun dimekarkeun babarengan ku kulawarga</footer>
 <script>
 const navButtons=document.querySelectorAll('nav button');
-const pageIds=['home','profil','add','archive','pesantren','umkm','library','calendar','donasi','haul','guide','nasab','kartu','chat','artikel','tautan','hubungan','waris','zis','verifikasi'];
+const pageIds=['home','profil','add','archive','pesantren','umkm','library','calendar','donasi','haul','guide','nasab','kartu','chat','artikel','tautan','hubungan','waris','zis','surat','verifikasi'];
 navButtons.forEach(btn=>btn.addEventListener('click',()=>{
  navButtons.forEach(b=>b.classList.remove('active'));
  btn.classList.add('active');
@@ -4408,5 +4419,178 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
 .zk-kotak b{font-size:19px;color:#1d4a38}.zk-kotak small{color:#777}
 .zk-nama{display:flex;flex-wrap:wrap;gap:8px}.zk-chip{background:#eaf4ee;border:1px solid #b9d9c6;color:#1d4a38;border-radius:999px;padding:5px 14px;font-size:14px}
 </style>
+<style>
+.sr-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.sr-tab{background:#fff;border:1px solid #cbd5e1;border-radius:999px;padding:8px 16px;cursor:pointer;font-weight:bold;color:var(--navy)}
+.sr-tab.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.sr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.sr-card{text-align:left;background:#fffdf6;border:1px solid #e3d5ad;border-radius:14px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:4px;font:inherit;color:inherit}
+.sr-card:hover{box-shadow:0 6px 16px #20344d18;transform:translateY(-1px)}
+.sr-card .ar{font-family:"Scheherazade New","Amiri","Traditional Arabic","Noto Naskh Arabic",serif;font-size:28px;direction:rtl;text-align:right;line-height:1.5;color:#1d4a38}
+.sr-card b{color:var(--navy)}.sr-card small{color:var(--muted)}
+.sr-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0 14px}
+.sr-bar label{display:flex;gap:5px;align-items:center;font-size:14px}
+.sr-judul{text-align:center;margin:6px 0 12px}.sr-judul .ar{font-family:"Scheherazade New","Amiri","Traditional Arabic","Noto Naskh Arabic",serif;font-size:34px;color:#1d4a38}
+.sr-bsm,.sr-ar{font-family:"Scheherazade New","Amiri","Traditional Arabic","Noto Naskh Arabic",serif;direction:rtl;text-align:right;line-height:2.1;font-size:var(--sr-fs,30px)}
+.sr-bsm{text-align:center;margin:8px 0 14px}
+.sr-ay{padding:12px 4px;border-bottom:1px solid #eee4cd}
+.sr-no{font-size:.62em;color:#a67c2e;white-space:nowrap}
+.sr-lt{font-style:italic;color:#4a5b73;margin-top:4px;font-size:15px;line-height:1.5}
+.sr-id{margin-top:4px;font-size:15px;line-height:1.55;color:#243247}
+.sr-bag{margin:18px 0 6px;padding:10px 12px;background:#f3f8f4;border:1px solid #cfe3d6;border-left:4px solid #1d4a38;border-radius:10px}
+.sr-bag h4{margin:0;color:#1d4a38}.sr-bag small{color:#4a5b73}
+.sr-sk{height:16px;background:#f0e9d6;border-radius:6px;margin:12px 0}
+@media(max-width:650px){.sr-ar,.sr-bsm{font-size:calc(var(--sr-fs,30px) - 4px)}}
+</style>
+<script>
+(function(){
+ const $=id=>document.getElementById(id);
+ const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const AR='٠١٢٣٤٥٦٧٨٩';const angka=n=>String(n).replace(/\d/g,d=>AR[d]);
+ const SURAT=[
+  {n:1,ar:'الفاتحة',lt:'Al-Fātiḥah',arti:'Pembukaan',ket:'Dibaca pada setiap rakaat salat; juga pembuka dan penutup majelis doa.'},
+  {n:36,ar:'يس',lt:'Yā Sīn',arti:'Yā Sīn',ket:'Biasa dibaca dalam majelis doa dan untuk yang wafat.'},
+  {n:56,ar:'الواقعة',lt:'Al-Wāqiʿah',arti:'Hari Kiamat',ket:'Biasa diamalkan sebagai wirid harian.'},
+  {n:55,ar:'الرحمن',lt:'Ar-Raḥmān',arti:'Yang Maha Pengasih',ket:'Surat yang banyak dibaca dalam majelis pengajian.'},
+  {n:67,ar:'الملك',lt:'Al-Mulk (Tabārak)',arti:'Kerajaan',ket:'Biasa dibaca sebelum tidur.'},
+  {n:18,ar:'الكهف',lt:'Al-Kahf',arti:'Gua',ket:'Dianjurkan dibaca pada hari atau malam Jumat.'},
+  {n:32,ar:'السجدة',lt:'As-Sajdah',arti:'Sujud',ket:'Biasa dibaca bersama Al-Mulk sebelum tidur.'},
+  {n:44,ar:'الدخان',lt:'Ad-Dukhān',arti:'Kabut',ket:'Biasa dibaca pada malam Jumat.'},
+  {n:112,ar:'الإخلاص',lt:'Al-Ikhlāṣ',arti:'Memurnikan Keesaan Allah',ket:''},
+  {n:113,ar:'الفلق',lt:'Al-Falaq',arti:'Waktu Subuh',ket:''},
+  {n:114,ar:'الناس',lt:'An-Nās',arti:'Manusia',ket:''}
+ ];
+ const JML={1:7,2:286,11:123,14:52,18:110,32:30,33:73,36:83,44:59,55:78,56:96,59:24,67:30,112:4,113:5,114:6};
+ const mem={};
+ const getJson=async u=>{const c=new AbortController();const t=setTimeout(()=>c.abort(),20000);try{const r=await fetch(u,{signal:c.signal});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}finally{clearTimeout(t);}};
+ const sah=(n,ay)=>Array.isArray(ay)&&ay.length===JML[n]&&ay.every((a,i)=>a.n===i+1&&typeof a.ar==='string'&&a.ar.length>0);
+ async function muatSurat(n){
+  if(mem[n])return mem[n];
+  try{const s=localStorage.getItem('sr1_'+n);if(s){const ay=JSON.parse(s);if(sah(n,ay)){mem[n]=ay;return ay;}}}catch(e){}
+  let ay=null;
+  try{
+   const j=await getJson('https://equran.id/api/v2/surat/'+n);
+   ay=j.data.ayat.map(a=>({n:Number(a.nomorAyat),ar:a.teksArab,lt:a.teksLatin||'',id:a.teksIndonesia||''}));
+   if(!sah(n,ay))ay=null;
+  }catch(e){ay=null;}
+  if(!ay){
+   const [a,b]=await Promise.all([getJson('https://api.alquran.cloud/v1/surah/'+n+'/quran-uthmani'),getJson('https://api.alquran.cloud/v1/surah/'+n+'/id.indonesian')]);
+   ay=a.data.ayahs.map((x,i)=>{let t=x.text;if(n!==1&&x.numberInSurah===1&&/^\s*بِسْمِ/.test(t))t=t.split(/\s+/).slice(4).join(' ');return {n:x.numberInSurah,ar:t,lt:'',id:(b.data.ayahs[i]||{}).text||''};});
+   if(!sah(n,ay))throw new Error('Data ayat tidak lengkap.');
+  }
+  mem[n]=ay;try{localStorage.setItem('sr1_'+n,JSON.stringify(ay));}catch(e){}
+  return ay;
+ }
+ let opt={lt:false,id:true,fs:30};
+ try{const o=JSON.parse(localStorage.getItem('sr_opt')||'null');if(o)opt=Object.assign(opt,o);}catch(e){}
+ const simpanOpt=()=>{try{localStorage.setItem('sr_opt',JSON.stringify(opt));}catch(e){}};
+ const terapkanFs=()=>{const s=$('surat');if(s)s.style.setProperty('--sr-fs',opt.fs+'px');};
+ const BSM='بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيمِ';
+ const baris=a=>'<div class="sr-ay"><div class="sr-ar">'+esc(a.ar)+' <span class="sr-no">﴿'+angka(a.n)+'﴾</span></div>'+(opt.lt&&a.lt?'<div class="sr-lt">'+esc(a.lt)+'</div>':'')+(opt.id&&a.id?'<div class="sr-id"><b>'+a.n+'.</b> '+esc(a.id)+'</div>':'')+'</div>';
+ function rentang(ay,r){if(!r)return ay;return ay.filter(a=>r.some(x=>a.n>=x[0]&&a.n<=x[1]));}
+ const panel=()=>'<div class="sr-bar"><button type="button" class="secondary" data-sr-fs="-2">A−</button><button type="button" class="secondary" data-sr-fs="2">A+</button><label><input type="checkbox" data-sr-o="lt"'+(opt.lt?' checked':'')+'> Latin</label><label><input type="checkbox" data-sr-o="id"'+(opt.id?' checked':'')+'> Terjemah</label></div>';
+ function pasangKontrol(root,ulang){
+  root.querySelectorAll('[data-sr-fs]').forEach(b=>b.onclick=()=>{opt.fs=Math.max(18,Math.min(56,opt.fs+Number(b.dataset.srFs)));simpanOpt();terapkanFs();});
+  root.querySelectorAll('[data-sr-o]').forEach(c=>c.onchange=()=>{opt[c.dataset.srO]=c.checked;simpanOpt();ulang();});
+ }
+ /* ===== daftar surat ===== */
+ function tampilDaftar(){
+  $('srDaftar').innerHTML='<div class="sr-grid">'+SURAT.map(s=>'<button type="button" class="sr-card" data-n="'+s.n+'"><span class="ar">'+esc(s.ar)+'</span><b>'+esc(s.lt)+'</b><small>'+esc(s.arti)+' · '+JML[s.n]+' ayat</small>'+(s.ket?'<small>'+esc(s.ket)+'</small>':'')+'</button>').join('')+'</div>';
+  $('srDaftar').querySelectorAll('.sr-card').forEach(b=>b.onclick=()=>bukaSurat(Number(b.dataset.n)));
+ }
+ function tampilTab(k){
+  document.querySelectorAll('#surat .sr-tab').forEach(b=>b.classList.toggle('on',b.dataset.sr===k));
+  $('srDaftar').classList.toggle('hidden',k!=='daftar');$('srTahlil').classList.toggle('hidden',k!=='tahlil');$('srBaca').classList.add('hidden');
+  if(k==='tahlil')tampilTahlil();
+  window.scrollTo({top:0});
+ }
+ document.querySelectorAll('#surat .sr-tab').forEach(b=>b.onclick=()=>tampilTab(b.dataset.sr));
+ /* ===== pembaca satu surat ===== */
+ let sedang=0;
+ async function bukaSurat(n){
+  const s=SURAT.find(x=>x.n===n);sedang=n;
+  $('srDaftar').classList.add('hidden');$('srTahlil').classList.add('hidden');
+  const box=$('srBaca');box.classList.remove('hidden');
+  const kepala='<button type="button" class="secondary" id="srKembali">← Daftar surat</button><div class="sr-judul"><div class="ar">'+esc(s.ar)+'</div><b>'+esc(s.lt)+'</b><br><small>'+esc(s.arti)+' · '+JML[n]+' ayat</small></div>';
+  box.innerHTML=kepala+'<div id="srIsi"><div class="sr-sk"></div><div class="sr-sk"></div><div class="sr-sk"></div><p class="note">Memuat ayat…</p></div>';
+  $('srKembali').onclick=()=>{box.classList.add('hidden');tampilTab('daftar');};
+  window.scrollTo({top:0});
+  try{
+   const ay=await muatSurat(n);if(sedang!==n)return;
+   const gambar=()=>{$('srIsi').innerHTML=panel()+(n!==1?'<div class="sr-bsm">'+BSM+'</div>':'')+ay.map(baris).join('');pasangKontrol($('srIsi'),gambar);};
+   gambar();
+  }catch(e){
+   $('srIsi').innerHTML='<p class="note">Ayat belum dapat dimuat. Periksa sambungan internet, lalu coba lagi.</p><button type="button" class="primary" id="srUlang">Coba lagi</button>';
+   $('srUlang').onclick=()=>bukaSurat(n);
+  }
+ }
+ /* ===== tahlil ===== */
+ const T=(arab,lt,id)=>({arab,lt,id});
+ const DOA={
+  L:{l:'لَهُ',h:'هُ',c:'هِ',lt:['lahu','hu','hi']},
+  P:{l:'لَهَا',h:'هَا',c:'هَا',lt:['lahā','hā','hā']},
+  J:{l:'لَهُمْ',h:'هُمْ',c:'هِمْ',lt:['lahum','hum','him']}
+ };
+ function teksDoa(g){
+  const d=DOA[g],q=d.lt;
+  return T('اللَّهُمَّ اغْفِرْ '+d.l+' وَارْحَمْ'+d.h+' وَعَافِ'+d.c+' وَاعْفُ عَنْ'+d.h+' وَأَكْرِمْ نُزُلَ'+d.h+' وَوَسِّعْ مُدْخَلَ'+d.h+' وَاجْعَلِ الْجَنَّةَ مَثْوَا'+d.h,
+   'Allāhummaghfir '+q[0]+' warḥam'+q[1]+' wa ʿāfi'+q[2].replace(/^h/,'h')+' waʿfu ʿan'+q[1]+' wa akrim nuzula'+q[1]+' wa wassiʿ mudkhala'+q[1]+' wajʿalil-jannata matswā'+q[1],
+   'Ya Allah, ampunilah, rahmatilah, selamatkanlah, dan maafkanlah; muliakanlah tempat tinggalnya, luaskanlah tempat masuknya, dan jadikanlah surga sebagai tempat kembalinya.');
+ }
+ const HADIAH=T('إِلَى حَضْرَةِ النَّبِيِّ الْمُصْطَفَى مُحَمَّدٍ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ، وَعَلَى آلِهِ وَأَصْحَابِهِ وَأَزْوَاجِهِ وَذُرِّيَّاتِهِ وَأَهْلِ بَيْتِهِ أَجْمَعِينَ، ثُمَّ إِلَى أَرْوَاحِ إِخْوَانِهِ مِنَ الْأَنْبِيَاءِ وَالْمُرْسَلِينَ وَالْأَوْلِيَاءِ وَالشُّهَدَاءِ وَالصَّالِحِينَ وَالصَّحَابَةِ وَالتَّابِعِينَ وَالْعُلَمَاءِ الْعَامِلِينَ وَالْمُصَنِّفِينَ الْمُخْلِصِينَ وَجَمِيعِ الْمَلَائِكَةِ الْمُقَرَّبِينَ، خُصُوصًا إِلَى سَيِّدِنَا الشَّيْخِ عَبْدِ الْقَادِرِ الْجِيلَانِيِّ، ثُمَّ إِلَى أَرْوَاحِ آبَائِنَا وَأُمَّهَاتِنَا وَأَجْدَادِنَا وَجَدَّاتِنَا وَمَشَايِخِنَا وَمَشَايِخِ مَشَايِخِنَا، وَلِمَنِ اجْتَمَعْنَا هَهُنَا بِسَبَبِهِ وَلِأَجْلِهِ، وَجَمِيعِ أَهْلِ الْقُبُورِ مِنَ الْمُسْلِمِينَ وَالْمُسْلِمَاتِ وَالْمُؤْمِنِينَ وَالْمُؤْمِنَاتِ مِنْ مَشَارِقِ الْأَرْضِ إِلَى مَغَارِبِهَا بَرِّهَا وَبَحْرِهَا، شَيْءٌ لِلّٰهِ لَهُمُ الْفَاتِحَةُ.',
+  'Ilā ḥaḍratin-nabiyyil-muṣṭafā Muḥammadin ṣallallāhu ʿalaihi wa sallam, wa ʿalā ālihī wa aṣḥābihī wa azwājihī wa dzurriyyātihī wa ahli baitihī ajmaʿīn, tsumma ilā arwāḥi ikhwānihī minal-anbiyāʾi wal-mursalīna wal-awliyāʾi wasy-syuhadāʾi waṣ-ṣāliḥīna waṣ-ṣaḥābati wat-tābiʿīna wal-ʿulamāʾil-ʿāmilīna wal-muṣannifīnal-mukhliṣīna wa jamīʿil-malāʾikatil-muqarrabīn, khuṣūṣan ilā sayyidinasy-syaikh ʿAbdil-Qādiril-Jīlānī, tsumma ilā arwāḥi ābāʾinā wa ummahātinā wa ajdādinā wa jaddātinā wa masyāyikhinā wa masyāyikhi masyāyikhinā, wa limanijtamaʿnā hāhunā bisababihī wa li-ajlihī, wa jamīʿi ahlil-qubūri minal-muslimīna wal-muslimāti wal-muʾminīna wal-muʾmināti min masyāriqil-arḍi ilā magāribihā barrihā wa baḥrihā, syai\'un lillāhi lahumul-fātiḥah.',
+  'Kepada yang mulia Nabi Muhammad ﷺ, keluarga, sahabat, istri-istri, keturunan, dan seluruh ahli bait beliau; kemudian kepada ruh para nabi, rasul, wali, syuhada, orang saleh, sahabat, tabiin, ulama yang mengamalkan ilmunya, para penulis yang ikhlas, dan seluruh malaikat yang didekatkan; khususnya kepada Syekh Abdul Qadir al-Jilani; kemudian kepada ruh ayah, ibu, kakek, nenek, dan guru-guru kami, kepada yang menjadi sebab kami berkumpul di sini, serta seluruh penghuni kubur dari kaum muslimin dan mukminin, dari timur hingga barat bumi, daratan dan lautan. Hanya karena Allah, untuk mereka Al-Fatihah.');
+ const LANGKAH=[
+  {j:'Hadiah Al-Fatihah',k:'Disebutkan nama yang dikirimi doa pada bagian yang disediakan di atas.',teks:[HADIAH]},
+  {j:'Al-Fatihah',ref:{n:1}},
+  {j:'Al-Ikhlāṣ',k:'Biasanya dibaca tiga kali.',ref:{n:112}},
+  {j:'Al-Falaq',ref:{n:113}},
+  {j:'An-Nās',ref:{n:114}},
+  {j:'Al-Fatihah',ref:{n:1}},
+  {j:'Al-Baqarah ayat 1–5',ref:{n:2,r:[[1,5]]}},
+  {j:'Ayat Kursi (Al-Baqarah 255)',ref:{n:2,r:[[255,255]]}},
+  {j:'Al-Baqarah ayat 284–286',ref:{n:2,r:[[284,286]]}},
+  {j:'Hūd ayat 73',ref:{n:11,r:[[73,73]]}},
+  {j:'Al-Aḥzāb ayat 56 (ayat shalawat)',ref:{n:33,r:[[56,56]]}},
+  {j:'Istighfar',k:'Jumlah bacaan mengikuti kebiasaan setempat.',teks:[T('أَسْتَغْفِرُ اللهَ الْعَظِيمَ','Astaghfirullāhal-ʿaẓīm','Aku memohon ampun kepada Allah Yang Maha Agung.'),T('أَسْتَغْفِرُ اللهَ الْعَظِيمَ الَّذِي لَا إِلٰهَ إِلَّا هُوَ الْحَيَّ الْقَيُّومَ وَأَتُوبُ إِلَيْهِ','Astaghfirullāhal-ʿaẓīmal-ladzī lā ilāha illā huwal-ḥayyal-qayyūma wa atūbu ilaih','Aku memohon ampun kepada Allah Yang Maha Agung, tiada tuhan selain Dia, Yang Maha Hidup lagi Maha Berdiri Sendiri, dan aku bertobat kepada-Nya.')]},
+  {j:'Tahlil',k:'Diulang sesuai kebiasaan majelis.',teks:[T('لَا إِلٰهَ إِلَّا اللهُ','Lā ilāha illallāh','Tiada tuhan selain Allah.'),T('لَا إِلٰهَ إِلَّا اللهُ الْمَلِكُ الْحَقُّ الْمُبِينُ','Lā ilāha illallāhul-malikul-ḥaqqul-mubīn','Tiada tuhan selain Allah, Raja Yang Maha Benar lagi Maha Nyata.'),T('لَا إِلٰهَ إِلَّا اللهُ مُحَمَّدٌ رَسُولُ اللهِ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ','Lā ilāha illallāh, Muḥammadur-rasūlullāh ṣallallāhu ʿalaihi wa sallam','Tiada tuhan selain Allah, Muhammad utusan Allah, semoga shalawat dan salam tercurah kepadanya.')]},
+  {j:'Tasbih',teks:[T('سُبْحَانَ اللهِ وَبِحَمْدِهِ، سُبْحَانَ اللهِ الْعَظِيمِ','Subḥānallāhi wa biḥamdih, subḥānallāhil-ʿaẓīm','Mahasuci Allah dengan segala puji bagi-Nya; Mahasuci Allah Yang Maha Agung.'),T('سُبُّوحٌ قُدُّوسٌ رَبُّنَا وَرَبُّ الْمَلَائِكَةِ وَالرُّوحِ','Subbūḥun quddūsun rabbunā wa rabbul-malāʾikati war-rūḥ','Mahasuci lagi Mahakudus Tuhan kami, Tuhan para malaikat dan Jibril.')]},
+  {j:'Shalawat',teks:[T('اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ وَعَلَى آلِ سَيِّدِنَا مُحَمَّدٍ وَسَلِّمْ','Allāhumma ṣalli ʿalā sayyidinā Muḥammadin wa ʿalā āli sayyidinā Muḥammadin wa sallim','Ya Allah, limpahkanlah shalawat dan salam kepada junjungan kami Nabi Muhammad dan keluarganya.')]},
+  {j:'Doa untuk yang dikirimi pahala',k:'Pilih sesuai yang didoakan (di atas).',doa:true},
+  {j:'Doa dari Al-Qur\'an: Al-Baqarah 201',ref:{n:2,r:[[201,201]]}},
+  {j:'Doa dari Al-Qur\'an: Ibrāhīm 41',ref:{n:14,r:[[41,41]]}},
+  {j:'Doa dari Al-Qur\'an: Al-Ḥasyr 10',ref:{n:59,r:[[10,10]]}},
+  {j:'Penutup: Al-Fatihah',ref:{n:1}}
+ ];
+ let g='L';
+ const barisTeks=t=>'<div class="sr-ay"><div class="sr-ar">'+esc(t.arab)+'</div>'+(opt.lt?'<div class="sr-lt">'+esc(t.lt)+'</div>':'')+(opt.id?'<div class="sr-id">'+esc(t.id)+'</div>':'')+'</div>';
+ async function tampilTahlil(){
+  const box=$('srTahlil');
+  const uniq=[...new Set(LANGKAH.filter(x=>x.ref).map(x=>x.ref.n))];
+  box.innerHTML='<p class="note">Susunan bacaan tahlil. Isi nama yang didoakan bila perlu (hanya tampil di layar ini, tidak disimpan).</p>'+
+   '<div class="formgrid" style="margin:8px 0"><div class="field"><label for="srNama">Nama yang didoakan</label><input id="srNama" placeholder="Contoh: almarhum KH. R. Muhamad Ilyas"></div><div class="field"><label for="srJk">Untuk</label><select id="srJk"><option value="L">Satu orang laki-laki</option><option value="P">Satu orang perempuan</option><option value="J">Beberapa orang / kaum muslimin</option></select></div></div><div id="srTIsi"><div class="sr-sk"></div><div class="sr-sk"></div><p class="note">Memuat ayat…</p></div>';
+  $('srJk').value=g;
+  let data={},gagal=false;
+  await Promise.all(uniq.map(n=>muatSurat(n).then(a=>{data[n]=a;}).catch(()=>{gagal=true;})));
+  if(!document.body.contains($('srTIsi')))return;
+  const gambar=()=>{
+   const nama=($('srNama')||{}).value||'';
+   $('srTIsi').innerHTML=panel()+(gagal?'<p class="note">Sebagian ayat belum dapat dimuat (periksa sambungan internet). <button type="button" class="secondary" id="srTUlang">Coba lagi</button></p>':'')+LANGKAH.map((s,i)=>{
+    let h='<div class="sr-bag"><h4>'+(i+1)+'. '+esc(s.j)+'</h4>'+(s.k?'<small>'+esc(s.k)+'</small>':'')+(i===0&&nama?'<br><small><b>Ditujukan khusus kepada: '+esc(nama)+'</b></small>':'')+(s.doa&&nama?'<br><small><b>'+esc(nama)+'</b></small>':'')+'</div>';
+    if(s.ref){const ay=data[s.ref.n];h+=ay?rentang(ay,s.ref.r).map(baris).join(''):'<p class="note">(ayat belum termuat)</p>';}
+    else if(s.doa)h+=barisTeks(teksDoa(g));
+    else h+=s.teks.map(barisTeks).join('');
+    return h;}).join('');
+   pasangKontrol($('srTIsi'),gambar);
+   const u=$('srTUlang');if(u)u.onclick=()=>tampilTahlil();
+  };
+  gambar();
+  $('srNama').oninput=gambar;
+  $('srJk').onchange=e=>{g=e.target.value;gambar();};
+ }
+ terapkanFs();tampilDaftar();
+ window.__surat={SURAT,JML,muatSurat,teksDoa};
+})();
+</script>
 </body>
 </html>
