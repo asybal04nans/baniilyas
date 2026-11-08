@@ -482,7 +482,7 @@ main {
    <button data-page="haul">Iuran Haul Mama Odi</button>
    <button data-page="guide">Kode Silsilah</button>
    <button data-page="nasab">Rundayan Nasab</button>
-   <button data-page="hubungan">Kalkulator Hubungan</button>
+   <button data-page="hubungan">Kalkulator Nasab</button>
    <button data-page="waris">Kalkulator Waris</button>
    <button data-page="zis">Zakat, Infaq &amp; Shodaqoh</button>
    <button data-page="kartu">Kartu Bani Ilyas</button>
@@ -980,7 +980,7 @@ main {
 </section>
 
 <section id="hubungan" class="hidden">
- <div class="hero"><div><h2>Kalkulator Hubungan</h2><p>Pilih dua orang dari silsilah, lalu lihat hubungan keduanya lengkap dengan jalur panah dan penjelasannya, seperti pada aplikasi Geni.</p></div><span class="pill">HUBUNGAN</span></div>
+ <div class="hero"><div><h2>Kalkulator Nasab</h2><p>Pilih dua orang dari silsilah, lalu lihat hubungan nasab keduanya lengkap dengan jalur panah dan penjelasannya.</p></div><span class="pill">NASAB</span></div>
  <div class="panel">
   <div class="formgrid">
    <div class="field"><label for="hbA">Orang pertama (A)</label><input id="hbA" list="hbList" autocomplete="off" placeholder="Ketik nama lalu pilih dari daftar"></div>
@@ -3998,7 +3998,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   if(da===1)return db===2?'Keponakan':desc(db-1,'')+' keponakan';
   if(db===1)return da===2?(jb==='L'?'Paman':jb==='P'?'Bibi':'Paman/Bibi'):'Saudara '+anc(da-1,'').toLowerCase();
   const k=Math.min(da,db)-1,r=Math.abs(da-db);
-  let t='Sepupu '+(k===1?'sekali':k===2?'dua kali':k===3?'tiga kali':k+' kali');
+  let t='Sepupu';
   if(r===0){if(urut)t+=' ('+urut+')';}
   else if(db>da)t+=' ('+(r===1?'keponakan':desc(r,'').toLowerCase()+' keponakan')+')';
   else t+=' ('+(r===1?(jb==='L'?'paman':jb==='P'?'bibi':'paman/bibi'):'saudara '+anc(r,'').toLowerCase())+')';
