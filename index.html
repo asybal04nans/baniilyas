@@ -3330,14 +3330,19 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 <label for="uuGoods">Barang yang dijual (pisahkan dengan koma)</label><textarea id="uuGoods" rows="2" maxlength="600"></textarea>
 <label for="uuPhone">Nomor telepon / WhatsApp</label><input id="uuPhone" maxlength="40" inputmode="tel">
 <label for="uuAddress">Alamat usaha</label><input id="uuAddress" maxlength="250">
+<label for="uuLogo">Ganti logo usaha (boleh kosong)</label><input id="uuLogo" type="file" accept="image/*"><div id="uuLogoPrev" class="kr-prev"></div>
+<label for="uuPics">Tambah foto produk (boleh kosong, maksimal 3)</label><input id="uuPics" type="file" accept="image/*" multiple><div id="uuPicsPrev" class="kr-prev"></div>
 <label for="uuAlasan">Keterangan update (boleh kosong)</label><input id="uuAlasan" maxlength="300">
 <label for="uuPengirim">Nama Anda</label><input id="uuPengirim" maxlength="100" autocomplete="name">
 <label for="uuKontak">WhatsApp (boleh kosong)</label><input id="uuKontak" maxlength="60" inputmode="tel" autocomplete="tel">
 <div class="rv-acts"><button type="button" class="primary" id="uuKirim">Kirim update</button><button type="button" class="secondary" id="uuBatal">Tutup</button></div>
-<div id="uuMsg" aria-live="polite" style="font-size:13px;margin-top:8px;min-height:18px"></div><p class="note" style="margin-top:6px">Update tidak langsung berubah. Admin memeriksa dulu, lalu menyetujui atau menolak. Logo dan foto produk tidak diubah di sini.</p></div></div>
+<div id="uuMsg" aria-live="polite" style="font-size:13px;margin-top:8px;min-height:18px"></div><p class="note" style="margin-top:6px">Update tidak langsung berubah. Admin memeriksa dulu, lalu menyetujui atau menolak. Logo baru menggantikan logo lama; foto produk baru ditambahkan ke foto yang sudah ada.</p></div></div>
 <script>
 (function(){
- const $=id=>document.getElementById(id),M=$('uUpModal');if(!M)return;let asal=null;
+ const $=id=>document.getElementById(id),M=$('uUpModal');if(!M)return;let asal=null;const foto={logo:'',contoh:[]};
+ const prev=(id,arr)=>{const b=$(id);if(!b)return;b.textContent='';arr.forEach(u=>{const i=document.createElement('img');i.src=u;i.alt='';b.appendChild(i);});};
+ $('uuLogo').addEventListener('change',async()=>{foto.logo='';prev('uuLogoPrev',[]);const f=$('uuLogo').files[0];if(!f)return;try{foto.logo=await window.__kecilkan(f,200);prev('uuLogoPrev',[foto.logo]);}catch(e){msg(e.message,false);$('uuLogo').value='';}});
+ $('uuPics').addEventListener('change',async()=>{foto.contoh=[];prev('uuPicsPrev',[]);const fs=[...$('uuPics').files].slice(0,3);if($('uuPics').files.length>3)msg('Hanya 3 foto pertama yang dipakai.',false);try{for(const f of fs)foto.contoh.push(await window.__kecilkan(f,360));prev('uuPicsPrev',foto.contoh);}catch(e){msg(e.message,false);$('uuPics').value='';foto.contoh=[];}});
  const KOL=[['name','uuName'],['brand','uuBrand'],['owner','uuOwner'],['product','uuProduct'],['goods','uuGoods'],['phone','uuPhone'],['address','uuAddress']];
  const msg=(t,ok)=>{const m=$('uuMsg');m.textContent=t;m.style.color=ok===false?'#a33':'#1f5f4a';};
  const rapi=v=>window.rapikanNama?window.rapikanNama(v):v;
@@ -3346,6 +3351,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   const x=((window.__terbit&&window.__terbit.umkm)||[]).find(u=>String(u.id)===b.dataset.uupdate);if(!x)return;
   asal=x;$('uuSub').textContent='Usaha: '+x.name+'. Ubah isian yang perlu diperbarui saja.';
   KOL.forEach(k=>{$(k[1]).value=x[k[0]]||'';});$('uuAlasan').value='';
+  foto.logo='';foto.contoh=[];['uuLogo','uuPics'].forEach(i=>{$(i).value='';$(i+'Prev').textContent='';});
   try{const p=JSON.parse(localStorage.getItem('bani_pengirim_v1')||'{}');$('uuPengirim').value=p.nama||'';$('uuKontak').value=p.kontak||'';}catch(er){}
   msg('');$('uuKirim').disabled=false;M.classList.add('on');
  });
@@ -3357,10 +3363,11 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   if(!pengirim){msg('Isi nama Anda terlebih dahulu.',false);return;}
   const data={target:asal.id,alasan:$('uuAlasan').value.trim()};let n=0;
   KOL.forEach(k=>{let v=$(k[1]).value.trim();if(k[0]==='owner')v=rapi(v);if(v&&v!==String(asal[k[0]]||'')){data[k[0]]=v;n++;}});
-  if(!n){msg('Belum ada isian yang diubah.',false);return;}
+  const nf=(foto.logo?1:0)+foto.contoh.length;
+  if(!n&&!nf){msg('Belum ada isian yang diubah atau gambar yang ditambahkan.',false);return;}
   $('uuKirim').disabled=true;msg('Mengirim...');
   try{
-   const r=await window.BaniIlyasApi({action:'kirim',jenis:'revisiumkm',pengirim:rapi(pengirim),kontak:$('uuKontak').value.trim(),website:'',data});
+   const r=await window.BaniIlyasApi({action:'kirim',jenis:'revisiumkm',pengirim:rapi(pengirim),kontak:$('uuKontak').value.trim(),website:'',data,gambar:nf?{logo:foto.logo||undefined,contoh:foto.contoh}:undefined});
    try{localStorage.setItem('bani_pengirim_v1',JSON.stringify({nama:pengirim,kontak:$('uuKontak').value.trim()}));}catch(er){}
    msg(r.pesan||'Update diterima dan menunggu verifikasi admin.');
   }catch(er){msg('Belum terkirim: '+er.message,false);$('uuKirim').disabled=false;}
