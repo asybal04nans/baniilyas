@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kios Nans - Pulsa, Kuota, dan Tagihan</title>
+<meta name="description" content="Beli pulsa, paket data, token listrik PLN, dan bayar tagihan. Pesan mudah lewat WhatsApp.">
+<meta name="theme-color" content="#12355b">
+<style>
+:root{--bg:#f5f7fa;--surface:#fff;--fg:#14202e;--muted:#5a6b7d;--line:#d9e0e8;--brand:#12355b;--brand-ink:#fff;--accent:#e8892b;--accent-ink:#2a1500;--soft:#fdf0e0;--ok:#1d7a4a;--err:#b3261e}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1620;--surface:#16212e;--fg:#e8eef5;--muted:#9bb0c4;--line:#2a3a4d;--brand:#0b2440;--brand-ink:#fff;--accent:#f0a14d;--accent-ink:#2a1500;--soft:#2d2417;--ok:#5bc98a;--err:#ff8a80;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1620;--surface:#16212e;--fg:#e8eef5;--muted:#9bb0c4;--line:#2a3a4d;--brand:#0b2440;--brand-ink:#fff;--accent:#f0a14d;--accent-ink:#2a1500;--soft:#2d2417;--ok:#5bc98a;--err:#ff8a80;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+[hidden]{display:none!important}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{background:var(--brand);color:var(--brand-ink);padding-block:22px}
+header h1{margin:0;font-size:1.5rem;line-height:1.2}
+header p{margin:6px 0 0;opacity:.85;font-size:.95rem}
+main{padding-block:22px 40px;display:grid;gap:18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:grid;gap:16px;min-width:0}
+h2{margin:0;font-size:1.1rem}
+.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.tab{font:inherit;font-size:.9rem;font-weight:600;padding:10px 4px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer;min-width:0}
+.tab[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+label{display:block;font-weight:600;font-size:.92rem;margin-bottom:6px}
+input,select{width:100%;font:inherit;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg)}
+input:focus,select:focus,.tab:focus-visible,.nom:focus-visible,.go:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.noms{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.nom{font:inherit;text-align:left;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer;min-width:0}
+.nom b{display:block;font-size:1rem}
+.nom span{display:block;font-size:.8rem;color:var(--muted)}
+.nom[aria-pressed="true"]{border-color:var(--accent);background:var(--soft)}
+.go{font:inherit;font-weight:700;padding:14px 18px;border:0;border-radius:10px;background:var(--accent);color:var(--accent-ink);cursor:pointer;width:100%}
+.muted{color:var(--muted);font-size:.85rem}
+.err{color:var(--err);font-size:.9rem;font-weight:600}
+.info{background:var(--soft);border-radius:10px;padding:10px 12px;font-size:.9rem}
+.ring{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-weight:600}
+footer{padding-block:6px 30px}
+footer p{margin:4px 0}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1 id="nama">Kios Nans</h1>
+    <p>Pulsa, paket data, token listrik, dan tagihan. Pesan lewat WhatsApp.</p>
+  </div>
+</header>
+<main class="wrap">
+  <section class="card" aria-labelledby="h-pesan">
+    <h2 id="h-pesan">Buat pesanan</h2>
+    <div class="tabs" role="group" aria-label="Jenis layanan" id="tabs">
+      <button class="tab" type="button" data-k="pulsa" aria-pressed="true">Pulsa</button>
+      <button class="tab" type="button" data-k="data" aria-pressed="false">Paket data</button>
+      <button class="tab" type="button" data-k="token" aria-pressed="false">Token PLN</button>
+      <button class="tab" type="button" data-k="tagihan" aria-pressed="false">Tagihan</button>
+    </div>
+
+    <div>
+      <label for="nomor" id="nomorL">Nomor HP tujuan</label>
+      <input id="nomor" type="text" inputmode="numeric" autocomplete="off" placeholder="08xxxxxxxxxx">
+      <div class="muted" id="deteksi" aria-live="polite"></div>
+    </div>
+
+    <div id="opBox">
+      <label for="op">Operator</label>
+      <select id="op">
+        <option>Telkomsel</option><option>Indosat</option><option>XL</option><option>Axis</option>
+        <option>Tri</option><option>Smartfren</option><option>by.U</option><option>Lainnya</option>
+      </select>
+    </div>
+
+    <div id="nomBox">
+      <label>Pilih nominal</label>
+      <div class="noms" id="noms"></div>
+    </div>
+
+    <div id="bebasBox" hidden>
+      <label for="bebas" id="bebasL">Paket atau tagihan</label>
+      <input id="bebas" type="text" autocomplete="off" placeholder="">
+    </div>
+
+    <div class="ring"><span>Harga</span><span id="harga">Pilih nominal dulu</span></div>
+    <div class="err" id="err" role="alert"></div>
+    <button class="go" type="button" id="kirim">Pesan lewat WhatsApp</button>
+    <div class="info" id="catatan"></div>
+  </section>
+
+  <section class="card">
+    <h2>Cara pesan</h2>
+    <ol style="margin:0;padding-left:20px;display:grid;gap:6px">
+      <li>Pilih layanan, isi nomor tujuan, dan pilih nominal atau tulis paketnya.</li>
+      <li>Tekan <em>Pesan lewat WhatsApp</em>. Pesan sudah tertata dan tinggal Anda kirim.</li>
+      <li>Admin membalas dengan harga dan cara pembayaran.</li>
+      <li>Setelah pembayaran diterima, pesanan diproses dan Anda dikabari.</li>
+    </ol>
+  </section>
+  <section class="card">
+    <h2>Beli sendiri atau jadi agen</h2>
+    <p style="margin:0">Anda juga bisa membeli langsung lewat aplikasi mitra kami, Agen Pulsa Termurah. Saat mendaftar, masukkan kode referal <strong id="refKode">91AE76AD</strong>.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <a class="go" style="width:auto;text-decoration:none;display:inline-block" href="https://isipulsa.web.id/" target="_blank" rel="noopener sponsored">Buka Agen Pulsa Termurah</a>
+      <button class="tab" type="button" id="refSalin" style="width:auto;padding:12px 16px">Salin kode referal</button>
+    </div>
+    <div class="muted" id="refStatus" aria-live="polite">Keterbukaan: kode referal ini milik pengelola situs, yang dapat memperoleh imbalan dari pendaftaran lewat kode tersebut. Situs mitra dikelola pihak lain.</div>
+  </section>
+</main>
+<footer class="wrap">
+  <p class="muted" id="jam"></p>
+  <p class="muted">Layanan ini adalah usaha pribadi pengelola situs. Tidak terkait dengan kas keluarga besar maupun penerimaan donasi pihak mana pun.</p>
+</footer>
+
+<script>
+(function(){
+  var DEF={nama:'Kios Nans',wa:'6282120243139',jam:'',catatan:'Pesanan diproses setelah pembayaran diterima. Harga dapat berubah sewaktu-waktu mengikuti harga penyedia.',
+    layanan:{pulsa:[5000,10000,20000,25000,50000,100000].map(function(n){return{label:n.toLocaleString('id-ID'),harga:null}}),
+      token:[20000,50000,100000,200000,500000].map(function(n){return{label:n.toLocaleString('id-ID'),harga:null}})}};
+  var cfg=DEF,k='pulsa',pilih=null;
+  function $(i){return document.getElementById(i)}
+  function rp(n){return 'Rp'+Math.round(n).toLocaleString('id-ID')}
+  var PRE=[['Telkomsel',['0811','0812','0813','0821','0822','0823','0851','0852','0853']],['Indosat',['0814','0815','0816','0855','0856','0857','0858']],
+    ['XL',['0817','0818','0819','0859','0877','0878']],['Axis',['0831','0832','0833','0838']],['Tri',['0895','0896','0897','0898','0899']],['Smartfren',['0881','0882','0883','0884','0885','0886','0887','0888','0889']]];
+  function deteksi(no){for(var i=0;i<PRE.length;i++)if(PRE[i][1].indexOf(no.slice(0,4))>=0)return PRE[i][0];return''}
+  function terap(){
+    document.title=cfg.nama+' - Pulsa, Kuota, dan Tagihan';$('nama').textContent=cfg.nama;
+    $('catatan').textContent=cfg.catatan||'';$('catatan').hidden=!cfg.catatan;
+    $('jam').textContent=cfg.jam?('Jam layanan: '+cfg.jam):'';
+    ganti(k);
+  }
+  function ganti(x){
+    k=x;pilih=null;$('err').textContent='';
+    Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(b){b.setAttribute('aria-pressed',b.getAttribute('data-k')===k?'true':'false')});
+    var hp=(k==='pulsa'||k==='data');
+    $('opBox').hidden=!hp;
+    $('nomorL').textContent=hp?'Nomor HP tujuan':(k==='token'?'Nomor meter atau ID pelanggan PLN':'Nomor atau ID pelanggan');
+    $('nomor').placeholder=hp?'08xxxxxxxxxx':'Nomor meter atau ID pelanggan';
+    var daftar=(cfg.layanan&&cfg.layanan[k])||null;
+    $('nomBox').hidden=!(daftar&&daftar.length);
+    $('bebasBox').hidden=!!(daftar&&daftar.length);
+    $('bebasL').textContent=k==='data'?'Paket data yang diinginkan':'Jenis tagihan (BPJS, PDAM, internet, dan lainnya)';
+    $('bebas').placeholder=k==='data'?'Misalnya: kuota 10 GB 30 hari':'Misalnya: BPJS Kesehatan, atas nama ...';
+    var h='';
+    (daftar||[]).forEach(function(n,i){h+='<button type="button" class="nom" data-i="'+i+'" aria-pressed="false"><b>'+n.label+'</b><span>'+(n.harga?rp(n.harga):'Harga via WhatsApp')+'</span></button>'});
+    $('noms').innerHTML=h;hargaTampil();
+  }
+  function hargaTampil(){
+    var d=(cfg.layanan&&cfg.layanan[k])||[];
+    if(!d.length){$('harga').textContent='Dikonfirmasi admin';return}
+    if(pilih===null){$('harga').textContent='Pilih nominal dulu';return}
+    $('harga').textContent=d[pilih].harga?rp(d[pilih].harga):'Dikonfirmasi admin';
+  }
+  $('tabs').addEventListener('click',function(e){var b=e.target.closest('.tab');if(b)ganti(b.getAttribute('data-k'))});
+  $('noms').addEventListener('click',function(e){
+    var b=e.target.closest('.nom');if(!b)return;pilih=+b.getAttribute('data-i');
+    Array.prototype.forEach.call(document.querySelectorAll('.nom'),function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});hargaTampil();
+  });
+  $('nomor').addEventListener('input',function(){
+    var no=this.value.replace(/[^0-9]/g,'');this.value=no;
+    if(k==='pulsa'||k==='data'){var o=deteksi(no);$('deteksi').textContent=o?('Terdeteksi: '+o+' (ubah di bawah bila nomor sudah pindah operator)'):'';if(o)$('op').value=o}
+    else $('deteksi').textContent='';
+  });
+  $('kirim').addEventListener('click',function(){
+    var hp=(k==='pulsa'||k==='data'),no=$('nomor').value.replace(/[^0-9]/g,''),d=(cfg.layanan&&cfg.layanan[k])||[],err=$('err');
+    if(no.length<8){err.textContent='Isi nomor tujuan dengan benar.';return}
+    var pes;
+    if(d.length){if(pilih===null){err.textContent='Pilih nominal terlebih dahulu.';return}pes=(k==='pulsa'?'Pulsa ':'Token PLN ')+d[pilih].label+(d[pilih].harga?' ('+rp(d[pilih].harga)+')':'')}
+    else{pes=$('bebas').value.trim().replace(/[\r\n]+/g,' ').slice(0,150);if(!pes){err.textContent='Tulis paket atau tagihan yang diinginkan.';return}}
+    err.textContent='';
+    var nm={pulsa:'Pulsa',data:'Paket data',token:'Token listrik PLN',tagihan:'Tagihan'}[k];
+    var t="Assalamu'alaikum, saya ingin memesan di "+cfg.nama+".\n"+'Layanan: '+nm+'\n'+(hp?'Operator: '+$('op').value+'\n':'')+
+      (hp?'Nomor HP tujuan: ':'Nomor/ID pelanggan: ')+no+'\nPesanan: '+pes+'\n\nMohon info harga dan cara pembayarannya.';
+    window.open('https://wa.me/'+cfg.wa+'?text='+encodeURIComponent(t),'_blank','noopener');
+  });
+  var rs=$('refSalin');
+  if(rs)rs.addEventListener('click',function(){
+    var kd=$('refKode').textContent,o=$('refStatus');
+    function ok(){rs.textContent='Kode tersalin'}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(kd).then(ok,function(){o.textContent='Salin manual kode: '+kd})}
+    else o.textContent='Salin manual kode: '+kd;
+  });
+  terap();
+  fetch('produk.json',{cache:'no-cache'}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){
+    cfg={nama:j.nama||DEF.nama,wa:String(j.wa||DEF.wa).replace(/[^0-9]/g,''),jam:j.jam||'',catatan:j.catatan||'',layanan:j.layanan||DEF.layanan};terap();
+  }).catch(function(){});
+})();
+</script>
+</body>
+</html>

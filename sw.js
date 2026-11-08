@@ -1,5 +1,5 @@
 /* Service worker Bani Ilyas: halaman tetap bisa dibuka saat sinyal lemah. Data (Apps Script) tidak pernah disimpan. */
-const VERSI = 'bani-ilyas-v3';
+const VERSI = 'bani-ilyas-v4';
 const INTI = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png', 'icons/logo.png'];
 
 self.addEventListener('install', (e) => {
@@ -16,6 +16,7 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(req.url);
   if (/\.apk$/i.test(url.pathname)) return; // berkas aplikasi tidak disimpan
   if (url.origin !== self.location.origin) return; // API Google dan sumber luar langsung ke jaringan
+  if (/\/toko\//.test(url.pathname)) return; // toko pulsa: selalu dari jaringan agar harga terbaru dan cache beranda tidak tertimpa
   if (req.mode === 'navigate') {
     // halaman: utamakan jaringan (agar pembaruan langsung tampil), cadangan dari simpanan
     e.respondWith(
