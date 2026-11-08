@@ -1492,7 +1492,11 @@ window.PancakakiDownloadGate = {
 <script>
 const navButtons=document.querySelectorAll('nav button');
 const pageIds=['home','profil','add','archive','pesantren','umkm','library','calendar','donasi','haul','guide','nasab','kartu','chat','artikel','tautan','hubungan','waris','zis','surat','verifikasi'];
+let __dariRiwayat=false;
+const __halAwal=(document.querySelector('nav button.active')||navButtons[0]||{dataset:{}}).dataset.page||'home';
+try{history.replaceState({p:__halAwal},'');}catch(e){}
 navButtons.forEach(btn=>btn.addEventListener('click',()=>{
+ if(!__dariRiwayat){try{const st=history.state||{};if(st.p===btn.dataset.page&&!st.sr)history.replaceState({p:btn.dataset.page},'');else history.pushState({p:btn.dataset.page},'');}catch(e){}}
  navButtons.forEach(b=>b.classList.remove('active'));
  btn.classList.add('active');
  pageIds.forEach(id=>{
@@ -1502,6 +1506,12 @@ navButtons.forEach(btn=>btn.addEventListener('click',()=>{
  if(btn.dataset.page==='archive' && typeof renderArchive==='function') renderArchive();
  window.scrollTo({top:0,behavior:'smooth'});
 }));
+/* Tombol Kembali pada HP: pindah ke halaman sebelumnya di dalam web */
+window.addEventListener('popstate',e=>{
+ const st=e.state;if(!st||!st.p)return;
+ const b=document.querySelector('nav button[data-page="'+st.p+'"]');if(!b)return;
+ __dariRiwayat=true;try{b.click();}finally{__dariRiwayat=false;}
+});
 /* Tautan langsung: ...#tambah membuka formulir pengajuan; #silsilah membuka beranda */
 (function(){
  const peta={tambah:'add',isi:'add',silsilah:'home',rundayan:'nasab'};
@@ -4511,14 +4521,15 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
  document.querySelectorAll('#surat .sr-tab').forEach(b=>b.onclick=()=>tampilTab(b.dataset.sr));
  /* ===== pembaca satu surat ===== */
  let sedang=0;
- async function bukaSurat(n){
+ async function bukaSurat(n,tanpaRiwayat){
   const s=SURAT.find(x=>x.n===n);sedang=n;
+  if(!tanpaRiwayat){try{history.pushState({p:'surat',sr:n},'');}catch(e){}}
   $('srDaftar').classList.add('hidden');$('srTahlil').classList.add('hidden');$('srDoa').classList.add('hidden');
   const tb=document.querySelector('#surat .sr-tabs');if(tb)tb.classList.add('hidden');
   const box=$('srBaca');box.classList.remove('hidden');
   const kepala='<button type="button" class="secondary" id="srKembali">← Daftar surat</button><div class="sr-judul"><div class="ar">'+esc(s.ar)+'</div><b>'+esc(s.lt)+'</b><br><small>'+esc(s.arti)+' · '+JML[n]+' ayat</small></div>';
   box.innerHTML=kepala+'<div id="srIsi"><div class="sr-sk"></div><div class="sr-sk"></div><div class="sr-sk"></div><p class="note">Memuat ayat…</p></div>';
-  $('srKembali').onclick=()=>{box.classList.add('hidden');tampilTab('daftar');};
+  $('srKembali').onclick=()=>{if(history.state&&history.state.sr){history.back();}else{box.classList.add('hidden');tampilTab('daftar');}};
   const hero=document.querySelector('#surat .hero');window.scrollTo({top:hero?hero.offsetTop:0});
   try{
    const ay=await muatSurat(n);if(sedang!==n)return;
@@ -4611,6 +4622,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   $('srJk').onchange=e=>{g=e.target.value;gambar();};
   const ik=$('srIkh');if(ik)ik.onchange=e=>{cIkh=Number(e.target.value);gambar();};
  }
+ window.addEventListener('popstate',e=>{const st=e.state;if(!st||st.p!=='surat')return;if(st.sr&&SURAT.some(x=>x.n===st.sr))bukaSurat(st.sr,true);else{$('srBaca').classList.add('hidden');tampilTab('daftar');}});
  terapkanFs();tampilDaftar();
  (function(){const buka=()=>{const m=(location.hash||'').match(/^#surat-(\d+)$/i);if(!m)return;const n=Number(m[1]);if(!SURAT.some(x=>x.n===n&&!x.kecil))return;const b=document.querySelector('nav button[data-page="surat"]');if(b)b.click();bukaSurat(n);};window.addEventListener('hashchange',buka);buka();})();
  window.__surat={SURAT,JML,muatSurat,teksDoa};
