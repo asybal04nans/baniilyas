@@ -684,8 +684,11 @@ main {
  <div class="panel">
   <div class="panelhead"><h3>Verifikasi Pengajuan Anggota</h3><span class="pill">KHUSUS ADMIN</span></div>
   <p class="note">Setiap pengajuan diperiksa rantai ayah-anaknya sampai KH. R. Muhamad Ilyas. Pengajuan yang cocok pun tetap perlu disetujui Admin. Pengajuan yang tidak cocok atau tidak lengkap hanya dapat disetujui setelah Admin mengisi ID ayah dan catatan pemeriksaan. Kata sandi Admin dicek oleh server dan tidak disimpan di halaman ini.</p>
-  <div class="formgrid"><div class="field"><label for="adminToken">Kata sandi Admin</label><input id="adminToken" type="password" autocomplete="off"></div></div>
-  <button class="primary" type="button" id="adminLoad" style="margin-top:12px">Muat Pengajuan</button>
+  <form id="adminForm" action="about:blank" method="post" target="pwFrame" autocomplete="on">
+  <div class="formgrid"><div class="field"><label for="adminUser">Nama pengguna</label><input id="adminUser" name="username" type="text" autocomplete="username" value="admin-bani-ilyas" readonly></div><div class="field"><label for="adminToken">Kata sandi Admin</label><input id="adminToken" name="password" type="password" autocomplete="current-password"></div></div>
+  <button class="primary" type="submit" id="adminLoad" style="margin-top:12px">Muat Pengajuan</button>
+  </form>
+  <iframe name="pwFrame" title="" aria-hidden="true" tabindex="-1" style="display:none;width:0;height:0;border:0"></iframe>
   <div class="note" id="adminMsg" role="status" style="margin-top:10px"></div>
  </div>
  <div id="adminList"></div>
@@ -2814,7 +2817,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
 <div class="pf-row" id="pfPasangan"></div><div class="pf-row" id="pfAnak"></div>
 <div class="pf-kontak"><b style="display:block;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:#8a6a2b">Alamat rumah dan WhatsApp (khusus keluarga)</b>
 <div id="pfHasil"></div><div id="pfKontakIsi"><small class="note">Dilindungi kode keluarga agar data pribadi tidak terbuka untuk umum. Minta kodenya kepada admin atau di grup keluarga.</small>
-<input id="pfKode" type="password" autocomplete="off" placeholder="Kode keluarga"><button type="button" class="primary" id="pfBukaKontak">Tampilkan alamat dan WhatsApp</button></div><div id="pfKontakMsg" style="font-size:13px;margin-top:6px"></div></div>
+<form id="pfForm" action="about:blank" method="post" target="pwFrame" autocomplete="on"><input name="username" type="text" autocomplete="username" value="keluarga-bani-ilyas" readonly tabindex="-1" aria-hidden="true" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none"><input id="pfKode" name="password" type="password" autocomplete="current-password" placeholder="Kode keluarga"><button type="submit" class="primary" id="pfBukaKontak">Tampilkan alamat dan WhatsApp</button></form></div><div id="pfKontakMsg" style="font-size:13px;margin-top:6px"></div></div>
 <div class="pf-acts"><button type="button" class="secondary" id="pfUpdate">Update data orang ini</button><button type="button" class="secondary" id="pfRundayan">Rundayan</button><button type="button" class="secondary" id="pfTutup">Tutup</button></div></div></div>
 <div id="revisiModal" role="dialog" aria-modal="true" aria-labelledby="rvJudul"><div class="rv-box"><h3 id="rvJudul">Update data (nama, urutan, istri/suami, alamat, WhatsApp)</h3><p class="note" id="rvSub" style="margin:0 0 4px"></p>
 <label for="rvNama">Nama yang benar</label><input id="rvNama" maxlength="120" autocomplete="off">
@@ -3063,8 +3066,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   }catch(e){try{sessionStorage.removeItem('bani_kode_keluarga');}catch(er){}m.style.color='#a33';m.textContent=diam?'':('Gagal: '+e.message);}
   $('pfBukaKontak').disabled=false;
  }
- $('pfBukaKontak').addEventListener('click',()=>ambilKontak(false));
- $('pfKode').addEventListener('keydown',e=>{if(e.key==='Enter')ambilKontak(false);});
+ $('pfBukaKontak').addEventListener('click',()=>setTimeout(()=>ambilKontak(false),0));
  function tutupProfil(){pfM.classList.remove('on');}
  $('pfTutup').addEventListener('click',tutupProfil);
  pfM.addEventListener('click',e=>{if(e.target===pfM)tutupProfil();});
