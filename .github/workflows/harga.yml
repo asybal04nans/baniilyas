@@ -25,6 +25,7 @@ jobs:
           DIGIFLAZZ_USERNAME: ${{ secrets.DIGIFLAZZ_USERNAME }}
           DIGIFLAZZ_KEY: ${{ secrets.DIGIFLAZZ_KEY }}
           HARGA_AKTIF: ${{ vars.HARGA_AKTIF }}
+          MARGIN_BERTINGKAT: ${{ vars.MARGIN_BERTINGKAT }}
           MARGIN_PERSEN: ${{ vars.MARGIN_PERSEN }}
           MARGIN_RUPIAH: ${{ vars.MARGIN_RUPIAH }}
           MARGIN_PULSA_PERSEN: ${{ vars.MARGIN_PULSA_PERSEN }}

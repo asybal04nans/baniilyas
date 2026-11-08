@@ -13,12 +13,32 @@ function angka(nama) {
   const n = Number(String(v).replace(',', '.'));
   return isFinite(n) && n >= 0 ? n : null;
 }
+// Margin bertingkat dari harga modal, contoh: "20000=1500;50000=3000;*=5000"
+// artinya modal di bawah 20.000 ditambah 1.500, di bawah 50.000 ditambah 3.000, selebihnya ditambah 5.000.
+function bacaTingkat(teks) {
+  const hasil = [];
+  for (const bagian of String(teks || '').split(/[;,\n]/)) {
+    const m = bagian.trim().match(/^(\*|\d+)\s*=\s*(\d+(?:[.,]\d+)?)$/);
+    if (!m) continue;
+    hasil.push({ batas: m[1] === '*' ? Infinity : Number(m[1]), tambah: Number(m[2].replace(',', '.')) });
+  }
+  return hasil.sort((a, b) => a.batas - b.batas);
+}
+const TINGKAT = bacaTingkat(process.env.MARGIN_BERTINGKAT);
 const MARGIN = {};
 for (const jenis of ['pulsa', 'data', 'token']) {
   const J = jenis.toUpperCase();
-  const persen = angka('MARGIN_' + J + '_PERSEN') ?? angka('MARGIN_PERSEN') ?? 0;
-  const rupiah = angka('MARGIN_' + J + '_RUPIAH') ?? angka('MARGIN_RUPIAH') ?? 0;
-  MARGIN[jenis] = { persen, rupiah, ok: persen > 0 || rupiah > 0 };
+  const p = angka('MARGIN_' + J + '_PERSEN'), r = angka('MARGIN_' + J + '_RUPIAH');
+  if (p !== null || r !== null) {
+    // margin khusus jenis ini diutamakan
+    const persen = p ?? 0, rupiah = r ?? 0;
+    MARGIN[jenis] = { persen, rupiah, ok: persen > 0 || rupiah > 0 };
+  } else if (TINGKAT.length && TINGKAT.some((t) => t.tambah > 0)) {
+    MARGIN[jenis] = { tingkat: TINGKAT, ok: true };
+  } else {
+    const persen = angka('MARGIN_PERSEN') ?? 0, rupiah = angka('MARGIN_RUPIAH') ?? 0;
+    MARGIN[jenis] = { persen, rupiah, ok: persen > 0 || rupiah > 0 };
+  }
 }
 const BULAT = Number(process.env.PEMBULATAN || 100) || 100;
 const DATA_MAKS = Number(process.env.DATA_MAKS || 30) || 30;
@@ -42,7 +62,13 @@ function nominalDari(nama) {
 const idr = (n) => n.toLocaleString('id-ID');
 function harga(modal, jenis) {
   const m = MARGIN[jenis];
-  const jual = modal * (1 + m.persen / 100) + m.rupiah;
+  let jual;
+  if (m.tingkat) {
+    const t = m.tingkat.find((x) => modal < x.batas) || m.tingkat[m.tingkat.length - 1];
+    jual = modal + t.tambah;
+  } else {
+    jual = modal * (1 + m.persen / 100) + m.rupiah;
+  }
   return Math.ceil(jual / BULAT) * BULAT;
 }
 function tersedia(p) {
@@ -127,7 +153,7 @@ async function main() {
     if (!USERNAME || !KEY) throw new Error('DIGIFLAZZ_USERNAME dan DIGIFLAZZ_KEY belum diisi di GitHub Secrets.');
     const tanpaMargin = Object.keys(MARGIN).filter((j) => !MARGIN[j].ok);
     if (tanpaMargin.length === 3) {
-      throw new Error('Margin belum diisi. Isi MARGIN_PULSA_PERSEN, MARGIN_DATA_PERSEN, MARGIN_TOKEN_RUPIAH (atau MARGIN_PERSEN dan MARGIN_RUPIAH untuk semua) di GitHub Variables agar harga jual tidak sama dengan harga modal.');
+      throw new Error('Margin belum diisi. Isi MARGIN_BERTINGKAT (contoh 20000=1500;50000=3000;*=5000), atau MARGIN_PERSEN dan MARGIN_RUPIAH, di GitHub Variables agar harga jual tidak sama dengan harga modal.');
     }
     for (const j of tanpaMargin) console.log('Margin ' + j + ' belum diisi: harga ' + j + ' tidak ditampilkan.');
     const produk = await ambil();
