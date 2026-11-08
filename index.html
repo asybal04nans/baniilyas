@@ -1498,6 +1498,8 @@ const pageIds=['home','profil','add','archive','pesantren','umkm','library','cal
 let __dariRiwayat=false;
 const __halAwal=(document.querySelector('nav button.active')||navButtons[0]||{dataset:{}}).dataset.page||'home';
 try{history.replaceState({p:__halAwal},'');}catch(e){}
+window.__keBagian=function(id){try{const sec=document.getElementById(id);if(!sec||id==='home'){window.scrollTo({top:0,behavior:'smooth'});return;}
+ const y=Math.max(0,sec.getBoundingClientRect().top+window.scrollY-10);window.scrollTo({top:y,behavior:'smooth'});}catch(e){window.scrollTo({top:0});}};
 navButtons.forEach(btn=>btn.addEventListener('click',()=>{
  if(!__dariRiwayat){try{const st=history.state||{};if(st.p===btn.dataset.page&&!st.sr)history.replaceState({p:btn.dataset.page},'');else history.pushState({p:btn.dataset.page},'');}catch(e){}}
  navButtons.forEach(b=>b.classList.remove('active'));
@@ -1507,7 +1509,7 @@ navButtons.forEach(btn=>btn.addEventListener('click',()=>{
   if(page) page.classList.toggle('hidden',id!==btn.dataset.page);
  });
  if(btn.dataset.page==='archive' && typeof renderArchive==='function') renderArchive();
- window.scrollTo({top:0,behavior:'smooth'});
+ window.__keBagian(btn.dataset.page);
 }));
 /* Tombol Kembali pada HP: pindah ke halaman sebelumnya di dalam web */
 window.addEventListener('popstate',e=>{
@@ -3957,7 +3959,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
  window.__sorotan=render;
  document.addEventListener('click',e=>{
   const k=e.target.closest&&e.target.closest('#sorotan [data-art],#sorotan [data-go]');if(!k)return;
-  if(k.dataset.go){buka(k.dataset.go);window.scrollTo({top:0,behavior:'smooth'});return;}
+  if(k.dataset.go){buka(k.dataset.go);window.__keBagian(k.dataset.go);return;}
   buka('artikel');
   const id=k.dataset.art;let n=0;
   const t=setInterval(()=>{const it=document.querySelector('.art-item[data-id="'+(window.CSS&&CSS.escape?CSS.escape(id):id)+'"]');
@@ -4549,7 +4551,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   $('srDaftar').classList.toggle('hidden',k!=='daftar');$('srTahlil').classList.toggle('hidden',k!=='tahlil');const luar=LUAR[k];$('srLuar').classList.toggle('hidden',!luar);if(luar)tampilLuar(k);$('srBaca').classList.add('hidden');
   if(k!=='tahlil')$('srTahlil').innerHTML='';
   if(k==='tahlil')tampilBacaan(k);
-  window.scrollTo({top:0});
+  window.__keBagian('surat');
  }
  document.querySelectorAll('#surat .sr-tab').forEach(b=>b.onclick=()=>tampilTab(b.dataset.sr));
  /* ===== pembaca satu surat ===== */
