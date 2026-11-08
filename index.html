@@ -484,6 +484,7 @@ main {
    <button data-page="nasab">Rundayan Nasab</button>
    <button data-page="hubungan">Kalkulator Hubungan</button>
    <button data-page="waris">Kalkulator Waris</button>
+   <button data-page="zis">Zakat, Infaq &amp; Shodaqoh</button>
    <button data-page="kartu">Kartu Bani Ilyas</button>
    <button data-page="chat">Chat Anak Incu</button>
    <button data-page="artikel">Artikel Agama</button>
@@ -1044,6 +1045,61 @@ main {
  </div>
  <div class="panel"><p class="note"><b>Penting:</b> ini alat bantu hitungan awal, bukan fatwa dan bukan putusan pengadilan. Pembagian sebenarnya perlu musyawarah keluarga serta pertanyaan kepada ulama atau Pengadilan Agama, terutama bila ada anak angkat, ahli waris berbeda agama, pembunuhan, hilang/mafqud, kandungan, atau kakek bersama saudara. Pengadilan Agama di Indonesia memakai Kompilasi Hukum Islam (KHI) yang pada beberapa hal berbeda dari kitab fikih Syafi'i, sehingga hasil di pengadilan bisa berbeda dari hitungan ini.</p></div>
 </section>
+<section id="zis" class="hidden">
+ <div class="hero"><div><h2>Zakat, Infaq &amp; Shodaqoh</h2><p>Hitung zakat Anda, pelajari ketentuannya menurut mazhab Syafi'i, lalu konfirmasikan penyalurannya agar tercatat rapi oleh pengurus.</p></div><span class="pill">PEDULI &amp; BERBAGI</span></div>
+ <div class="panel">
+  <h3>Kalkulator Zakat</h3>
+  <div class="formgrid" style="margin-top:10px">
+   <div class="field"><label for="zkJenis">Jenis zakat</label><select id="zkJenis"><option value="maal">Zakat Maal (tabungan, uang, deposito)</option><option value="penghasilan">Zakat Penghasilan (gaji, honor, profesi)</option><option value="emas">Zakat Emas &amp; Perak</option><option value="dagang">Zakat Perdagangan</option><option value="tani">Zakat Pertanian</option><option value="fitrah">Zakat Fitrah</option></select></div>
+   <div class="field" id="zkEmasBox"><label for="zkEmas">Harga emas per gram (Rp)</label><input id="zkEmas" inputmode="numeric" placeholder="Isi harga emas hari ini"><small class="note" id="zkEmasInfo"></small></div>
+  </div>
+  <div id="zkForm" class="formgrid" style="margin-top:6px"></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><button class="primary" id="zkHitung" type="button">Hitung Zakat</button></div>
+  <div class="result hidden" id="zkMsg" role="status"></div>
+  <div id="zkHasil"></div>
+ </div>
+ <div class="panel">
+  <h3>Kenali Zakat, Infaq &amp; Shodaqoh</h3>
+  <details class="ws-det" open><summary>Apa bedanya?</summary>
+   <p><b>Zakat</b> adalah kewajiban mengeluarkan sebagian harta tertentu yang telah mencapai nisab dan haul, diberikan kepada golongan yang berhak. Zakat termasuk rukun Islam (hadis Ibnu Umar ra., riwayat al-Bukhari dan Muslim) dan diperintahkan bersama shalat dalam banyak ayat, antara lain QS. al-Baqarah ayat 43.</p>
+   <p><b>Infaq</b> adalah mengeluarkan harta untuk kebaikan, tanpa batas nisab, waktu, atau penerima tertentu. <b>Shodaqoh</b> maknanya lebih luas: segala kebaikan yang dilakukan karena Allah, termasuk yang bukan harta, seperti senyum yang tulus kepada saudara.</p>
+   <p>Infaq dan shodaqoh hukumnya sunnah. Bila hartanya belum mencapai nisab, tetap dianjurkan berinfaq dan bersedekah sesuai kemampuan.</p>
+  </details>
+  <details class="ws-det"><summary>Delapan golongan penerima zakat (asnaf)</summary>
+   <p>Allah SWT menyebutkannya dalam QS. at-Taubah ayat 60:</p>
+   <ol class="zk-asnaf"><li><b>Fakir</b>: hampir tidak punya harta dan penghasilan.</li><li><b>Miskin</b>: punya penghasilan, tetapi tidak mencukupi kebutuhan pokok.</li><li><b>Amil</b>: pengurus zakat yang ditunjuk untuk mengumpulkan dan membagikan.</li><li><b>Muallaf</b>: orang yang baru masuk Islam atau perlu dikuatkan hatinya.</li><li><b>Riqab</b>: hamba sahaya yang ingin memerdekakan diri.</li><li><b>Gharim</b>: orang yang berutang untuk kebutuhan yang dibolehkan dan tidak mampu membayar.</li><li><b>Fi sabilillah</b>: orang yang berjuang di jalan Allah.</li><li><b>Ibnu sabil</b>: musafir yang kehabisan bekal dalam perjalanan.</li></ol>
+   <p class="note">Menurut mazhab Syafi'i, zakat tidak boleh diberikan kepada keluarga Nabi (Bani Hasyim dan Bani Muthalib), kepada orang yang wajib dinafkahi oleh pemberi zakat, dan kepada orang kafir. Silakan tanyakan kepada guru bila ada keraguan dalam penyaluran.</p>
+  </details>
+  <details class="ws-det"><summary>Nisab dan haul</summary>
+   <p><b>Nisab</b> adalah batas minimal harta yang wajib dizakati: emas 85 gram, perak 595 gram, uang dan harta dagang yang nilainya setara 85 gram emas, serta hasil panen 5 wasaq (sekitar 653 kg gabah kering giling). <b>Haul</b> adalah kepemilikan selama satu tahun hijriah; zakat pertanian tidak menunggu haul, melainkan setiap kali panen.</p>
+   <p class="note">Angka nisab di kalkulator ini memakai ukuran yang lazim di Indonesia. Harga emas, perak, dan beras diisi sesuai harga hari ini atau diperbarui oleh pengurus.</p>
+  </details>
+ </div>
+ <div class="panel" id="zisRek" style="display:none"><h3>Rekening Zakat, Infaq &amp; Shodaqoh</h3><div class="note" id="zisRekIsi"></div></div>
+ <div class="panel">
+  <h3>Konfirmasi Pembayaran</h3>
+  <p class="note">Sudah menyalurkan zakat, infaq, atau shodaqoh melalui pengurus? Catat di sini agar dikonfirmasi pengurus. Data masuk ke pengurus dahulu dan baru dihitung setelah diverifikasi. Nama Anda tidak ditampilkan kecuali Anda mengizinkan.</p>
+  <div class="formgrid" style="margin-top:10px">
+   <div class="field"><label for="zsKind">Jenis</label><select id="zsKind"><option value="zakat-maal">Zakat Maal</option><option value="zakat-penghasilan">Zakat Penghasilan</option><option value="zakat-emas">Zakat Emas &amp; Perak</option><option value="zakat-perdagangan">Zakat Perdagangan</option><option value="zakat-pertanian">Zakat Pertanian</option><option value="zakat-fitrah">Zakat Fitrah</option><option value="infaq">Infaq</option><option value="shodaqoh">Shodaqoh</option></select></div>
+   <div class="field"><label for="zsAmount">Nominal (Rp)</label><input id="zsAmount" inputmode="numeric" placeholder="Contoh: 250.000"></div>
+   <div class="field"><label for="zsDate">Tanggal</label><input id="zsDate" type="date"></div>
+   <div class="field"><label for="zsMethod">Cara pembayaran</label><input id="zsMethod" maxlength="40" placeholder="Transfer / tunai"></div>
+   <div class="field" style="grid-column:1/-1"><label for="zsNote">Keterangan (opsional)</label><input id="zsNote" maxlength="300" placeholder="Misalnya: zakat fitrah 4 jiwa"></div>
+   <div class="field"><label for="zsNama">Nama</label><input id="zsNama" placeholder="Nama lengkap Anda"></div>
+   <div class="field"><label for="zsWa">Nomor WhatsApp (opsional, hanya dilihat pengurus)</label><input id="zsWa" placeholder="08xxxxxxxxxx"></div>
+   <div class="field" style="grid-column:1/-1"><label class="ws-cek"><input type="checkbox" id="zsShown"> Boleh menampilkan nama saya pada daftar yang sudah dikonfirmasi (bila tidak dicentang, tertulis "Hamba Allah")</label></div>
+  </div>
+  <button class="primary" id="zsKirim" type="button" style="margin-top:12px">Kirim Konfirmasi</button>
+  <div class="result hidden" id="zsMsg" role="status"></div>
+ </div>
+ <div class="panel">
+  <div class="panelhead"><h3>Yang Sudah Terkumpul</h3><span class="pill">TERVERIFIKASI</span></div>
+  <div id="zisTotal" class="zk-total"></div>
+  <h4 class="ws-h4">Catatan terbaru</h4>
+  <div id="zisDaftar"><p class="note">Memuat...</p></div>
+  <div id="zisSalur" style="display:none"><h4 class="ws-h4">Laporan penyaluran</h4><div class="note" id="zisSalurIsi"></div></div>
+ </div>
+</section>
 <section id="tautan" class="hidden">
  <div class="hero"><div><h2>Tautan Web</h2><p>Kumpulan tautan web yang bermanfaat (kajian, berita, kitab, usaha keluarga, dll). Siapa pun boleh mengirim; setiap tautan diperiksa admin sebelum tampil.</p></div><span class="pill">TAUTAN</span></div>
  <div class="panel">
@@ -1425,7 +1481,7 @@ window.PancakakiDownloadGate = {
 <footer>Arsip Digital Kulawarga Bani Ilyas · Limbangan, Garut · Rarancang awal pikeun dimekarkeun babarengan ku kulawarga</footer>
 <script>
 const navButtons=document.querySelectorAll('nav button');
-const pageIds=['home','profil','add','archive','pesantren','umkm','library','calendar','donasi','haul','guide','nasab','kartu','chat','artikel','tautan','hubungan','waris','verifikasi'];
+const pageIds=['home','profil','add','archive','pesantren','umkm','library','calendar','donasi','haul','guide','nasab','kartu','chat','artikel','tautan','hubungan','waris','zis','verifikasi'];
 navButtons.forEach(btn=>btn.addEventListener('click',()=>{
  navButtons.forEach(b=>b.classList.remove('active'));
  btn.classList.add('active');
@@ -2381,8 +2437,8 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  const rapi=v=>window.rapikanNama?window.rapikanNama(v):String(v||'').trim();
  const money=n=>'Rp'+new Intl.NumberFormat('id-ID').format(Number(n)||0);
  const safeLink=u=>/^https:\/\/[^\s"'<>]+$/i.test(String(u||''))?String(u):'';
- const LABEL={alamat:'Alamat rumah baru',alamatLama:'Alamat rumah sekarang',wa:'WhatsApp baru',waLama:'WhatsApp sekarang',pasangan:'Istri/suami baru',pasanganLama:'Istri/suami sekarang',target:'Kode data asal',ringkas:'Perubahan',id:'ID orang',namaLama:'Nama sekarang',nama:'Nama baru',ayahNama:'Orang tua',anakKeLama:'Anak ke- sekarang',anakKe:'Anak ke- baru',alasan:'Alasan',catatanSistem:'Catatan sistem',name:'Nama',brand:'Merek',goods:'Barang dijual',founder:'Pendiri',leader:'Pimpinan/pengasuh',relation:'Hubungan dengan KH. R. Muhamad Ilyas',phone:'Telepon/WA',address:'Alamat',web:'Website/medsos',profile:'Profil',owner:'Pemilik',code:'Kode silsilah',product:'Produk',desc:'Keterangan',title:'Judul',author:'Pengarang',category:'Kategori',source:'Sumber/izin',link:'Tautan',description:'Keterangan',date:'Tanggal',time:'Jam',place:'Tempat',amount:'Nominal',purpose:'Peruntukan',note:'Catatan',ref:'Referensi',method:'Metode',proof:'Bukti',room:'Ruang',text:'Isi',isi:'Isi artikel',key:'Kunci'};
- const JENIS={revisi:'Update nama/urutan anak',pesantren:'Pesantren',revisipesantren:'Update data pesantren',revisiumkm:'Update data UMKM',umkm:'UMKM',buku:'Kitab/Ebook',media:'Foto/Video',kalender:'Agenda kalender',artikel:'Artikel agama',tautan:'Tautan web',donasi:'Donasi',haul:'Iuran Haul',chat:'Pesan chat',info:'Informasi'};
+ const LABEL={kind:'Jenis',shown:'Boleh tampilkan nama',alamat:'Alamat rumah baru',alamatLama:'Alamat rumah sekarang',wa:'WhatsApp baru',waLama:'WhatsApp sekarang',pasangan:'Istri/suami baru',pasanganLama:'Istri/suami sekarang',target:'Kode data asal',ringkas:'Perubahan',id:'ID orang',namaLama:'Nama sekarang',nama:'Nama baru',ayahNama:'Orang tua',anakKeLama:'Anak ke- sekarang',anakKe:'Anak ke- baru',alasan:'Alasan',catatanSistem:'Catatan sistem',name:'Nama',brand:'Merek',goods:'Barang dijual',founder:'Pendiri',leader:'Pimpinan/pengasuh',relation:'Hubungan dengan KH. R. Muhamad Ilyas',phone:'Telepon/WA',address:'Alamat',web:'Website/medsos',profile:'Profil',owner:'Pemilik',code:'Kode silsilah',product:'Produk',desc:'Keterangan',title:'Judul',author:'Pengarang',category:'Kategori',source:'Sumber/izin',link:'Tautan',description:'Keterangan',date:'Tanggal',time:'Jam',place:'Tempat',amount:'Nominal',purpose:'Peruntukan',note:'Catatan',ref:'Referensi',method:'Metode',proof:'Bukti',room:'Ruang',text:'Isi',isi:'Isi artikel',key:'Kunci'};
+ const JENIS={revisi:'Update nama/urutan anak',pesantren:'Pesantren',revisipesantren:'Update data pesantren',revisiumkm:'Update data UMKM',umkm:'UMKM',buku:'Kitab/Ebook',media:'Foto/Video',kalender:'Agenda kalender',artikel:'Artikel agama',tautan:'Tautan web',zis:'Zakat/Infaq/Shodaqoh',donasi:'Donasi',haul:'Iuran Haul',chat:'Pesan chat',info:'Informasi'};
  const api=(p)=>window.BaniIlyasApi(p);
  window.__terbit=window.__terbit||{pesantren:[],umkm:[],buku:[],media:[],kalender:[],chat:[],info:{},haul:{terverifikasi:[],menunggu:0,menungguTotal:0}};
  const say=(el,t,ok)=>{if(!el)return;el.classList.remove('hidden');el.textContent=t;el.style.color=ok===false?'#a33':'';};
@@ -2614,7 +2670,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  /* ---------- verifikasi admin ---------- */
  (function(){const sec=$('verifikasi');if(!sec)return;
   const p=document.createElement('div');p.className='panel';p.id='krPanel';
-  p.innerHTML='<div class="panelhead"><h3>Verifikasi Kiriman Fitur</h3><span class="pill">KHUSUS ADMIN</span></div><p class="note">Pesantren, UMKM, kitab, foto/video, agenda, donasi, iuran haul, dan chat yang dikirim anggota. Pilih <b>Setujui</b> agar tampil di website, atau <b>Tolak</b>. Gunakan kata sandi Admin di atas.</p><button class="primary" type="button" id="krMuat">Muat Kiriman</button><div class="note" id="krMsg" role="status" style="margin-top:10px"></div><div id="krMenunggu"></div><h4 style="margin:18px 0 4px">Sudah tampil di website</h4><div id="krTerbit"></div><h4 style="margin:18px 0 4px">Terbitkan langsung oleh admin</h4><p class="note">Untuk memasang informasi rekening yang tampil di halaman Iuran Haul dan Donasi.</p><div class="formgrid"><div class="field"><label for="krInfoKey">Informasi</label><select id="krInfoKey"><option value="haul-rekening">Rekening iuran Haul (bendahara)</option><option value="hosting-rekening">Rekening donasi operasional website</option></select></div><div class="field" style="grid-column:1/-1"><label for="krInfoText">Isi (boleh beberapa baris)</label><textarea id="krInfoText" placeholder="Bendahara: ...&#10;Bank: ...&#10;No. rekening: ...&#10;Atas nama: ..."></textarea></div></div><button class="secondary" type="button" id="krInfoKirim" style="margin-top:10px">Terbitkan Informasi</button>';
+  p.innerHTML='<div class="panelhead"><h3>Verifikasi Kiriman Fitur</h3><span class="pill">KHUSUS ADMIN</span></div><p class="note">Pesantren, UMKM, kitab, foto/video, agenda, donasi, iuran haul, dan chat yang dikirim anggota. Pilih <b>Setujui</b> agar tampil di website, atau <b>Tolak</b>. Gunakan kata sandi Admin di atas.</p><button class="primary" type="button" id="krMuat">Muat Kiriman</button><div class="note" id="krMsg" role="status" style="margin-top:10px"></div><div id="krMenunggu"></div><h4 style="margin:18px 0 4px">Sudah tampil di website</h4><div id="krTerbit"></div><h4 style="margin:18px 0 4px">Terbitkan langsung oleh admin</h4><p class="note">Untuk memasang informasi rekening yang tampil di halaman Iuran Haul dan Donasi.</p><div class="formgrid"><div class="field"><label for="krInfoKey">Informasi</label><select id="krInfoKey"><option value="haul-rekening">Rekening iuran Haul (bendahara)</option><option value="hosting-rekening">Rekening donasi operasional website</option><option value="zis-rekening">Rekening zakat, infaq &amp; shodaqoh</option><option value="zis-penyaluran">Laporan penyaluran zakat, infaq &amp; shodaqoh</option><option value="harga-emas">Harga emas per gram (angka saja, Rp)</option><option value="harga-perak">Harga perak per gram (angka saja, Rp)</option><option value="harga-beras">Harga beras per kg (angka saja, Rp)</option></select></div><div class="field" style="grid-column:1/-1"><label for="krInfoText">Isi (boleh beberapa baris)</label><textarea id="krInfoText" placeholder="Bendahara: ...&#10;Bank: ...&#10;No. rekening: ...&#10;Atas nama: ..."></textarea></div></div><button class="secondary" type="button" id="krInfoKirim" style="margin-top:10px">Terbitkan Informasi</button>';
   const list=$('adminList');sec.insertBefore(p,list?list.nextSibling:null);
   const token=()=>($('adminToken')?$('adminToken').value:'');
   const msg=(t,ok)=>{const m=$('krMsg');m.textContent=t;m.style.color=ok===false?'#a33':'';};
@@ -3293,7 +3349,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  kp.parentNode.insertBefore(p,kp.nextSibling);
  let data=[],timer=null;
  const label=a=>{
-  if(a.indexOf('MASUK_')===0){const j=a.substring(6);const m={PENGAJUAN:'Pengajuan nama silsilah',DUPLIKAT:'Pengajuan nama (sudah ada)',PESANTREN:'Pesantren',UMKM:'UMKM',BUKU:'Kitab/Ebook',MEDIA:'Foto/Video',KALENDER:'Agenda',ARTIKEL:'Artikel agama',TAUTAN:'Tautan web',DONASI:'Donasi',HAUL:'Iuran Haul',CHAT:'Chat',REVISI:'Update nama/urutan/pasangan/alamat',REVISIPESANTREN:'Update data pesantren',REVISIUMKM:'Update data UMKM'};return ['Masuk: '+(m[j]||j),'lg-masuk'];}
+  if(a.indexOf('MASUK_')===0){const j=a.substring(6);const m={PENGAJUAN:'Pengajuan nama silsilah',DUPLIKAT:'Pengajuan nama (sudah ada)',PESANTREN:'Pesantren',UMKM:'UMKM',BUKU:'Kitab/Ebook',MEDIA:'Foto/Video',KALENDER:'Agenda',ARTIKEL:'Artikel agama',TAUTAN:'Tautan web',ZIS:'Zakat/Infaq/Shodaqoh',DONASI:'Donasi',HAUL:'Iuran Haul',CHAT:'Chat',REVISI:'Update nama/urutan/pasangan/alamat',REVISIPESANTREN:'Update data pesantren',REVISIUMKM:'Update data UMKM'};return ['Masuk: '+(m[j]||j),'lg-masuk'];}
   if(/SETUJU|TERBIT|DITERAPKAN|^UPDATE_/.test(a))return ['Disetujui/diterapkan ('+a+')','lg-ok'];
   if(/TOLAK/.test(a))return ['Ditolak ('+a+')','lg-no'];
   return [a,''];
@@ -4217,5 +4273,136 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
 .ws-tdk{margin:0;padding-left:20px;line-height:1.6;font-size:14px}
 @media(max-width:700px){.ws-hasil thead{display:none}.ws-hasil tr{display:block;border:1px solid #e5dcc8;border-radius:10px;margin:8px 0;background:#fffdf6}.ws-hasil td{display:flex;justify-content:space-between;gap:12px;border:0;padding:5px 12px}.ws-hasil td:before{content:attr(data-l);color:#7a5f1f;font-size:12px;flex:none}.ws-hasil td.ws-dasar{display:block}.ws-hasil td.ws-dasar:before{content:'Dasar: ';font-weight:600}}
 .ws-det{border:1px solid #e5dcc8;border-radius:12px;background:#fffdf6;margin:8px 0;padding:0 14px}.ws-det summary{cursor:pointer;font-weight:700;color:#1d4a38;padding:11px 0}.ws-det p{margin:8px 0 10px;line-height:1.6;font-size:14.5px}</style>
+<script>
+(function(){
+ const $=id=>document.getElementById(id);
+ const esc=t=>String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const NISAB_EMAS=85,NISAB_PERAK=595,TARIF=0.025;
+ function hitungZakat(j,v){
+  v=v||{};const n=k=>Math.max(0,Number(v[k])||0);const hasil={jenis:j,wajib:false,zakat:0,satuan:'rp',nisab:0,dasar:0,alasan:'',catatan:[]};
+  const he=n('hargaEmas');
+  if(['maal','penghasilan','dagang'].indexOf(j)>=0&&!he){hasil.galat='Isi harga emas per gram terlebih dahulu (nisab dihitung dari 85 gram emas).';return hasil;}
+  if(j==='maal'){
+   const dasar=Math.max(0,n('harta')-n('utang'));hasil.dasar=dasar;hasil.nisab=NISAB_EMAS*he;
+   if(dasar<hasil.nisab)hasil.alasan='Harta bersih belum mencapai nisab (setara 85 gram emas).';
+   else if(!v.haul)hasil.alasan='Harta sudah mencapai nisab, tetapi belum genap satu tahun (haul). Zakat wajib setelah genap satu tahun.';
+   else{hasil.wajib=true;hasil.zakat=dasar*TARIF;hasil.alasan='Harta bersih mencapai nisab dan sudah genap satu tahun: zakat 2,5%.';}
+   hasil.catatan.push('Harta yang dihitung: uang tunai, tabungan, deposito, surat berharga, dan piutang yang pasti dibayar, dikurangi utang yang jatuh tempo.');
+  }else if(j==='penghasilan'){
+   const dasar=Math.max(0,n('gaji')-n('kurang'));hasil.dasar=dasar;hasil.nisab=NISAB_EMAS*he/12;hasil.nisabTahun=NISAB_EMAS*he;
+   if(dasar<hasil.nisab)hasil.alasan='Penghasilan bulan ini belum mencapai nisab bulanan (nisab setahun setara 85 gram emas, dibagi 12).';
+   else{hasil.wajib=true;hasil.zakat=dasar*TARIF;hasil.alasan='Penghasilan bulanan mencapai nisab: zakat 2,5% dari penghasilan.';}
+   hasil.catatan.push('Fatwa MUI No. 3 Tahun 2003 membolehkan zakat penghasilan dibayar saat menerima penghasilan. Dalam kitab Syafi‘i klasik, harta penghasilan dihitung seperti zakat maal (nisab 85 gram emas dan haul satu tahun); membayar lebih awal (ta‘jil) tetap sah bila hartanya akan mencapai nisab.');
+  }else if(j==='emas'){
+   const hp=n('hargaPerak'),ge=n('gramEmas'),gp=n('gramPerak');let tot=0,ada=false;const rinci=[];
+   if(v.perhiasan){hasil.alasan='Perhiasan yang halal dan dipakai wajar sehari-hari tidak wajib dizakati menurut mazhab Syafi‘i.';}
+   else if(!v.haul){hasil.alasan='Belum genap satu tahun (haul). Zakat wajib setelah genap satu tahun.';}
+   else{
+    if(ge>0){if(!he){hasil.galat='Isi harga emas per gram.';return hasil;}if(ge>=NISAB_EMAS){tot+=ge*he*TARIF;ada=true;rinci.push('Emas '+ge+' gram mencapai nisab 85 gram');}else rinci.push('Emas '+ge+' gram belum mencapai nisab 85 gram');}
+    if(gp>0){if(!hp){hasil.galat='Isi harga perak per gram.';return hasil;}if(gp>=NISAB_PERAK){tot+=gp*hp*TARIF;ada=true;rinci.push('Perak '+gp+' gram mencapai nisab 595 gram');}else rinci.push('Perak '+gp+' gram belum mencapai nisab 595 gram');}
+    hasil.wajib=ada;hasil.zakat=tot;hasil.alasan=rinci.join('; ')+'.';hasil.dasar=ge*he+gp*hp;
+   }
+   hasil.nisab=NISAB_EMAS;hasil.satuanNisab='gram emas';
+   hasil.catatan.push('Menurut mazhab Syafi‘i, emas dan perak tidak digabung: masing-masing harus mencapai nisabnya sendiri (emas 85 gram, perak 595 gram).');
+  }else if(j==='dagang'){
+   const dasar=Math.max(0,n('modal')+n('kas')+n('piutang')-n('utang'));hasil.dasar=dasar;hasil.nisab=NISAB_EMAS*he;
+   if(dasar<hasil.nisab)hasil.alasan='Harta dagang bersih belum mencapai nisab (setara 85 gram emas).';
+   else if(!v.haul)hasil.alasan='Sudah mencapai nisab, tetapi belum genap satu tahun sejak usaha dimulai. Zakat wajib setelah genap satu tahun.';
+   else{hasil.wajib=true;hasil.zakat=dasar*TARIF;hasil.alasan='Harta dagang bersih mencapai nisab dan genap satu tahun: zakat 2,5%.';}
+   hasil.catatan.push('Harta dagang: nilai barang dagangan pada akhir tahun, uang kas, dan piutang yang pasti dibayar, dikurangi utang yang jatuh tempo.');
+  }else if(j==='tani'){
+   const kg=n('hasil'),nis=n('nisab')||653;hasil.satuan='kg';hasil.nisab=nis;hasil.dasar=kg;
+   const tarif=v.air==='biaya'?0.05:v.air==='campur'?0.075:0.10;hasil.tarif=tarif;
+   if(kg<nis)hasil.alasan='Hasil panen belum mencapai nisab '+nis+' kg.';
+   else{hasil.wajib=true;hasil.zakat=kg*tarif;hasil.alasan='Hasil panen mencapai nisab '+nis+' kg: zakat '+(tarif*100).toString().replace('.',',')+'% dari hasil panen.';}
+   hasil.catatan.push('Zakat pertanian wajib setiap kali panen (tanpa haul), dihitung dari hasil panen. Tarif 10% bila diairi hujan/air alami tanpa biaya, 5% bila diairi dengan biaya, 7,5% bila gabungan. Nisab 5 wasaq setara kira-kira 653 kg gabah kering giling (angka umum yang dipakai lembaga zakat di Indonesia); boleh diubah sesuai rujukan guru Anda.');
+  }else if(j==='fitrah'){
+   const jiwa=n('jiwa'),kg=n('kg')||2.5;hasil.satuan='kg';hasil.dasar=jiwa;hasil.wajib=jiwa>0;hasil.zakat=jiwa*kg;
+   hasil.alasan=jiwa>0?jiwa+' jiwa × '+String(kg).replace('.',',')+' kg beras per jiwa.':'Isi jumlah jiwa yang ditanggung.';
+   hasil.catatan.push('Zakat fitrah wajib bagi setiap muslim (termasuk anak dan bayi yang lahir sebelum terbenam matahari akhir Ramadan) yang memiliki kelebihan makanan pada malam dan hari Idul Fitri, dan ditanggung oleh pemberi nafkah. Ukurannya satu sha‘, kira-kira 2,5 kg beras (sebagian merujuk 2,7 kg demi kehati-hatian).');
+   hasil.catatan.push('Menurut mazhab Syafi‘i, fitrah dibayar dengan makanan pokok (beras) yang ada di negeri tempat tinggal, bukan dengan uang. Nilai rupiah di bawah hanya perkiraan bila disalurkan melalui amil yang menukarkannya.');
+  }
+  return hasil;
+ }
+
+ window.__zakat={hitungZakat};
+ const rp=x=>'Rp '+Math.round(x).toLocaleString('id-ID');
+ const angka=v=>{const t=String(v||'').replace(/\./g,'').replace(',','.').replace(/[^0-9.]/g,'');const x=parseFloat(t);return isFinite(x)?x:0;};
+ const KIND={'zakat-maal':'Zakat Maal','zakat-penghasilan':'Zakat Penghasilan','zakat-emas':'Zakat Emas & Perak','zakat-perdagangan':'Zakat Perdagangan','zakat-pertanian':'Zakat Pertanian','zakat-fitrah':'Zakat Fitrah','infaq':'Infaq','shodaqoh':'Shodaqoh'};
+ const KIND_DARI={maal:'zakat-maal',penghasilan:'zakat-penghasilan',emas:'zakat-emas',dagang:'zakat-perdagangan',tani:'zakat-pertanian',fitrah:'zakat-fitrah'};
+ const F={
+  maal:[['harta','Total harta (uang, tabungan, deposito, dll.) (Rp)','rp'],['utang','Utang yang jatuh tempo (Rp)','rp'],['haul','Harta sudah dimiliki genap satu tahun (haul)','cek',1]],
+  penghasilan:[['gaji','Penghasilan per bulan (gaji, honor, usaha) (Rp)','rp'],['kurang','Kebutuhan pokok dan cicilan yang dikurangkan, bila ada (Rp, opsional)','rp']],
+  emas:[['gramEmas','Emas yang disimpan (gram)','num'],['gramPerak','Perak yang disimpan (gram)','num'],['hargaPerak','Harga perak per gram (Rp, bila punya perak)','rp'],['perhiasan','Semuanya perhiasan yang dipakai wajar sehari-hari','cek',0],['haul','Sudah dimiliki genap satu tahun (haul)','cek',1]],
+  dagang:[['modal','Nilai barang dagangan (Rp)','rp'],['kas','Uang kas usaha (Rp)','rp'],['piutang','Piutang yang pasti dibayar (Rp)','rp'],['utang','Utang usaha yang jatuh tempo (Rp)','rp'],['haul','Usaha sudah berjalan genap satu tahun (haul)','cek',1]],
+  tani:[['hasil','Hasil panen (kg gabah kering giling / bahan pokok)','num'],['nisab','Nisab (kg), boleh diubah','num',653],['air','Pengairan','pil',[['hujan','Hujan / air alami (10%)'],['biaya','Berbiaya, misalnya pompa atau irigasi (5%)'],['campur','Gabungan keduanya (7,5%)']]]],
+  fitrah:[['jiwa','Jumlah jiwa yang ditanggung','num'],['kg','Beras per jiwa (kg)','num',2.5],['hargaBeras','Harga beras per kg (Rp, untuk perkiraan nilai)','rp']]};
+ function bangun(){
+  const j=$('zkJenis').value;$('zkEmasBox').style.display=(j==='tani'||j==='fitrah')?'none':'';
+  $('zkForm').innerHTML=F[j].map(f=>{const id='zk_'+f[0];
+   if(f[2]==='cek')return '<div class="field" style="grid-column:1/-1"><label class="ws-cek"><input type="checkbox" id="'+id+'" data-f="'+f[0]+'"'+(f[3]?' checked':'')+'> '+esc(f[1])+'</label></div>';
+   if(f[2]==='pil')return '<div class="field"><label for="'+id+'">'+esc(f[1])+'</label><select id="'+id+'" data-f="'+f[0]+'">'+f[3].map(o=>'<option value="'+o[0]+'">'+esc(o[1])+'</option>').join('')+'</select></div>';
+   return '<div class="field"><label for="'+id+'">'+esc(f[1])+'</label><input id="'+id+'" data-f="'+f[0]+'" data-t="'+f[2]+'" inputmode="decimal" value="'+(f[3]!==undefined?String(f[3]).replace('.',','):'')+'"></div>';}).join('');
+  $('zkHasil').innerHTML='';$('zkMsg').classList.add('hidden');
+ }
+ function nilai(){const v={};document.querySelectorAll('#zkForm [data-f]').forEach(e=>{const k=e.dataset.f;v[k]=e.type==='checkbox'?e.checked:(e.tagName==='SELECT'?e.value:angka(e.value));});v.hargaEmas=angka($('zkEmas').value);return v;}
+ let terakhir=null;
+ function hitung(){
+  const m=$('zkMsg');m.classList.add('hidden');$('zkHasil').innerHTML='';
+  const j=$('zkJenis').value,v=nilai();const r=hitungZakat(j,v);
+  if(r.galat){m.classList.remove('hidden');m.style.color='#a33';m.textContent=r.galat;return;}
+  terakhir={j,r,v};
+  let tot='';
+  if(r.wajib){
+   if(r.satuan==='kg'){tot='<div class="zk-angka">'+r.zakat.toLocaleString('id-ID',{maximumFractionDigits:2})+' kg</div>';if(j==='fitrah'&&v.hargaBeras)tot+='<div class="note">Perkiraan nilai: '+rp(r.zakat*v.hargaBeras)+' (bila disalurkan melalui amil)</div>';}
+   else tot='<div class="zk-angka">'+rp(r.zakat)+'</div>';
+  }
+  let html='<div class="zk-hasil '+(r.wajib?'wajib':'belum')+'"><b>'+(r.wajib?(j==='fitrah'?'Zakat fitrah yang dikeluarkan':'Zakat yang wajib dikeluarkan'):'Belum wajib zakat')+'</b>'+tot+'<p>'+esc(r.alasan)+'</p>'
+   +(r.nisab&&j!=='fitrah'?'<p class="note">Nisab: '+(r.satuan==='kg'?r.nisab+' kg':j==='emas'?'emas 85 gram, perak 595 gram':rp(r.nisab)+(j==='penghasilan'?' per bulan (setahun '+rp(r.nisabTahun)+')':''))+(j!=='tani'&&j!=='emas'&&r.dasar?' \u00B7 Harta yang dihitung: '+rp(r.dasar):'')+'</p>':'')+'</div>';
+  if(!r.wajib&&j!=='fitrah')html+='<p class="note">Meski belum wajib, tetap dianjurkan berinfaq dan bersedekah sesuai kemampuan.</p>';
+  if(r.catatan.length)html+='<ul class="ws-tdk">'+r.catatan.map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul>';
+  if(r.wajib)html+='<button type="button" class="secondary" id="zkLanjut" style="margin-top:10px">Lanjut ke konfirmasi pembayaran</button>';
+  $('zkHasil').innerHTML=html;
+  const lj=$('zkLanjut');if(lj)lj.addEventListener('click',()=>{$('zsKind').value=KIND_DARI[j];const nom=r.satuan==='kg'?(j==='fitrah'&&v.hargaBeras?r.zakat*v.hargaBeras:0):r.zakat;$('zsAmount').value=nom?Math.round(nom).toLocaleString('id-ID'):'';$('zsKind').scrollIntoView({behavior:'smooth',block:'center'});});
+ }
+ /* data publik */
+ const T=()=>window.__terbit||{};
+ function tampil(){
+  const t=T(),info=t.info||{},list=(t.zis||[]).slice().reverse();
+  if(info['harga-emas']&&!$('zkEmas').dataset.sentuh){const h=angka(info['harga-emas']);if(h){$('zkEmas').value=Math.round(h).toLocaleString('id-ID');$('zkEmasInfo').textContent='Harga dari pengurus; ubah bila perlu.';}}
+  const rek=info['zis-rekening'];$('zisRek').style.display=rek?'':'none';if(rek)$('zisRekIsi').innerHTML=esc(rek).replace(/\n/g,'<br>');
+  const sl=info['zis-penyaluran'];$('zisSalur').style.display=sl?'':'none';if(sl)$('zisSalurIsi').innerHTML=esc(sl).replace(/\n/g,'<br>');
+  const sum={zakat:[0,0],infaq:[0,0],shodaqoh:[0,0]};list.forEach(x=>{const g=String(x.kind).indexOf('zakat')===0?'zakat':x.kind==='infaq'?'infaq':'shodaqoh';sum[g][0]+=Number(x.amount)||0;sum[g][1]++;});
+  $('zisTotal').innerHTML=[['zakat','Zakat'],['infaq','Infaq'],['shodaqoh','Shodaqoh']].map(a=>'<div class="zk-kotak"><small>'+a[1]+'</small><b>'+rp(sum[a[0]][0])+'</b><small>'+sum[a[0]][1]+' catatan</small></div>').join('');
+  $('zisDaftar').innerHTML=list.length?'<div class="ws-wrap"><table class="ws-tab"><thead><tr><th>Tanggal</th><th>Jenis</th><th>Nama</th><th>Nominal</th></tr></thead><tbody>'+list.slice(0,15).map(x=>'<tr><td>'+esc(x.date||'')+'</td><td>'+esc(KIND[x.kind]||x.kind)+'</td><td>'+esc(x.pengirim||'Hamba Allah')+'</td><td class="ws-r">'+rp(Number(x.amount)||0)+'</td></tr>').join('')+'</tbody></table></div>':'<p class="note">Belum ada catatan yang terverifikasi.</p>';
+ }
+ async function muat(){try{if(window.__muatTerbit)await window.__muatTerbit();}catch(e){}tampil();setTimeout(tampil,1800);}
+ $('zkJenis').addEventListener('change',bangun);$('zkHitung').addEventListener('click',hitung);
+ $('zkEmas').addEventListener('input',e=>{e.target.dataset.sentuh='1';const d=e.target.value.replace(/[^0-9]/g,'');e.target.value=d?Number(d).toLocaleString('id-ID'):'';});
+ document.addEventListener('input',e=>{const t=e.target;if(t&&t.dataset&&t.dataset.t==='rp'){const d=t.value.replace(/[^0-9]/g,'');t.value=d?Number(d).toLocaleString('id-ID'):'';}});
+ $('zsAmount').addEventListener('input',e=>{const d=e.target.value.replace(/[^0-9]/g,'');e.target.value=d?Number(d).toLocaleString('id-ID'):'';});
+ try{$('zsDate').value=new Date(Date.now()+7*3600e3).toISOString().slice(0,10);}catch(e){}
+ $('zsKirim').addEventListener('click',async()=>{
+  const m=$('zsMsg'),say=(t,ok)=>{m.classList.remove('hidden');m.textContent=t;m.style.color=ok===false?'#a33':'';};
+  const amount=angka($('zsAmount').value),nama=$('zsNama').value.trim();
+  if(!amount||amount<1){say('Isi nominal.',false);return;}if(!$('zsDate').value){say('Isi tanggal.',false);return;}if(!nama){say('Isi nama.',false);return;}
+  const b=$('zsKirim');b.disabled=true;say('Mengirim...');
+  try{const r=await window.BaniIlyasApi({action:'kirim',jenis:'zis',pengirim:window.rapikanNama?window.rapikanNama(nama):nama,kontak:$('zsWa').value.trim(),data:{kind:$('zsKind').value,amount:String(Math.round(amount)),date:$('zsDate').value,method:$('zsMethod').value.trim(),note:$('zsNote').value.trim(),shown:$('zsShown').checked?'ya':''},website:''});
+   say((r.pesan||'Konfirmasi diterima dan menunggu verifikasi pengurus.')+' Jazakumullahu khairan.');$('zsAmount').value='';$('zsNote').value='';
+  }catch(e){say('Belum terkirim: '+e.message,false);}b.disabled=false;});
+ const nb=document.querySelector('nav button[data-page="zis"]');if(nb)nb.addEventListener('click',muat);
+ if(location.hash==='#zis'&&nb)setTimeout(()=>nb.click(),600);
+ bangun();tampil();
+})();
+</script>
+<style>
+.zk-asnaf{margin:6px 0 10px;padding-left:22px;line-height:1.6;font-size:14.5px}
+.zk-hasil{margin-top:14px;border-radius:12px;padding:12px 16px;border:1px solid}
+.zk-hasil.wajib{background:#eaf4ee;border-color:#b9d9c6}.zk-hasil.belum{background:#fff6e0;border-color:#e8d49a}
+.zk-hasil p{margin:6px 0}.zk-angka{font-size:26px;font-weight:700;color:#1d4a38;margin:4px 0}
+.zk-total{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.zk-kotak{border:1px solid #e5dcc8;border-radius:12px;background:#fffdf6;padding:10px 14px;display:flex;flex-direction:column}
+.zk-kotak b{font-size:19px;color:#1d4a38}.zk-kotak small{color:#777}
+</style>
 </body>
 </html>
