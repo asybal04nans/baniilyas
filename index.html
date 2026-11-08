@@ -2527,23 +2527,23 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
   const m=$('pesantrenMessage');if(!x.name||!x.address||!x.founder){say(m,'Isi nama pesantren, alamat, dan pendiri terlebih dahulu.',false);return;}
   kirim('pesantren',val('pKirimNama'),val('pKirimWa'),x,m,()=>{clear(['pName','pFounder','pLeader','pPhone','pAddress','pWeb','pProfile','pRelation','pFotoFisik','pFotoKegiatan','pFotoBrosur']);['fisik','kegiatan','brosur'].forEach(k=>{fotoP[k]=[];prev('pFoto'+k[0].toUpperCase()+k.slice(1)+'Prev',[]);});},{gambar:{fisik:fotoP.fisik,kegiatan:fotoP.kegiatan,brosur:fotoP.brosur}});});})();
  const pilihan={logo:'',contoh:[]};
- function kecilkan(file,maks){return new Promise((ok,gagal)=>{
+ function kecilkan(file,maks,cap){cap=cap||40000;return new Promise((ok,gagal)=>{
   const fr=new FileReader();fr.onerror=()=>gagal(new Error('File gambar tidak dapat dibaca.'));
   fr.onload=()=>{const im=new Image();im.onerror=()=>gagal(new Error('File bukan gambar yang valid.'));
-   im.onload=()=>{let sisi=maks,q=0.72;
+   im.onload=()=>{let sisi=maks,q=cap>100000?0.85:0.72;
     for(let i=0;i<8;i++){const sk=Math.min(1,sisi/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*sk));c.height=Math.max(1,Math.round(im.height*sk));
      const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(im,0,0,c.width,c.height);
-     const u=c.toDataURL('image/jpeg',q);if(u.length<=40000||i===7){return u.length<=44000?ok(u):gagal(new Error('Gambar terlalu rumit untuk dikecilkan. Gunakan gambar lain.'));}
+     const u=c.toDataURL('image/jpeg',q);if(u.length<=cap||i===7){return u.length<=cap*1.1?ok(u):gagal(new Error('Gambar terlalu rumit untuk dikecilkan. Gunakan gambar lain.'));}
      q=Math.max(0.4,q-0.08);sisi=Math.round(sisi*0.85);}};
    im.src=fr.result;};fr.readAsDataURL(file);});}
- window.__kecilkan=kecilkan;
+ window.__kecilkan=kecilkan;const BESAR=600000;
  function prev(id,arr){const b=$(id);if(!b)return;b.textContent='';arr.forEach(u=>{const i=document.createElement('img');i.src=u;i.alt='';b.appendChild(i);});}
- [['fisik','pFotoFisik',480],['kegiatan','pFotoKegiatan',480],['brosur','pFotoBrosur',700]].forEach(([k,id,mk])=>{const el=$(id);if(!el)return;
+ [['fisik','pFotoFisik',1000],['kegiatan','pFotoKegiatan',1000],['brosur','pFotoBrosur',1400]].forEach(([k,id,mk])=>{const el=$(id);if(!el)return;
   el.addEventListener('change',async()=>{fotoP[k]=[];prev(id+'Prev',[]);const fs=[...el.files].slice(0,3);if(el.files.length>3)say($('pesantrenMessage'),'Hanya 3 foto pertama yang dipakai.');
-   try{for(const f of fs)fotoP[k].push(await kecilkan(f,mk));prev(id+'Prev',fotoP[k]);}catch(e){say($('pesantrenMessage'),e.message,false);el.value='';fotoP[k]=[];}});});
+   try{for(const f of fs)fotoP[k].push(await kecilkan(f,mk,BESAR));prev(id+'Prev',fotoP[k]);}catch(e){say($('pesantrenMessage'),e.message,false);el.value='';fotoP[k]=[];}});});
  (function(){const lg=$('uLogo'),pc=$('uPics');
   if(lg)lg.addEventListener('change',async()=>{pilihan.logo='';prev('uLogoPrev',[]);if(!lg.files[0])return;try{pilihan.logo=await kecilkan(lg.files[0],200);prev('uLogoPrev',[pilihan.logo]);}catch(e){say($('umkmMsg'),e.message,false);lg.value='';}});
-  if(pc)pc.addEventListener('change',async()=>{pilihan.contoh=[];prev('uPicsPrev',[]);const fs=[...pc.files].slice(0,3);if(pc.files.length>3)say($('umkmMsg'),'Hanya 3 gambar pertama yang dipakai.');try{for(const f of fs)pilihan.contoh.push(await kecilkan(f,560));prev('uPicsPrev',pilihan.contoh);}catch(e){say($('umkmMsg'),e.message,false);pc.value='';pilihan.contoh=[];}});})();
+  if(pc)pc.addEventListener('change',async()=>{pilihan.contoh=[];prev('uPicsPrev',[]);const fs=[...pc.files].slice(0,3);if(pc.files.length>3)say($('umkmMsg'),'Hanya 3 gambar pertama yang dipakai.');try{for(const f of fs)pilihan.contoh.push(await kecilkan(f,1400,BESAR));prev('uPicsPrev',pilihan.contoh);}catch(e){say($('umkmMsg'),e.message,false);pc.value='';pilihan.contoh=[];}});})();
  (function(){const b=fresh($('saveUmkm'));if(!b)return;b.addEventListener('click',()=>{
   const x={name:val('uName'),brand:val('uBrand'),owner:val('uOwner'),product:val('uProduct'),goods:($('uGoods')?$('uGoods').value:'').replace(/\s*\n+\s*/g,', ').trim(),phone:val('uPhone'),address:val('uAddress')};
   const m=$('umkmMsg');if(!x.name||!x.owner){say(m,'Isi nama usaha dan nama pemilik.',false);return;}
@@ -3282,8 +3282,8 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  const $=id=>document.getElementById(id),M=$('pRevModal');if(!M)return;let asal=null;
  const KOL=[['name','prName'],['founder','prFounder'],['leader','prLeader'],['relation','prRelation'],['phone','prPhone'],['address','prAddress'],['web','prWeb'],['profile','prProfile']];
  const foto={fisik:[],kegiatan:[],brosur:[]};
- [['fisik','prFisik',480],['kegiatan','prKegiatan',480],['brosur','prBrosur',700]].forEach(([k,id,mk])=>{const el=$(id);if(!el)return;el.addEventListener('change',async()=>{foto[k]=[];const pv=$(id+'Prev');pv.textContent='';const fs=[...el.files].slice(0,3);
-  try{for(const f of fs){const u=await window.__kecilkan(f,mk);foto[k].push(u);const im=document.createElement('img');im.src=u;im.alt='';pv.appendChild(im);}}catch(er){msg(er.message,false);el.value='';foto[k]=[];pv.textContent='';}});});
+ [['fisik','prFisik',1000],['kegiatan','prKegiatan',1000],['brosur','prBrosur',1400]].forEach(([k,id,mk])=>{const el=$(id);if(!el)return;el.addEventListener('change',async()=>{foto[k]=[];const pv=$(id+'Prev');pv.textContent='';const fs=[...el.files].slice(0,3);
+  try{for(const f of fs){const u=await window.__kecilkan(f,mk,600000);foto[k].push(u);const im=document.createElement('img');im.src=u;im.alt='';pv.appendChild(im);}}catch(er){msg(er.message,false);el.value='';foto[k]=[];pv.textContent='';}});});
  const msg=(t,ok)=>{const m=$('prMsg');m.textContent=t;m.style.color=ok===false?'#a33':'#1f5f4a';};
  const rapi=v=>window.rapikanNama?window.rapikanNama(v):v;
  document.addEventListener('click',e=>{
@@ -3344,7 +3344,7 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  const $=id=>document.getElementById(id),M=$('uUpModal');if(!M)return;let asal=null;const foto={logo:'',contoh:[]};
  const prev=(id,arr)=>{const b=$(id);if(!b)return;b.textContent='';arr.forEach(u=>{const i=document.createElement('img');i.src=u;i.alt='';b.appendChild(i);});};
  $('uuLogo').addEventListener('change',async()=>{foto.logo='';prev('uuLogoPrev',[]);const f=$('uuLogo').files[0];if(!f)return;try{foto.logo=await window.__kecilkan(f,200);prev('uuLogoPrev',[foto.logo]);}catch(e){msg(e.message,false);$('uuLogo').value='';}});
- $('uuPics').addEventListener('change',async()=>{foto.contoh=[];prev('uuPicsPrev',[]);const fs=[...$('uuPics').files].slice(0,3);if($('uuPics').files.length>3)msg('Hanya 3 foto pertama yang dipakai.',false);try{for(const f of fs)foto.contoh.push(await window.__kecilkan(f,560));prev('uuPicsPrev',foto.contoh);}catch(e){msg(e.message,false);$('uuPics').value='';foto.contoh=[];}});
+ $('uuPics').addEventListener('change',async()=>{foto.contoh=[];prev('uuPicsPrev',[]);const fs=[...$('uuPics').files].slice(0,3);if($('uuPics').files.length>3)msg('Hanya 3 foto pertama yang dipakai.',false);try{for(const f of fs)foto.contoh.push(await window.__kecilkan(f,1400,600000));prev('uuPicsPrev',foto.contoh);}catch(e){msg(e.message,false);$('uuPics').value='';foto.contoh=[];}});
  const KOL=[['name','uuName'],['brand','uuBrand'],['owner','uuOwner'],['product','uuProduct'],['goods','uuGoods'],['phone','uuPhone'],['address','uuAddress']];
  const msg=(t,ok)=>{const m=$('uuMsg');m.textContent=t;m.style.color=ok===false?'#a33':'#1f5f4a';};
  const rapi=v=>window.rapikanNama?window.rapikanNama(v):v;
@@ -3874,7 +3874,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
  const fotoA=[];
  const prevFoto=()=>{const b=$('artFotoPrev');b.textContent='';fotoA.forEach((u,i)=>{const d=document.createElement('span');d.className='fp';const im=document.createElement('img');im.src=u;im.alt='Foto '+(i+1);const x=document.createElement('button');x.type='button';x.textContent='×';x.title='Buang foto ini';x.addEventListener('click',()=>{fotoA.splice(i,1);prevFoto();});d.appendChild(im);d.appendChild(x);b.appendChild(d);});};
  $('artFoto').addEventListener('change',async()=>{const el=$('artFoto'),m=$('artMsg');const fs=[...el.files];el.value='';if(!fs.length)return;if(fotoA.length+fs.length>5)say2('Maksimal 5 foto; foto kelebihan diabaikan.',false);
-  for(const f of fs){if(fotoA.length>=5)break;try{fotoA.push(await window.__kecilkan(f,720));}catch(e){say2(e.message,false);}}prevFoto();});
+  for(const f of fs){if(fotoA.length>=5)break;try{fotoA.push(await window.__kecilkan(f,1200,600000));}catch(e){say2(e.message,false);}}prevFoto();});
  const say2=(t,ok)=>{const m=$('artMsg');m.classList.remove('hidden');m.textContent=t;m.style.color=ok===false?'#a33':'';};
  try{document.execCommand('defaultParagraphSeparator',false,'p');}catch(e){}
  const hitung=()=>{const n=teksDari(rapikanHtml(ed.innerHTML)).length;const h=$('artHitung');h.textContent=n+' / 10000 huruf';h.style.color=n>10000?'#b3261e':'';};
