@@ -4450,6 +4450,8 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
 .sr-id{margin-top:4px;font-size:15px;line-height:1.55;color:#243247}
 .sr-bag{margin:18px 0 6px;padding:10px 12px;background:#f3f8f4;border:1px solid #cfe3d6;border-left:4px solid #1d4a38;border-radius:10px}
 .sr-bag h4{margin:0;color:#1d4a38}.sr-bag small{color:#4a5b73}
+.sr-x{text-align:center;margin:2px 0 10px}.sr-x{display:block}.sr-x::before{content:'';}
+.sr-x{color:#8a6a1f;font-weight:bold;font-size:15px}
 .sr-fat{margin:2px 0 6px}.sr-fat summary{cursor:pointer;color:#1d4a38;font-size:14px;padding:4px 0}
 .sr-sk{height:16px;background:#f0e9d6;border-radius:6px;margin:12px 0}
 @media(max-width:650px){.sr-ar,.sr-bsm{font-size:calc(var(--sr-fs,30px) - 4px)}}
@@ -4606,13 +4608,15 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   if(!document.body.contains($('srTIsi')))return;
   const gambar=()=>{
    $('srTIsi').innerHTML=panel()+(gagal?'<p class="note">Sebagian ayat belum dapat dimuat (periksa sambungan internet). <button type="button" class="secondary" id="srTUlang">Coba lagi</button></p>':'')+dapat().map((s,i)=>{
-    let h='<div class="sr-bag"><h4>'+(i+1)+'. '+esc(s.j)+'</h4>'+(s.k?'<small>'+esc(s.k)+'</small>':'')+(s.doa&&nama?'<br><small><b>'+esc(nama)+'</b></small>':'')+'</div>';
+    const gabung=kunci==='tahlil';
+    let h=gabung?'':'<div class="sr-bag"><h4>'+(i+1)+'. '+esc(s.j)+'</h4>'+(s.k?'<small>'+esc(s.k)+'</small>':'')+(s.doa&&nama?'<br><small><b>'+esc(nama)+'</b></small>':'')+'</div>';
     if(s.doa)return h+barisTeks(teksDoa(g));
     s.parts.forEach(p=>{
      if(p.ref){const ay=data[p.ref.n];h+=ay?rentang(ay,p.ref.r).map(baris).join(''):'<p class="note">(ayat belum termuat)</p>';}
      else if(p.teks)h+=p.teks.map(barisTeks).join('');
-     else if(p.fat){const ay=data[1];h+='<details class="sr-fat"><summary>Al-Fātiḥah (dibaca 1×)</summary>'+(ay?ay.map(baris).join(''):'<p class="note">(ayat belum termuat)</p>')+'</details>';}
+     else if(p.fat){const ay=data[1];h+='<details class="sr-fat" open><summary>Al-Fātiḥah</summary>'+(ay?ay.map(baris).join(''):'<p class="note">(ayat belum termuat)</p>')+'</details>';}
     });
+    if(gabung){const m=(s.k||'').match(/(\d+×(?:, lalu \d+×)?)/);if(m&&m[1]!=='1×')h+='<div class="sr-x">'+esc(m[1])+'</div>';}
     return h;}).join('');
    pasangKontrol($('srTIsi'),gambar);
    const u=$('srTUlang');if(u)u.onclick=()=>tampilBacaan(kunci);
