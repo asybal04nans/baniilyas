@@ -4736,12 +4736,12 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
 #pwaLanding.on{display:flex}#pwaLanding .pl-box{width:100%;max-width:420px;background:#fffdf6;border:2px solid #c9a35a;border-radius:20px;padding:22px 20px;text-align:center;box-shadow:0 18px 50px rgba(0,0,0,.4)}
 #pwaLanding img{width:150px;height:150px;object-fit:contain}#pwaLanding h2{margin:6px 0 4px;font-size:21px;color:#1d4a38}#pwaLanding p{margin:6px 0;font-size:14.5px;line-height:1.5;color:#44503f}
 #pwaLanding .pl-big{display:block;width:100%;margin:14px 0 6px;border:0;border-radius:14px;background:#1d4a38;color:#fff;font:inherit;font-size:18px;font-weight:800;padding:15px 10px;cursor:pointer}
-#pwaLanding .pl-big[disabled]{opacity:.55}#pwaLanding .pl-lanjut{background:none;border:0;color:#6b5b2c;font:inherit;font-size:13.5px;text-decoration:underline;cursor:pointer;margin-top:6px}
+#pwaLanding a.pl-big{text-decoration:none;box-sizing:border-box}#pwaLanding .pl-big.alt{background:#fff;color:#1d4a38;border:2px solid #1d4a38;font-size:15px;font-weight:700;padding:11px 10px;margin-top:12px}#pwaLanding .pl-kecil{font-size:12.5px;color:#6b5b2c;margin:4px 2px 0}#pwaLanding .pl-big[disabled]{opacity:.55}#pwaLanding .pl-lanjut{background:none;border:0;color:#6b5b2c;font:inherit;font-size:13.5px;text-decoration:underline;cursor:pointer;margin-top:6px}
 #pwaLanding ol{text-align:left;margin:10px 0 0;padding-left:22px;font-size:14.5px;line-height:1.6;color:#2d3a2c}#pwaLanding .pl-cara{display:none;margin-top:10px;background:#f6efdc;border:1px solid #e6d8b2;border-radius:12px;padding:10px 12px}
 #pwaLanding .pl-cara.on{display:block}
 
 </style>
-<div id="pwaLanding" role="dialog" aria-label="Pasang aplikasi Bani Ilyas"><div class="pl-box"><img src="icons/logo.png" alt="Logo Web Bani Ilyas"><h2>Pasang Aplikasi Bani Ilyas</h2><p>Buka silsilah, kalender, UMKM, kalkulator waris dan tahlil keluarga langsung dari layar utama HP.</p><button type="button" class="pl-big" id="plPasang">Pasang Aplikasi</button><p id="plStatus" style="font-size:13px;color:#6b5b2c"></p><div class="pl-cara" id="plCara"></div><button type="button" class="pl-lanjut" id="plLanjut">Nanti saja, buka web</button></div></div>
+<div id="pwaLanding" role="dialog" aria-label="Pasang aplikasi Bani Ilyas"><div class="pl-box"><img src="icons/logo.png" alt="Logo Web Bani Ilyas"><h2>Pasang Aplikasi Bani Ilyas</h2><p>Buka silsilah, kalender, UMKM, kalkulator waris dan tahlil keluarga langsung dari layar utama HP.</p><a class="pl-big pl-apk" id="plApk" href="BaniIlyas.apk" download="BaniIlyas.apk">Unduh &amp; Pasang Aplikasi</a><p class="pl-kecil" id="plApkInfo">Setelah terunduh, ketuk berkasnya lalu pilih <b>Pasang</b>. Bila Android meminta izin <i>pasang dari sumber ini</i>, pilih <b>Izinkan</b>, lalu ketuk Pasang lagi.</p><button type="button" class="pl-big alt" id="plPasang">Atau pasang lewat Chrome</button><p id="plStatus" style="font-size:13px;color:#6b5b2c"></p><div class="pl-cara" id="plCara"></div><button type="button" class="pl-lanjut" id="plLanjut">Nanti saja, buka web</button></div></div>
 <div id="pwaPasang" role="dialog" aria-label="Pasang aplikasi"><img src="icons/icon-192.png" alt=""><span><b>Pasang di HP</b><br>Buka Bani Ilyas langsung dari layar utama, seperti aplikasi.</span><button type="button" class="pw-ya" id="pwaYa">Pasang</button><button type="button" class="pw-tdk" id="pwaTdk" aria-label="Tutup">Nanti</button></div>
 <script>
 (function(){
@@ -4776,12 +4776,12 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   }
   if(sudah()){document.body.dataset.pwa='1';return;}
   L.classList.add('on');
-  if(ios){btn.style.display='none';langkah();}
+  if(ios){btn.style.display='none';$('plApk').style.display='none';$('plApkInfo').style.display='none';langkah();}
   else{
    btn.disabled=true;st.textContent='Menyiapkan…';
-   setTimeout(function(){if(btn.disabled&&!tunda){st.textContent='';btn.style.display='none';langkah();}},2500);
+   setTimeout(function(){if(btn.disabled&&!tunda){st.textContent='';btn.style.display='none';}},2500);
   }
-  window.addEventListener('beforeinstallprompt',function(){btn.disabled=false;st.textContent='';cara.classList.remove('on');btn.style.display='block';});
+  window.addEventListener('beforeinstallprompt',function(){btn.disabled=false;st.textContent='';btn.style.display='block';});
   btn.addEventListener('click',function(){
    if(!tunda){langkah();return;}
    tunda.prompt();tunda.userChoice.then(function(c){tunda=null;if(c&&c.outcome==='accepted'){st.textContent='Terpasang. Silakan buka dari layar utama HP.';btn.style.display='none';}}).catch(function(){});
