@@ -2577,10 +2577,17 @@ const API_READY=API_URL.indexOf('https://script.google.com/')===0;
  window.getPesantren=function(){return T().pesantren;};
  window.__gambarUmkm=window.__gambarUmkm||{};const ambil={};
  function barangChip(t){return String(t||'').split(/[,;\n]+/).map(x=>x.trim()).filter(Boolean).map(x=>'<span>'+esc(x)+'</span>').join('');}
+ function kontakUmkm(v,nama){
+  const a=String(v||'').split(/\s*(?:\/|,|;|\bdan\b|\batau\b)\s*/i).map(x=>x.trim()).filter(Boolean);
+  return a.map(tok=>{let d=tok.replace(/\D/g,'');if(d.length<8||d.length>15)return esc(tok);
+   if(d.indexOf('00')===0)d=d.slice(2);else if(d.charAt(0)==='0')d='62'+d.slice(1);else if(d.charAt(0)==='8')d='62'+d;
+   const wa='https://wa.me/'+d+'?text='+encodeURIComponent('Assalamu\u2019alaikum, saya melihat usaha '+nama+' di web Keluarga Besar Bani Ilyas.');
+   return '<a class="um-wa" href="'+esc(wa)+'" target="_blank" rel="noopener noreferrer" title="Hubungi lewat WhatsApp">'+esc(tok)+'</a> <a class="um-tel" href="tel:+'+d+'">Telepon</a>';}).join('<br>');
+ }
  function renderUmkmT(){const el=$('umkmList');if(!el)return;const q=(val('umkmSearch')).toLowerCase();
   const it=T().umkm.filter(x=>Object.values(x).join(' ').toLowerCase().includes(q));
   el.innerHTML=it.length?it.map(x=>{const g=window.__gambarUmkm[x.id]||{logo:'',contoh:[]};
-   return '<div class="um-card"><div style="position:absolute;top:8px;right:10px"><button class="secondary" type="button" data-uupdate="'+esc(x.id)+'" style="font-size:12px;padding:4px 10px">Update data</button></div><img class="um-logo" alt="" '+(g.logo?'src="'+esc(g.logo)+'"':'style="visibility:hidden"')+'><div class="um-body"><h4>'+esc(x.name)+'</h4>'+(x.brand?'<div class="um-brand">Merek: '+esc(x.brand)+'</div>':'')+'<div class="um-meta">'+esc([x.product,'Pemilik: '+x.owner].filter(Boolean).join(' · '))+'</div>'+(x.goods?'<div class="um-goods">'+barangChip(x.goods)+'</div>':'')+(g.contoh.length?'<div class="um-pics">'+g.contoh.map(u=>'<img alt="Contoh produk" src="'+esc(u)+'">').join('')+'</div>':'')+'<div class="um-meta">'+(x.address?'📍 '+esc(x.address)+'<br>':'')+(x.phone?'☎ '+esc(x.phone):'')+'</div></div></div>';}).join(''):'<p class="note">Belum ada UMKM yang disetujui admin.</p>';
+   return '<div class="um-card"><div style="position:absolute;top:8px;right:10px"><button class="secondary" type="button" data-uupdate="'+esc(x.id)+'" style="font-size:12px;padding:4px 10px">Update data</button></div><img class="um-logo" alt="" '+(g.logo?'src="'+esc(g.logo)+'"':'style="visibility:hidden"')+'><div class="um-body"><h4>'+esc(x.name)+'</h4>'+(x.brand?'<div class="um-brand">Merek: '+esc(x.brand)+'</div>':'')+'<div class="um-meta">'+esc([x.product,'Pemilik: '+x.owner].filter(Boolean).join(' · '))+'</div>'+(x.goods?'<div class="um-goods">'+barangChip(x.goods)+'</div>':'')+(g.contoh.length?'<div class="um-pics">'+g.contoh.map(u=>'<img alt="Contoh produk" src="'+esc(u)+'">').join('')+'</div>':'')+'<div class="um-meta">'+(x.address?'📍 '+esc(x.address)+'<br>':'')+(x.phone?'☎ '+kontakUmkm(x.phone,x.name):'')+'</div></div></div>';}).join(''):'<p class="note">Belum ada UMKM yang disetujui admin.</p>';
   it.forEach(x=>{if(window.__gambarUmkm[x.id]||ambil[x.id])return;ambil[x.id]=1;
    api({action:'gambar',id:x.id}).then(r=>{window.__gambarUmkm[x.id]=r.gambar||{logo:'',contoh:[]};renderUmkmT();}).catch(()=>{ambil[x.id]=0;});});}
  (function(){const lb=document.createElement('div');lb.id='kr-lightbox';lb.innerHTML='<img alt="">';document.body.appendChild(lb);
@@ -4455,6 +4462,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
 .sr-x{text-align:center;margin:2px 0 10px}.sr-x{display:block}.sr-x::before{content:'';}
 .sr-x{color:#8a6a1f;font-weight:bold;font-size:15px}
 .sr-alir{text-align:justify;text-align-last:right;text-justify:inter-word}.sr-inl{color:#1d4a38}.sr-grp{padding:10px 4px;border-bottom:1px solid #eee4cd}
+.um-wa{font-weight:bold;color:#1d7a46;text-decoration:underline}.um-tel{font-size:12px;border:1px solid #cbd5e1;border-radius:999px;padding:1px 8px;color:var(--navy);text-decoration:none;margin-left:4px}
 .sr-fat{margin:2px 0 6px}.sr-fat summary{cursor:pointer;color:#1d4a38;font-size:14px;padding:4px 0}
 .sr-sk{height:16px;background:#f0e9d6;border-radius:6px;margin:12px 0}
 @media(max-width:650px){.sr-ar,.sr-bsm{font-size:calc(var(--sr-fs,30px) - 4px)}}
