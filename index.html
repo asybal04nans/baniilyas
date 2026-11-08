@@ -482,6 +482,7 @@ main {
    <button data-page="haul">Iuran Haul Mama Odi</button>
    <button data-page="guide">Kode Silsilah</button>
    <button data-page="nasab">Rundayan Nasab</button>
+   <button data-page="hubungan">Kalkulator Hubungan</button>
    <button data-page="kartu">Kartu Bani Ilyas</button>
    <button data-page="chat">Chat Anak Incu</button>
    <button data-page="artikel">Artikel Agama</button>
@@ -976,6 +977,20 @@ main {
  </div>
 </section>
 
+<section id="hubungan" class="hidden">
+ <div class="hero"><div><h2>Kalkulator Hubungan</h2><p>Pilih dua orang dari silsilah, lalu lihat hubungan keduanya lengkap dengan jalur panah dan penjelasannya, seperti pada aplikasi Geni.</p></div><span class="pill">HUBUNGAN</span></div>
+ <div class="panel">
+  <div class="formgrid">
+   <div class="field"><label for="hbA">Orang pertama (A)</label><input id="hbA" list="hbList" autocomplete="off" placeholder="Ketik nama lalu pilih dari daftar"></div>
+   <div class="field"><label for="hbB">Orang kedua (B)</label><input id="hbB" list="hbList" autocomplete="off" placeholder="Ketik nama lalu pilih dari daftar"></div>
+  </div>
+  <datalist id="hbList"></datalist>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><button class="primary" id="hbHitung" type="button">Hitung Hubungan</button><button type="button" id="hbTukar" class="secondary">⇅ Tukar A dan B</button></div>
+  <div class="result hidden" id="hbMsg" role="status"></div>
+  <div id="hbHasil"></div>
+  <p class="note" style="margin-top:14px">Perhitungan memakai jalur orang tua dan anak pada silsilah yang sudah diverifikasi admin. Hubungan lewat pernikahan (mertua, ipar, menantu) belum dihitung, karena pasangan tidak tercatat sebagai satu orang tersendiri dalam pohon.</p>
+ </div>
+</section>
 <section id="tautan" class="hidden">
  <div class="hero"><div><h2>Tautan Web</h2><p>Kumpulan tautan web yang bermanfaat (kajian, berita, kitab, usaha keluarga, dll). Siapa pun boleh mengirim; setiap tautan diperiksa admin sebelum tampil.</p></div><span class="pill">TAUTAN</span></div>
  <div class="panel">
@@ -1357,7 +1372,7 @@ window.PancakakiDownloadGate = {
 <footer>Arsip Digital Kulawarga Bani Ilyas · Limbangan, Garut · Rarancang awal pikeun dimekarkeun babarengan ku kulawarga</footer>
 <script>
 const navButtons=document.querySelectorAll('nav button');
-const pageIds=['home','profil','add','archive','pesantren','umkm','library','calendar','donasi','haul','guide','nasab','kartu','chat','artikel','tautan','verifikasi'];
+const pageIds=['home','profil','add','archive','pesantren','umkm','library','calendar','donasi','haul','guide','nasab','kartu','chat','artikel','tautan','hubungan','verifikasi'];
 navButtons.forEach(btn=>btn.addEventListener('click',()=>{
  navButtons.forEach(b=>b.classList.remove('active'));
  btn.classList.add('active');
@@ -3846,6 +3861,126 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
 .tau-item p{margin:6px 0;white-space:pre-line}
 .tau-item small{color:#777}
 #tauKet{width:100%;box-sizing:border-box;font:inherit;padding:10px;border:1px solid #d8c69b;border-radius:10px}
+</style>
+<script>
+(function(){
+ const $=id=>document.getElementById(id);
+ const esc=t=>String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const JK=a=>window.__jkOrang?window.__jkOrang(a):String(a&&a.jk||'').toUpperCase();
+ const NAMA_LEL={3:'Buyut',4:'Canggah',5:'Wareng',6:'Udeg-udeg',7:'Gantung siwur'};
+ function anc(d,j){if(d===1)return j==='L'?'Ayah':j==='P'?'Ibu':'Ayah/Ibu';if(d===2)return j==='L'?'Kakek':j==='P'?'Nenek':'Kakek/Nenek';return NAMA_LEL[d]||('Leluhur ke-'+d);}
+ function desc(d,j){if(d===1)return j==='L'?'Anak laki-laki':j==='P'?'Anak perempuan':'Anak';if(d===2)return 'Cucu';if(d===3)return 'Cicit';return NAMA_LEL[d]||('Keturunan ke-'+d);}
+ function sedarah(a,b,da,db){
+  if(da===0&&db===0)return 'Orang yang sama';
+  const jb=JK(b);
+  if(da===0)return desc(db,jb);
+  if(db===0)return anc(da,jb);
+  if(da===1&&db===1){
+   const x=Number(a.anakKe),y=Number(b.anakKe);let t='Saudara';
+   if(x&&y&&x!==y)t=(y<x?'Kakak':'Adik')+(jb==='L'?' laki-laki':jb==='P'?' perempuan':'');
+   else t='Saudara'+(jb==='L'?' laki-laki':jb==='P'?' perempuan':'');
+   if(String(a.hubungan)==='sebapak'||String(b.hubungan)==='sebapak')t+=' (sebapak)';
+   return t;}
+  if(da===1)return db===2?'Keponakan':desc(db-1,'')+' keponakan';
+  if(db===1)return da===2?(jb==='L'?'Paman':jb==='P'?'Bibi':'Paman/Bibi'):'Saudara '+anc(da-1,'').toLowerCase();
+  const k=Math.min(da,db)-1,r=Math.abs(da-db);
+  let t='Sepupu '+(k===1?'sekali':k===2?'dua kali':k===3?'tiga kali':k+' kali');
+  if(r)t+=' ('+(db>da?'lebih muda ':'lebih tua ')+r+' generasi)';
+  return t;}
+ function naik(c,j){return j==='L'?'putra dari':j==='P'?'putri dari':'anak dari';}
+ function turun(p,j){return j==='L'?'ayah dari':j==='P'?'ibu dari':'orang tua dari';}
+ /* hitung: kembalikan {sama,tidak,da,db,lca,atas:[A..LCA],bawah:[LCA..B]} */
+ function hitung(list,idA,idB){
+  const by=new Map(list.map(x=>[String(x.id),x]));const A=by.get(String(idA)),B=by.get(String(idB));
+  if(!A||!B)return {galat:'Orang tidak ditemukan.'};
+  const jalur=x=>{const r=[x],seen=new Set([String(x.id)]);let c=x;while(c.ayahId&&by.has(String(c.ayahId))&&!seen.has(String(c.ayahId))){c=by.get(String(c.ayahId));seen.add(String(c.id));r.push(c);}return r;};
+  const pa=jalur(A),pb=jalur(B);const idxB=new Map(pb.map((x,i)=>[String(x.id),i]));
+  let da=-1,db=-1;for(let i=0;i<pa.length;i++){if(idxB.has(String(pa[i].id))){da=i;db=idxB.get(String(pa[i].id));break;}}
+  if(da<0)return {galat:'Keduanya tidak tersambung dalam silsilah yang tercatat.'};
+  const atas=pa.slice(0,da+1),bawah=pb.slice(0,db+1).reverse();
+  return {A,B,da,db,lca:pa[da],atas,bawah,AdariB:null};
+ }
+ function paparan(h){
+  const {A,B,da,db,lca}=h;
+  const bKeA=sedarah(A,B,da,db),aKeB=sedarah(B,A,db,da);
+  const kal=bKeA==='Orang yang sama'?esc(A.nama)+' dan '+esc(B.nama)+' adalah orang yang sama.':'<b>'+esc(B.nama)+'</b> adalah <b>'+esc(bKeA.toLowerCase())+'</b> dari <b>'+esc(A.nama)+'</b>.';
+  const kal2=bKeA==='Orang yang sama'?'':'Sebaliknya, <b>'+esc(A.nama)+'</b> adalah <b>'+esc(aKeB.toLowerCase())+'</b> dari <b>'+esc(B.nama)+'</b>.';
+  /* rantai: dari A naik ke leluhur bersama, lalu turun ke B */
+  const node=(x,peran,kelas)=>'<div class="hb-node '+kelas+'"><b>'+esc(x.nama)+'</b><small>'+esc(peran)+'</small></div>';
+  let rantai='';
+  h.atas.forEach((x,i)=>{
+   let peran,kelas='';
+   if(i===0){peran='A (orang pertama)';kelas='hb-a';}
+   else if(i===da){peran='Leluhur bersama · '+anc(da,JK(x)).toLowerCase()+' dari A'+(db>0?' dan '+anc(db,JK(x)).toLowerCase()+' dari B':'');kelas='hb-l';}
+   else peran=anc(i,JK(x))+' dari A';
+   if(da===0&&i===0){peran='A (orang pertama) · leluhur bersama'+(db>0?', '+anc(db,JK(x)).toLowerCase()+' dari B':'');kelas='hb-a hb-l';}
+   if(da>0&&i===da&&db===0){peran='B (orang kedua) · '+anc(da,JK(x)).toLowerCase()+' dari A';kelas='hb-b hb-l';}
+   rantai+=node(x,peran,kelas);
+   if(i<h.atas.length-1)rantai+='<div class="hb-pnl up"><span>▲</span><em>'+naik(x,JK(x))+'</em></div>';
+  });
+  h.bawah.slice(1).forEach((x,j)=>{
+   const par=h.bawah[j];
+   rantai+='<div class="hb-pnl dn"><span>▼</span><em>'+turun(par,JK(par))+'</em></div>';
+   const adaB=(j===h.bawah.length-2);
+   const peran=adaB?'B (orang kedua) · '+sedarah(A,x,da,j+1).toLowerCase()+' dari A':sedarah(A,x,da,j+1)+' dari A';
+   rantai+=node(x,peran,adaB?'hb-b':'');
+  });
+  /* teks langkah */
+  const langkah=[];
+  if(da>0)langkah.push('Dari A naik '+da+' tingkat ke leluhur bersama (<b>'+esc(lca.nama)+'</b>).');
+  if(db>0)langkah.push('Dari leluhur bersama turun '+db+' tingkat sampai ke B.');
+  if(da===0||db===0)langkah.push('Keduanya satu garis keturunan langsung.');
+  else if(da===1&&db===1)langkah.push('Keduanya anak dari orang tua yang sama.');
+  else langkah.push('Keduanya bertemu pada leluhur yang sama, yaitu <b>'+esc(lca.nama)+'</b>.');
+  return '<div class="hb-hasil"><p class="hb-kal">'+kal+'</p>'+(kal2?'<p>'+kal2+'</p>':'')+'<div class="hb-rantai" aria-label="Jalur hubungan">'+rantai+'</div><ul class="hb-lang">'+langkah.map(t=>'<li>'+t+'</li>').join('')+'</ul></div>';
+ }
+ window.__hubungan={hitung,sedarah,paparan};
+ let petaLabel=new Map(),labelId=new Map();
+ function bangun(){
+  const list=window.__membersList||[];const dl=$('hbList');if(!dl)return;
+  const by=new Map(list.map(x=>[String(x.id),x]));const hit={};list.forEach(x=>{hit[x.nama]=(hit[x.nama]||0)+1;});
+  petaLabel=new Map();labelId=new Map();
+  const opts=list.map(x=>{const p=by.get(String(x.ayahId));let l=x.nama;if(hit[x.nama]>1||true){l=x.nama+(p?' — anak '+p.nama:' — leluhur tertua');}
+   if(petaLabel.has(l))l+=' ['+x.id+']';petaLabel.set(l,x.id);return l;});
+  dl.innerHTML=opts.map(l=>'<option value="'+esc(l)+'"></option>').join('');
+ }
+ function ambil(el){
+  const v=el.value.trim();if(!v)return {galat:'Pilih orang '+(el.id==='hbA'?'pertama':'kedua')+' dahulu.'};
+  if(petaLabel.has(v))return {id:petaLabel.get(v)};
+  const list=window.__membersList||[];const n=v.toLowerCase();
+  const c=list.filter(x=>String(x.nama).toLowerCase()===n);
+  if(c.length===1)return {id:c[0].id};
+  if(c.length>1)return {galat:'Ada beberapa orang bernama "'+v+'". Pilih satu dari daftar yang muncul saat mengetik.'};
+  return {galat:'"'+v+'" tidak ada dalam daftar. Ketik sebagian nama lalu pilih dari daftar.'};
+ }
+ function say(t){const m=$('hbMsg');m.classList.remove('hidden');m.textContent=t;m.style.color='#a33';}
+ function jalan(){
+  const m=$('hbMsg');m.classList.add('hidden');$('hbHasil').innerHTML='';
+  const a=ambil($('hbA')),b=ambil($('hbB'));
+  if(a.galat){say(a.galat);return;}if(b.galat){say(b.galat);return;}
+  const h=hitung(window.__membersList||[],a.id,b.id);
+  if(h.galat){say(h.galat);return;}
+  $('hbHasil').innerHTML=paparan(h);
+ }
+ $('hbHitung').addEventListener('click',jalan);
+ $('hbTukar').addEventListener('click',()=>{const t=$('hbA').value;$('hbA').value=$('hbB').value;$('hbB').value=t;if($('hbA').value&&$('hbB').value)jalan();});
+ ['hbA','hbB'].forEach(i=>$(i).addEventListener('keydown',e=>{if(e.key==='Enter')jalan();}));
+ const nb=document.querySelector('nav button[data-page="hubungan"]');
+ if(nb)nb.addEventListener('click',()=>{bangun();setTimeout(bangun,1500);});
+ if(location.hash==='#hubungan'&&nb)setTimeout(()=>nb.click(),600);
+})();
+</script>
+<style>
+.hb-hasil{margin-top:16px}
+.hb-kal{font-size:17px;line-height:1.5;background:#f3f8f4;border:1px solid #cfe3d6;border-left:4px solid #1d4a38;border-radius:10px;padding:12px 14px}
+.hb-rantai{display:flex;flex-direction:column;align-items:center;margin:16px 0}
+.hb-node{width:min(420px,100%);box-sizing:border-box;text-align:center;border:1px solid #d8c69b;background:#fffdf6;border-radius:12px;padding:9px 12px}
+.hb-node b{display:block;color:#1d4a38;font-size:15.5px}.hb-node small{color:#6b5b2c;font-size:12.5px}
+.hb-node.hb-a{border:2px solid #1d4a38;background:#eaf4ee}.hb-node.hb-b{border:2px solid #b8893b;background:#fff3d6}.hb-node.hb-l{box-shadow:0 0 0 3px #f1d98a55}
+.hb-pnl{display:flex;flex-direction:column;align-items:center;color:#7a5f1f;line-height:1.1;padding:3px 0}
+.hb-pnl span{font-size:20px}.hb-pnl em{font-size:12.5px;font-style:normal;background:#f4e3b5;border-radius:999px;padding:1px 10px;margin-top:2px;color:#5d4a1c}
+.hb-lang{margin:0;padding-left:20px;color:#444;font-size:14px;line-height:1.6}
+.secondary{border:1px solid #1d4a38;background:#fff;color:#1d4a38;border-radius:10px;padding:9px 16px;cursor:pointer;font:inherit}
 </style>
 </body>
 </html>
