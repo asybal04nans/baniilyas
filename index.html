@@ -4903,5 +4903,93 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
  })();
 })();
 </script>
+<style>
+#beritaLokal h3{margin:0 0 4px;color:var(--navy);font-size:18px}
+#beritaLokal .bl-atas{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}
+#beritaLokal select{flex:1;min-width:170px}
+#beritaLokal .bl-btn{border:1px solid var(--navy2);background:#fff;color:var(--navy);border-radius:9px;padding:10px 12px;font-weight:700;cursor:pointer;font-size:13px}
+#beritaLokal .bl-btn:hover{background:#eef3fa}
+#beritaLokal ul{list-style:none;margin:0;padding:0}
+#beritaLokal li{border-top:1px solid var(--line);padding:10px 0}
+#beritaLokal li:first-child{border-top:0}
+#beritaLokal li a{color:var(--ink);text-decoration:none;font-weight:700;line-height:1.4;display:block}
+#beritaLokal li a:hover{color:var(--navy2);text-decoration:underline}
+#beritaLokal .bl-meta{font-size:12px;color:var(--muted);margin-top:3px}
+#beritaLokal .bl-info{font-size:13px;color:var(--muted);padding:8px 0}
+#beritaLokal .bl-foot{font-size:11px;color:var(--muted);margin-top:8px}
+</style>
+<script>
+(function(){
+ var KOTA=['Garut','Bandung','Kota Bandung','Bandung Barat','Cimahi','Sumedang','Cianjur','Tasikmalaya','Ciamis','Majalengka','Cirebon','Kuningan','Subang','Purwakarta','Karawang','Bekasi','Bogor','Sukabumi','Jakarta','Banten','Semarang','Yogyakarta','Surabaya','Medan','Makassar'];
+ var KEY='bi_berita_kota',TTL=15*60*1000;
+ function $(i){return document.getElementById(i);}
+ function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v);}catch(e){return null;}}
+ function buat(){
+  if($('beritaLokal'))return;
+  var ref=$('unduhApp')||$('sorotan');if(!ref||!ref.parentNode)return;
+  var d=document.createElement('div');d.className='panel';d.id='beritaLokal';
+  d.innerHTML='<h3>📰 Berita <span id="blKota"></span> Hari Ini</h3><div class="bl-info" style="padding:0">Tayangan berita menyesuaikan daerah Anda.</div><div class="bl-atas"><select id="blPilih" aria-label="Pilih daerah"></select><button class="bl-btn" type="button" id="blLokasi">📍 Pakai lokasi saya</button><button class="bl-btn" type="button" id="blMuat">↻ Muat ulang</button></div><div id="blIsi"><div class="bl-info">Memuat berita…</div></div><div class="bl-foot">Sumber: Google Berita. Isi berita sepenuhnya milik penerbit masing-masing.</div>';
+  ref.parentNode.insertBefore(d,ref.nextSibling);
+  var sel=$('blPilih');KOTA.forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=k;sel.appendChild(o);});
+  var awal=ls(KEY)||'Garut';tambah(awal);sel.value=awal;
+  sel.addEventListener('change',function(){ls(KEY,sel.value);muat(false);});
+  $('blMuat').addEventListener('click',function(){muat(true);});
+  $('blLokasi').addEventListener('click',lokasi);
+  muat(false);
+ }
+ function tambah(k){var sel=$('blPilih');if(!sel)return;if(![].some.call(sel.options,function(o){return o.value===k;})){var o=document.createElement('option');o.value=k;o.textContent=k;sel.insertBefore(o,sel.firstChild);}}
+ function lokasi(){
+  var isi=$('blIsi');if(!navigator.geolocation){isi.innerHTML='<div class="bl-info">Peramban tidak mendukung deteksi lokasi. Pilih daerah dari daftar.</div>';return;}
+  isi.innerHTML='<div class="bl-info">Mendeteksi lokasi…</div>';
+  navigator.geolocation.getCurrentPosition(function(p){
+   fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude='+p.coords.latitude+'&longitude='+p.coords.longitude+'&localityLanguage=id')
+   .then(function(r){return r.json();}).then(function(j){
+    var cand=[j.city,j.locality,j.principalSubdivision].filter(Boolean).map(function(x){return String(x).replace(/^(Kota|Kabupaten|Kab\.)\s+/i,'').trim();});
+    var pil=null;cand.forEach(function(c){if(pil)return;KOTA.forEach(function(k){if(!pil&&k.toLowerCase()===c.toLowerCase())pil=k;});});
+    var nm=pil||cand[0];if(!nm){throw new Error('x');}
+    tambah(nm);$('blPilih').value=nm;ls(KEY,nm);muat(true);
+   }).catch(function(){isi.innerHTML='<div class="bl-info">Lokasi belum dapat dikenali. Pilih daerah dari daftar.</div>';});
+  },function(){isi.innerHTML='<div class="bl-info">Izin lokasi ditolak. Pilih daerah dari daftar.</div>';},{timeout:10000,maximumAge:600000});
+ }
+ function rssUrl(k,hari){return 'https://news.google.com/rss/search?q='+encodeURIComponent('berita '+k+' when:'+hari+'d')+'&hl=id&gl=ID&ceid=ID:id';}
+ function linkCari(k){return 'https://news.google.com/search?q='+encodeURIComponent('berita '+k+' hari ini')+'&hl=id&gl=ID&ceid=ID:id';}
+ function waktu(t){var d=new Date(t);if(isNaN(d))return '';var m=Math.round((Date.now()-d.getTime())/60000);if(m<1)return 'baru saja';if(m<60)return m+' menit lalu';if(m<1440)return Math.round(m/60)+' jam lalu';return d.toLocaleDateString('id-ID',{day:'numeric',month:'short'});}
+ function dariJson(j){return (j&&j.items||[]).map(function(i){return {judul:i.title,link:i.link,waktu:i.pubDate,sumber:i.author||''};});}
+ function dariXml(x){var doc=new DOMParser().parseFromString(x,'text/xml');return [].map.call(doc.querySelectorAll('item'),function(it){var g=function(t){var e=it.querySelector(t);return e?e.textContent:'';};return {judul:g('title'),link:g('link'),waktu:g('pubDate'),sumber:g('source')};});}
+ function ambil(url){
+  var lewat=[
+   function(){return fetch('https://api.rss2json.com/v1/api.json?count=12&rss_url='+encodeURIComponent(url)).then(function(r){return r.json();}).then(function(j){if(j.status&&j.status!=='ok')throw new Error('x');return dariJson(j);});},
+   function(){return fetch('https://api.allorigins.win/raw?url='+encodeURIComponent(url)).then(function(r){return r.text();}).then(dariXml);},
+   function(){return fetch('https://api.codetabs.com/v1/proxy/?quest='+encodeURIComponent(url)).then(function(r){return r.text();}).then(dariXml);}
+  ];
+  var i=0;function coba(){if(i>=lewat.length)return Promise.reject(new Error('gagal'));return lewat[i++]().then(function(a){if(!a.length)throw new Error('kosong');return a;}).catch(coba);}
+  return coba();
+ }
+ function gambar(k,arr){
+  $('blKota').textContent=k;var isi=$('blIsi');
+  var ul=document.createElement('ul');
+  arr.slice(0,10).forEach(function(b){
+   var jd=String(b.judul||'').trim(),sm=b.sumber||'';var m=/^(.*)\s+-\s+([^-]+)$/.exec(jd);if(m){jd=m[1];if(!sm)sm=m[2];}
+   if(!/^https?:\/\//i.test(b.link||''))return;
+   var li=document.createElement('li'),a=document.createElement('a');a.href=b.link;a.target='_blank';a.rel='noopener noreferrer';a.textContent=jd;
+   var meta=document.createElement('div');meta.className='bl-meta';meta.textContent=[sm,waktu(b.waktu)].filter(Boolean).join(' · ');
+   li.appendChild(a);li.appendChild(meta);ul.appendChild(li);});
+  isi.innerHTML='';
+  if(!ul.children.length){isi.innerHTML='<div class="bl-info">Belum ada berita. <a href="'+linkCari(k)+'" target="_blank" rel="noopener">Cari di Google Berita</a></div>';return;}
+  isi.appendChild(ul);
+ }
+ function muat(paksa){
+  var k=($('blPilih')||{}).value||'Garut';$('blKota').textContent=k;var isi=$('blIsi');
+  var ck='bi_berita_'+k;
+  if(!paksa){try{var c=JSON.parse(ls(ck)||'null');if(c&&Date.now()-c.t<TTL&&c.a&&c.a.length){gambar(k,c.a);return;}}catch(e){}}
+  isi.innerHTML='<div class="bl-info">Memuat berita '+k.replace(/[<>&]/g,'')+'…</div>';
+  ambil(rssUrl(k,1)).then(function(a){return a.length>=4?a:ambil(rssUrl(k,7)).catch(function(){return a;});})
+  .catch(function(){return ambil(rssUrl(k,7));})
+  .then(function(a){ls(ck,JSON.stringify({t:Date.now(),a:a.slice(0,12)}));if(($('blPilih')||{}).value===k)gambar(k,a);})
+  .catch(function(){if(($('blPilih')||{}).value===k)isi.innerHTML='<div class="bl-info">Berita belum dapat dimuat (periksa sambungan internet). <a href="'+linkCari(k)+'" target="_blank" rel="noopener">Buka berita '+k.replace(/[<>&]/g,'')+' di Google Berita</a></div>';});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',buat);else buat();
+})();
+</script>
 </body>
 </html>
