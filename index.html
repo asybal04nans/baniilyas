@@ -4998,6 +4998,94 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
 })();
 </script>
 <style>
+#sekitar h3{margin:0 0 4px;color:var(--navy);font-size:18px}
+#sekitar .sk-tab{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+#sekitar .sk-tab button,#sekitar .sk-btn{border:1px solid var(--navy2);background:#fff;color:var(--navy);border-radius:999px;padding:9px 14px;font-weight:700;cursor:pointer;font-size:13px}
+#sekitar .sk-tab button.on{background:var(--navy);color:#fff}
+#sekitar .sk-info{font-size:13px;color:var(--muted);padding:2px 0 8px;line-height:1.5}
+#sekitar ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+#sekitar li{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff}
+#sekitar li b{color:var(--navy);font-size:14px}
+#sekitar .sk-meta{font-size:12.5px;color:var(--muted);margin-top:2px}
+#sekitar .sk-jarak{color:var(--green);font-weight:700}
+#sekitar li a{display:inline-block;margin-top:5px;font-size:12.5px;font-weight:700;color:var(--navy2);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:5px 9px}
+#sekitar .sk-atas{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 4px}
+</style>
+<script>
+(function(){
+ var JENIS={
+  hotel:{nama:'🏨 Hotel',q:'nwr["tourism"~"^(hotel|guest_house|hostel|motel)$"]',r:6000,gm:'hotel murah rating tinggi',ket:'Diurutkan dari yang terdekat. Harga dan rating (bintang) ada di Google Maps: ketuk "Cek harga & rating".'},
+  spbu:{nama:'⛽ SPBU',q:'nwr["amenity"="fuel"]',r:8000,gm:'SPBU',ket:'Diurutkan dari yang terdekat.'},
+  kuliner:{nama:'🍜 Kuliner',q:'nwr["amenity"~"^(restaurant|cafe|fast_food|food_court)$"]["name"]',r:3000,gm:'kuliner viral murah enak',ket:'Alamat otomatis menyesuaikan tempat yang dipilih. Ulasan dan harga ada di Google Maps.'}
+ };
+ var jenis='hotel',pos=null,sumber='kota',kotaTerakhir='';
+ function $(i){return document.getElementById(i);}
+ function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v);}catch(e){return null;}}
+ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+ function jarak(a,b,c,d){var R=6371,r=Math.PI/180,x=(c-a)*r,y=(d-b)*r,h=Math.sin(x/2)*Math.sin(x/2)+Math.cos(a*r)*Math.cos(c*r)*Math.sin(y/2)*Math.sin(y/2);return 2*R*Math.asin(Math.sqrt(h));}
+ function fmt(km){return km<1?Math.round(km*1000)+' m':km.toFixed(1).replace('.',',')+' km';}
+ function alamat(t){var a=[t['addr:street'],t['addr:housenumber']&&('No. '+t['addr:housenumber']),t['addr:village']||t['addr:suburb'],t['addr:subdistrict']||t['addr:district'],t['addr:city']].filter(Boolean);return a.join(', ');}
+ function gmLink(nama,lat,lon){return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(nama+' @'+lat+','+lon);}
+ function gmCari(q,lat,lon){return 'https://www.google.com/maps/search/'+encodeURIComponent(q)+'/@'+lat+','+lon+',14z';}
+ function buat(){
+  if($('sekitar'))return;
+  var ref=$('beritaLokal');if(!ref||!ref.parentNode)return false;
+  var d=document.createElement('div');d.className='panel';d.id='sekitar';
+  d.innerHTML='<h3>📍 Sekitar <span id="skNama"></span></h3><div class="sk-info" id="skInfo">Hotel, SPBU, dan kuliner terdekat dari daerah yang dipilih di panel berita.</div><div class="sk-atas"><button class="sk-btn" type="button" id="skGps">📍 Pakai lokasi saya (lebih akurat)</button></div><div class="sk-tab" id="skTab"></div><div id="skIsi"></div><div class="sk-info" style="font-size:11px">Data tempat dari OpenStreetMap. Rating, harga, dan jam buka mengikuti Google Maps; ketuk tautan di setiap tempat.</div>';
+  ref.parentNode.insertBefore(d,ref.nextSibling);
+  var tab=$('skTab');Object.keys(JENIS).forEach(function(k){var b=document.createElement('button');b.type='button';b.textContent=JENIS[k].nama;b.dataset.j=k;if(k===jenis)b.className='on';b.onclick=function(){jenis=k;[].forEach.call(tab.children,function(x){x.className=x.dataset.j===k?'on':'';});muat();};tab.appendChild(b);});
+  $('skGps').onclick=gps;
+  setInterval(function(){var p=$('blPilih');if(p&&p.value!==kotaTerakhir&&sumber==='kota'){kotaTerakhir=p.value;muat();}},900);
+  var p=$('blPilih');kotaTerakhir=p?p.value:'Garut';muat();
+  return true;
+ }
+ function gps(){
+  var isi=$('skIsi');if(!navigator.geolocation){isi.innerHTML='<div class="sk-info">Peramban tidak mendukung lokasi. Pilih daerah di panel berita.</div>';return;}
+  isi.innerHTML='<div class="sk-info">Mendeteksi lokasi…</div>';
+  navigator.geolocation.getCurrentPosition(function(p){sumber='gps';pos={lat:p.coords.latitude,lon:p.coords.longitude,nama:'lokasi Anda'};muat();},function(){isi.innerHTML='<div class="sk-info">Izin lokasi ditolak. Pilih daerah di panel berita.</div>';},{timeout:10000,maximumAge:300000});
+ }
+ function geokode(kota){
+  var ck='bi_geo_'+kota;try{var c=JSON.parse(ls(ck)||'null');if(c)return Promise.resolve(c);}catch(e){}
+  return fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=id&q='+encodeURIComponent(kota+', Indonesia')).then(function(r){return r.json();}).then(function(j){if(!j.length)throw new Error('x');var o={lat:+j[0].lat,lon:+j[0].lon};ls(ck,JSON.stringify(o));return o;});
+ }
+ function overpass(j,p){
+  var J=JENIS[j],q='[out:json][timeout:25];('+J.q+'(around:'+J.r+','+p.lat+','+p.lon+'););out center 80;';
+  var u=['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter'],i=0;
+  function coba(){if(i>=u.length)return Promise.reject(new Error('gagal'));return fetch(u[i++]+'?data='+encodeURIComponent(q)).then(function(r){if(!r.ok)throw new Error('x');return r.json();}).catch(coba);}
+  return coba();
+ }
+ function gambar(j,p,els){
+  var J=JENIS[j],isi=$('skIsi');
+  var arr=els.map(function(e){var la=e.lat||(e.center&&e.center.lat),lo=e.lon||(e.center&&e.center.lon);var t=e.tags||{};return {n:t.name||(j==='spbu'?(t.brand?'SPBU '+t.brand:'SPBU'):''),t:t,la:la,lo:lo,km:jarak(p.lat,p.lon,la,lo)};}).filter(function(x){return x.la&&x.lo&&x.n;});
+  arr.sort(function(a,b){return a.km-b.km;});arr=arr.slice(0,10);
+  var top='<div class="sk-info">'+esc(J.ket)+' <a href="'+gmCari(J.gm,p.lat,p.lon)+'" target="_blank" rel="noopener" style="font-weight:700;color:var(--navy2)">'+(j==='hotel'?'Lihat hotel murah rating tinggi di Google Maps':'Lihat di Google Maps')+'</a></div>';
+  if(!arr.length){isi.innerHTML=top+'<div class="sk-info">Belum ada data tempat di sekitar sini. Coba pilih daerah lain atau buka Google Maps.</div>';return;}
+  isi.innerHTML=top;var ul=document.createElement('ul');
+  arr.forEach(function(x){var li=document.createElement('li'),al=alamat(x.t),ex=[];
+   if(j==='hotel'){if(x.t.stars)ex.push('Bintang '+x.t.stars);var tp={guest_house:'Penginapan',hostel:'Hostel',motel:'Motel',hotel:'Hotel'}[x.t.tourism];if(tp)ex.push(tp);}
+   if(j==='kuliner'&&x.t.cuisine)ex.push(String(x.t.cuisine).replace(/;/g,', ').replace(/_/g,' '));
+   if(x.t.opening_hours)ex.push('Buka: '+x.t.opening_hours);
+   li.innerHTML='<b>'+esc(x.n)+'</b><div class="sk-meta"><span class="sk-jarak">'+fmt(x.km)+'</span>'+(ex.length?' · '+esc(ex.join(' · ')):'')+'</div>'+(al?'<div class="sk-meta">'+esc(al)+'</div>':'')+'<a href="'+gmLink(x.n,x.la,x.lo)+'" target="_blank" rel="noopener">'+(j==='hotel'?'Cek harga &amp; rating':'Lihat di Google Maps')+'</a>';
+   ul.appendChild(li);});
+  isi.appendChild(ul);
+ }
+ function muat(){
+  var isi=$('skIsi');if(!isi)return;var j=jenis;
+  var pk=$('blPilih'),kota=pk?pk.value:'Garut';
+  var tahap=sumber==='gps'&&pos?Promise.resolve(pos):geokode(kota).then(function(o){return {lat:o.lat,lon:o.lon,nama:kota};});
+  isi.innerHTML='<div class="sk-info">Mencari '+JENIS[j].nama.replace(/^\S+\s/,'').toLowerCase()+' terdekat…</div>';
+  tahap.then(function(p){
+   $('skNama').textContent=p.nama;
+   var ck='bi_sek_'+j+'_'+p.lat.toFixed(3)+'_'+p.lon.toFixed(3);
+   try{var c=JSON.parse(ls(ck)||'null');if(c&&Date.now()-c.t<6*3600e3){if(j===jenis)gambar(j,p,c.e);return;}}catch(e){}
+   return overpass(j,p).then(function(r){var e=(r.elements||[]).slice(0,80);ls(ck,JSON.stringify({t:Date.now(),e:e}));if(j===jenis)gambar(j,p,e);});
+  }).catch(function(){if(j===jenis)isi.innerHTML='<div class="sk-info">Data belum dapat dimuat. <a href="'+'https://www.google.com/maps/search/'+encodeURIComponent(JENIS[j].gm+' '+kota)+'" target="_blank" rel="noopener">Cari '+esc(JENIS[j].nama.replace(/^\S+\s/,''))+' di Google Maps</a></div>';});
+ }
+ function mulai(){var n=0,t=setInterval(function(){if(buat()!==false||++n>20)clearInterval(t);},300);}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mulai);else mulai();
+})();
+</script>
+<style>
 #ziarah .zr-tab{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 12px}
 #ziarah .zr-tab button{border:1px solid var(--navy2);background:#fff;color:var(--navy);border-radius:999px;padding:9px 16px;font-weight:700;cursor:pointer;font-size:14px}
 #ziarah .zr-tab button.on{background:var(--navy);color:#fff}
