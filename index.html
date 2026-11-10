@@ -4931,12 +4931,13 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   if($('beritaLokal'))return;
   var ref=$('unduhApp')||$('sorotan');if(!ref||!ref.parentNode)return;
   var d=document.createElement('div');d.className='panel';d.id='beritaLokal';
-  d.innerHTML='<h3>📰 Berita <span id="blKota"></span> Hari Ini</h3><div class="bl-info" style="padding:0">Tayangan berita menyesuaikan daerah Anda.</div><div class="bl-atas"><select id="blPilih" aria-label="Pilih daerah"></select><button class="bl-btn" type="button" id="blLokasi">📍 Pakai lokasi saya</button><button class="bl-btn" type="button" id="blMuat">↻ Muat ulang</button></div><div id="blIsi"><div class="bl-info">Memuat berita…</div></div><div class="bl-foot">Sumber: Google Berita. Isi berita sepenuhnya milik penerbit masing-masing.</div>';
+  d.innerHTML='<h3>📰 Berita <span id="blKota"></span> Hari Ini</h3><div class="bl-info" style="padding:0">Mengutamakan berita inspiratif seputar agama dan ekonomi umat, sesuai daerah Anda.</div><div class="bl-atas"><select id="blPilih" aria-label="Pilih daerah"></select><select id="blMode" aria-label="Jenis berita"><option value="ins">✨ Inspiratif: agama &amp; ekonomi</option><option value="semua">📰 Semua berita</option></select><button class="bl-btn" type="button" id="blLokasi">📍 Pakai lokasi saya</button><button class="bl-btn" type="button" id="blMuat">↻ Muat ulang</button></div><div id="blIsi"><div class="bl-info">Memuat berita…</div></div><div class="bl-foot">Sumber: Google Berita (pilihan inspiratif disaring dari kata kunci agama dan ekonomi umat). Isi berita sepenuhnya milik penerbit masing-masing.</div>';
   ref.parentNode.insertBefore(d,ref.nextSibling);
   var sel=$('blPilih');KOTA.forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=k;sel.appendChild(o);});
   var awal=ls(KEY)||'Garut';tambah(awal);sel.value=awal;
   sel.addEventListener('change',function(){ls(KEY,sel.value);muat(false);});
   $('blMuat').addEventListener('click',function(){muat(true);});
+  var bm=$('blMode');bm.value=ls('bi_berita_mode')||'ins';bm.addEventListener('change',function(){ls('bi_berita_mode',bm.value);muat(false);});
   $('blLokasi').addEventListener('click',lokasi);
   muat(false);
  }
@@ -4954,7 +4955,9 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
    }).catch(function(){isi.innerHTML='<div class="bl-info">Lokasi belum dapat dikenali. Pilih daerah dari daftar.</div>';});
   },function(){isi.innerHTML='<div class="bl-info">Izin lokasi ditolak. Pilih daerah dari daftar.</div>';},{timeout:10000,maximumAge:600000});
  }
- function rssUrl(k,hari){return 'https://news.google.com/rss/search?q='+encodeURIComponent('berita '+k+' when:'+hari+'d')+'&hl=id&gl=ID&ceid=ID:id';}
+ var INS='(inspiratif OR pesantren OR santri OR zakat OR sedekah OR wakaf OR UMKM OR wirausaha OR koperasi OR "ekonomi umat" OR "ekonomi syariah" OR dakwah OR ulama OR "kisah sukses")';
+ function mode(){return ($('blMode')||{}).value==='semua'?'semua':'ins';}
+ function rssUrl(k,hari,ins){return 'https://news.google.com/rss/search?q='+encodeURIComponent((ins?k+' '+INS:'berita '+k)+' when:'+hari+'d')+'&hl=id&gl=ID&ceid=ID:id';}
  function linkCari(k){return 'https://news.google.com/search?q='+encodeURIComponent('berita '+k+' hari ini')+'&hl=id&gl=ID&ceid=ID:id';}
  function waktu(t){var d=new Date(t);if(isNaN(d))return '';var m=Math.round((Date.now()-d.getTime())/60000);if(m<1)return 'baru saja';if(m<60)return m+' menit lalu';if(m<1440)return Math.round(m/60)+' jam lalu';return d.toLocaleDateString('id-ID',{day:'numeric',month:'short'});}
  function dariJson(j){return (j&&j.items||[]).map(function(i){return {judul:i.title,link:i.link,waktu:i.pubDate,sumber:i.author||''};});}
@@ -4983,12 +4986,11 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
  }
  function muat(paksa){
   var k=($('blPilih')||{}).value||'Garut';$('blKota').textContent=k;var isi=$('blIsi');
-  var ck='bi_berita_'+k;
+  var md=mode(),ck='bi_berita_'+md+'_'+k;
   if(!paksa){try{var c=JSON.parse(ls(ck)||'null');if(c&&Date.now()-c.t<TTL&&c.a&&c.a.length){gambar(k,c.a);return;}}catch(e){}}
   isi.innerHTML='<div class="bl-info">Memuat berita '+k.replace(/[<>&]/g,'')+'…</div>';
-  ambil(rssUrl(k,1)).then(function(a){return a.length>=4?a:ambil(rssUrl(k,7)).catch(function(){return a;});})
-  .catch(function(){return ambil(rssUrl(k,7));})
-  .then(function(a){ls(ck,JSON.stringify({t:Date.now(),a:a.slice(0,12)}));if(($('blPilih')||{}).value===k)gambar(k,a);})
+  (md==='ins'?ambil(rssUrl(k,14,true)).then(function(a){return a.length>=3?a:Promise.reject(new Error('sedikit'));}).catch(function(){return ambil(rssUrl(k,7));}):ambil(rssUrl(k,1)).then(function(a){return a.length>=4?a:ambil(rssUrl(k,7)).catch(function(){return a;});}).catch(function(){return ambil(rssUrl(k,7));}))
+  .then(function(a){ls(ck,JSON.stringify({t:Date.now(),a:a.slice(0,12)}));if(($('blPilih')||{}).value===k&&mode()===md)gambar(k,a);})
   .catch(function(){if(($('blPilih')||{}).value===k)isi.innerHTML='<div class="bl-info">Berita belum dapat dimuat (periksa sambungan internet). <a href="'+linkCari(k)+'" target="_blank" rel="noopener">Buka berita '+k.replace(/[<>&]/g,'')+' di Google Berita</a></div>';});
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',buat);else buat();
