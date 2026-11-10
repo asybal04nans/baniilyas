@@ -4931,7 +4931,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   if($('beritaLokal'))return;
   var ref=$('unduhApp')||$('sorotan');if(!ref||!ref.parentNode)return;
   var d=document.createElement('div');d.className='panel';d.id='beritaLokal';
-  d.innerHTML='<h3>📰 Berita <span id="blKota"></span> Hari Ini</h3><div class="bl-info" style="padding:0">Mengutamakan berita inspiratif seputar agama, ekonomi umat, dan kuliner viral yang murah meriah, sesuai daerah Anda.</div><div class="bl-atas"><select id="blPilih" aria-label="Pilih daerah"></select><select id="blMode" aria-label="Jenis berita"><option value="ins">✨ Inspiratif: agama, ekonomi &amp; kuliner</option><option value="kul">🍜 Kuliner viral, murah &amp; meriah</option><option value="semua">📰 Semua berita</option></select><button class="bl-btn" type="button" id="blLokasi">📍 Pakai lokasi saya</button><button class="bl-btn" type="button" id="blMuat">↻ Muat ulang</button></div><div id="blIsi"><div class="bl-info">Memuat berita…</div></div><div class="bl-foot">Sumber: Google Berita (pilihan disaring dari kata kunci agama, ekonomi umat, dan kuliner). Isi berita sepenuhnya milik penerbit masing-masing.</div>';
+  d.innerHTML='<h3>📰 Berita <span id="blKota"></span> Hari Ini</h3><div class="bl-info" style="padding:0">Pilih tema: inspiratif agama &amp; ekonomi umat, atau kuliner viral murah meriah, sesuai daerah Anda.</div><div class="bl-atas"><select id="blPilih" aria-label="Pilih daerah"></select><select id="blMode" aria-label="Jenis berita"><option value="ins">✨ Inspiratif: agama &amp; ekonomi umat</option><option value="kul">🍜 Kuliner viral, murah &amp; meriah</option><option value="semua">📰 Semua berita</option></select><button class="bl-btn" type="button" id="blLokasi">📍 Pakai lokasi saya</button><button class="bl-btn" type="button" id="blMuat">↻ Muat ulang</button></div><div id="blIsi"><div class="bl-info">Memuat berita…</div></div><div class="bl-foot">Sumber: Google Berita (disaring sesuai tema yang dipilih). Isi berita sepenuhnya milik penerbit masing-masing.</div>';
   ref.parentNode.insertBefore(d,ref.nextSibling);
   var sel=$('blPilih');KOTA.forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=k;sel.appendChild(o);});
   var awal=ls(KEY)||'Garut';tambah(awal);sel.value=awal;
@@ -4958,14 +4958,16 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
  var INS='(inspiratif OR pesantren OR santri OR zakat OR sedekah OR wakaf OR UMKM OR wirausaha OR koperasi OR "ekonomi umat" OR "ekonomi syariah" OR dakwah OR ulama OR "kisah sukses" OR "kuliner viral" OR "kuliner murah" OR "murah meriah")';
  var KUL='("kuliner viral" OR "kuliner murah" OR "murah meriah" OR "wisata kuliner" OR "makanan viral" OR "jajanan viral")';
 
- var KULRE=/kuliner|makan|warung|kedai|resto|cafe|kafe|jajan|bakso|soto|sate|\bnasi\b|\bmie\b|mi ayam|seblak|cendol|oleh-oleh|murah meriah|\bmenu\b|hidangan|bubur|lontong|dodol|angkringan|pecel|gorengan|\bkopi\b|\bes (teh|campur|cendol|doger)/i;
- var INSRE=/inspirat|pesantren|santri|ponpes|zakat|sedekah|wakaf|umkm|wirausaha|pengusaha|koperasi|ekonomi|dakwah|ulama|kiai|kyai|ustaz|ustadz|masjid|sukses|berkah|bisnis|petani|ramadan|maulid|haji|umrah|ngaji|majelis/i;
+ var KULRE=/kuliner|warung|kedai|rumah makan|resto|restoran|jajanan|bakso|soto|sate\b|seblak|cendol|oleh-oleh|murah meriah|angkringan|pecel|nasi (liwet|timbel|goreng|uduk|kuning|bakar)|mie (ayam|kocok)|\bmi (ayam|kocok)|bubur|lontong|dodol|surabi|colenak|batagor|baso|cilok|cireng|kopi|makanan (viral|khas|legendaris)|menu (murah|viral)|wisata kuliner/i;
+ var INSRE=/inspirasi|inspiratif|pesantren|santri|ponpes|zakat|sedekah|infak|wakaf|umkm|wirausaha|pengusaha muda|koperasi|ekonomi (umat|syariah|pesantren|kerakyatan|keluarga)|dakwah|ulama|\bkiai\b|\bkyai\b|ustaz|ustadz|masjid|kisah sukses|pemberdayaan|berdaya|mandiri|majelis taklim|pengajian|ngaji/i;
+ var NEG=/tewas|meninggal|korban|ditangkap|diamankan|polisi|polres|polsek|pembunuhan|narkoba|cabul|pencabulan|pelecehan|kecelakaan|banjir|longsor|gempa|korupsi|tersangka|ditahan|dipenjara|kebakaran|keracunan|tawuran|senjata tajam|begal|curanmor|pencurian|penipuan|hoaks|demo\b|kasus/i;
  function qUrl(q,hari){return 'https://news.google.com/rss/search?q='+encodeURIComponent(q+' when:'+hari+'d')+'&hl=id&gl=ID&ceid=ID:id';}
  function ambilTema(k,md){
-  var qs=md==='kul'?['kuliner viral '+k,'kuliner murah '+k,'wisata kuliner '+k]:['pesantren '+k,'inspiratif ekonomi umat '+k,'zakat wakaf UMKM '+k,'kisah sukses '+k];
-  var re=md==='kul'?KULRE:new RegExp(INSRE.source+'|'+KULRE.source,'i');
+  var K='"'+k+'"';
+  var qs=md==='kul'?[K+' kuliner viral',K+' kuliner murah meriah',K+' wisata kuliner']:[K+' pesantren',K+' ekonomi umat zakat wakaf',K+' UMKM wirausaha inspiratif',K+' kisah sukses ulama dakwah'];
+  var re=md==='kul'?KULRE:INSRE;
   return Promise.all(qs.map(function(q){return ambil(qUrl(q,30)).catch(function(){return [];});})).then(function(ls2){
-   var seen={},out=[];ls2.forEach(function(arr){arr.forEach(function(b){var j=String(b.judul||'');if(!re.test(j)||seen[j])return;seen[j]=1;out.push(b);});});
+   var seen={},out=[];ls2.forEach(function(arr){arr.forEach(function(b){var j=String(b.judul||'');if(!re.test(j)||NEG.test(j)||seen[j])return;seen[j]=1;out.push(b);});});
    out.sort(function(x,y){return new Date(y.waktu)-new Date(x.waktu);});
    return out;
   });
@@ -5005,7 +5007,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
  }
  function muat(paksa){
   var k=($('blPilih')||{}).value||'Garut';$('blKota').textContent=k;var isi=$('blIsi');
-  var md=mode(),ck='bi_berita3_'+md+'_'+k;
+  var md=mode(),ck='bi_berita4_'+md+'_'+k;
   if(!paksa){try{var c=JSON.parse(ls(ck)||'null');if(c&&Date.now()-c.t<TTL&&c.a&&c.a.length){gambar(k,c.a);return;}}catch(e){}}
   isi.innerHTML='<div class="bl-info">Memuat berita '+k.replace(/[<>&]/g,'')+'…</div>';
   (md!=='semua'?ambilTema(k,md):ambil(rssUrl(k,1)).then(function(a){return a.length>=4?a:ambil(rssUrl(k,7)).catch(function(){return a;});}).catch(function(){return ambil(rssUrl(k,7));}))
