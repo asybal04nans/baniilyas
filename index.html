@@ -484,6 +484,7 @@ main {
    <button data-page="add">Tambah Data Kulawarga</button>
    <button data-page="archive">Arsip Foto & Dokumen</button>
    <button data-page="pesantren">Pesantren ti Keturunan Bani Ilyas</button>
+   <button data-page="ziarah">Ziarah &amp; Pesantren se-Jawa</button>
    <button data-page="umkm">UMKM Kulawarga</button>
    <button data-page="library">Perpustakaan Digital</button>
    <button data-page="calendar">Kalender Bani Ilyas</button>
@@ -903,6 +904,8 @@ main {
   <button id="saveArchive" type="button"></button><div id="archiveMessage" class="result"></div><span id="archiveCount"></span><div id="archiveList"></div>
  </div>
 </section>
+
+<section id="ziarah" class="hidden"></section>
 
 <section id="pesantren" class="hidden">
  <div class="hero">
@@ -1505,7 +1508,7 @@ window.PancakakiDownloadGate = {
 <footer>Arsip Digital Kulawarga Bani Ilyas · Limbangan, Garut · Rarancang awal pikeun dimekarkeun babarengan ku kulawarga</footer>
 <script>
 const navButtons=document.querySelectorAll('nav button');
-const pageIds=['home','profil','add','archive','pesantren','umkm','library','calendar','donasi','haul','guide','nasab','kartu','chat','artikel','tautan','hubungan','waris','zis','surat','verifikasi'];
+const pageIds=['home','profil','add','archive','pesantren','ziarah','umkm','library','calendar','donasi','haul','guide','nasab','kartu','chat','artikel','tautan','hubungan','waris','zis','surat','verifikasi'];
 let __dariRiwayat=false;
 const __halAwal=(document.querySelector('nav button.active')||navButtons[0]||{dataset:{}}).dataset.page||'home';
 try{history.replaceState({p:__halAwal},'');}catch(e){}
@@ -4989,6 +4992,111 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   .catch(function(){if(($('blPilih')||{}).value===k)isi.innerHTML='<div class="bl-info">Berita belum dapat dimuat (periksa sambungan internet). <a href="'+linkCari(k)+'" target="_blank" rel="noopener">Buka berita '+k.replace(/[<>&]/g,'')+' di Google Berita</a></div>';});
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',buat);else buat();
+})();
+</script>
+<style>
+#ziarah .zr-tab{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 12px}
+#ziarah .zr-tab button{border:1px solid var(--navy2);background:#fff;color:var(--navy);border-radius:999px;padding:9px 16px;font-weight:700;cursor:pointer;font-size:14px}
+#ziarah .zr-tab button.on{background:var(--navy);color:#fff}
+#ziarah .zr-filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+#ziarah .zr-filter input{flex:2;min-width:180px}#ziarah .zr-filter select{flex:1;min-width:150px}
+#ziarah .zr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+#ziarah .zr-k{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff;display:flex;flex-direction:column;gap:5px}
+#ziarah .zr-k h4{margin:0;color:var(--navy);font-size:15px;line-height:1.3}
+#ziarah .zr-k .lok{font-size:12.5px;color:var(--green);font-weight:700}
+#ziarah .zr-k p{margin:0;font-size:13px;color:var(--ink);line-height:1.5;flex:1}
+#ziarah .zr-k a{align-self:flex-start;margin-top:4px;font-size:12.5px;font-weight:700;color:var(--navy2);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+#ziarah .zr-k a:hover{background:#eef3fa}
+#ziarah .zr-adab{background:#faf6ea;border:1px solid #eadfba;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.6;margin-bottom:12px}
+#ziarah .zr-kosong{padding:20px;text-align:center;color:var(--muted)}
+</style>
+<script>
+(function(){
+ var Z=[
+ ['Makam Sunan Gunung Jati','Cirebon','Jawa Barat','Wali Songo','Syarif Hidayatullah, penyebar Islam di tanah Pasundan dan pendiri Kesultanan Cirebon. Kompleks pemakaman di Astana Gunung Sembung.'],
+ ['Makam Syekh Datuk Kahfi','Cirebon','Jawa Barat','Ulama & tokoh','Guru awal Syarif Hidayatullah, di kawasan Gunung Jati, Cirebon.'],
+ ['Makam Syekh Nurjati','Cirebon','Jawa Barat','Ulama & tokoh','Ulama penyebar Islam awal di Cirebon, makamnya di bukit Amparan Jati.'],
+ ['Makam Prabu Kian Santang','Garut','Jawa Barat','Tokoh sejarah','Dikenal di Godog, Kecamatan Karangpawitan, Garut sebagai tokoh penyebar Islam di tanah Sunda.'],
+ ['Situ Lengkong & Makam Panjalu','Ciamis','Jawa Barat','Tokoh sejarah','Peziarahan Prabu Borosngora (Panjalu) di tepi Situ Lengkong, Panjalu.'],
+ ['Makam Syekh Abdul Muhyi Pamijahan','Tasikmalaya','Jawa Barat','Ulama & tokoh','Ulama besar Tarekat Syattariyah di Pamijahan, Bantarkalong; terkenal dengan Goa Pamijahan.'],
+ ['Makam Eyang Dalem Cikundul','Cianjur','Jawa Barat','Ulama & tokoh','Raden Aria Wiratanudatar, bupati pertama Cianjur, di Cikundul, Cikalongkulon.'],
+ ['Makam Syekh Quro (Pulo Bata)','Karawang','Jawa Barat','Ulama & tokoh','Syekh Hasanuddin (Quro), ulama penyebar Islam awal yang mendirikan pesantren di Karawang; makam di Lemahabang.'],
+ ['Makam Habib Husein bin Abu Bakar Alaydrus (Luar Batang)','Jakarta Utara','DKI Jakarta','Ulama & tokoh','Ulama dari Hadramaut yang berdakwah di Batavia; makam di Masjid Luar Batang, Penjaringan.'],
+ ['Makam Pangeran Jayakarta','Jakarta Timur','DKI Jakarta','Tokoh sejarah','Tokoh pejuang Jayakarta, di kawasan Jatinegara Kaum, Pulogadung.'],
+ ['Makam Sultan Maulana Hasanuddin (Banten Lama)','Serang','Banten','Tokoh sejarah','Sultan pertama Banten, di kompleks Masjid Agung Banten Lama.'],
+ ['Makam Sunan Kalijaga (Kadilangu)','Demak','Jawa Tengah','Wali Songo','Raden Said, wali yang berdakwah lewat seni dan budaya, makam di Kadilangu.'],
+ ['Masjid Agung & Makam Raden Fatah (Demak)','Demak','Jawa Tengah','Tokoh sejarah','Masjid Agung Demak, masjid tertua di Jawa, dan makam raja-raja Demak di sekitarnya.'],
+ ['Makam Sunan Kudus','Kudus','Jawa Tengah','Wali Songo','Raden Ja\'far Shadiq, di kompleks Masjid Menara Kudus.'],
+ ['Makam Sunan Muria','Kudus','Jawa Tengah','Wali Songo','Raden Umar Said, di puncak Gunung Muria, Colo.'],
+ ['Makam Sunan Pandanaran (Tembayat)','Klaten','Jawa Tengah','Ulama & tokoh','Ki Ageng Pandanaran, penyebar Islam di Bayat, Klaten.'],
+ ['Makam KH. Sholeh Darat','Semarang','Jawa Tengah','Ulama & tokoh','Ulama besar guru KH. Hasyim Asy\'ari dan KH. Ahmad Dahlan, di Bergota, Semarang.'],
+ ['Makam Raja-Raja Mataram (Imogiri)','Bantul','DI Yogyakarta','Tokoh sejarah','Pemakaman raja-raja Mataram Islam dan keluarga keraton, di Imogiri.'],
+ ['Makam KH. Ahmad Dahlan','Yogyakarta','DI Yogyakarta','Ulama & tokoh','Pendiri Muhammadiyah, dimakamkan di Karangkajen.'],
+ ['Makam Syekh Maulana Malik Ibrahim','Gresik','Jawa Timur','Wali Songo','Wali Songo tertua, penyebar Islam awal di Jawa, di Kelurahan Gapurosukolilo.'],
+ ['Makam Sunan Giri','Gresik','Jawa Timur','Wali Songo','Raden Paku, pendiri Giri Kedaton dan pusat pendidikan Islam, di Bukit Giri.'],
+ ['Makam Sunan Ampel','Surabaya','Jawa Timur','Wali Songo','Raden Rahmat, guru para wali, di samping Masjid Sunan Ampel, Kampung Ampel.'],
+ ['Makam Sunan Bonang','Tuban','Jawa Timur','Wali Songo','Raden Makhdum Ibrahim, wali yang berdakwah lewat gamelan dan tembang, di Tuban.'],
+ ['Makam Sunan Drajat','Lamongan','Jawa Timur','Wali Songo','Raden Qasim, wali yang menekankan kepedulian sosial, di Paciran.'],
+ ['Makam Syekh Jumadil Kubro (Trowulan)','Mojokerto','Jawa Timur','Ulama & tokoh','Ulama penyebar Islam awal, di kawasan Trowulan; sekitar situ juga ada makam kuno Troloyo.'],
+ ['Makam KH. Hasyim Asy\'ari & Gus Dur (Tebuireng)','Jombang','Jawa Timur','Ulama & tokoh','Pendiri Nahdlatul Ulama dan KH. Abdurrahman Wahid, di kompleks Pesantren Tebuireng.'],
+ ['Makam Kyai Hasan Besari (Tegalsari)','Ponorogo','Jawa Timur','Ulama & tokoh','Ulama pendiri Pesantren Tegalsari, Jetis, salah satu pesantren tertua di Jawa.']
+ ];
+ var P=[
+ ['Pesantren Suryalaya','Tasikmalaya','Jawa Barat','Pesantren tarekat (Qadiriyah Naqsyabandiyah) di Pagerageung.'],
+ ['Pesantren Cipasung','Tasikmalaya','Jawa Barat','Pesantren besar di Singaparna yang dikenal sebagai pusat pendidikan Islam di Priangan Timur.'],
+ ['Pesantren Miftahul Huda','Tasikmalaya','Jawa Barat','Pesantren di Manonjaya, Tasikmalaya.'],
+ ['Pesantren Cipari','Garut','Jawa Barat','Pesantren bersejarah di Wanaraja, Garut.'],
+ ['Pesantren Al-Musaddadiyah','Garut','Jawa Barat','Pesantren dan lembaga pendidikan Islam di Garut Kota.'],
+ ['Pesantren Darussalam','Ciamis','Jawa Barat','Pesantren modern di Rancapaku, Ciamis.'],
+ ['Pesantren Al-Ittifaq','Bandung','Jawa Barat','Pesantren di Ciwidey yang dikenal dengan kemandirian ekonomi pertanian.'],
+ ['Pesantren Gentur','Cianjur','Jawa Barat','Pesantren di Warungkondang, Cianjur.'],
+ ['Pesantren Buntet','Cirebon','Jawa Barat','Salah satu pesantren tertua di Cirebon, di Astanajapura.'],
+ ['Pesantren Babakan Ciwaringin','Cirebon','Jawa Barat','Pesantren salaf besar di Ciwaringin, Cirebon.'],
+ ['Pesantren Kempek','Cirebon','Jawa Barat','Pesantren di Palimanan, Cirebon.'],
+ ['Pesantren Al-Zaytun','Indramayu','Jawa Barat','Kompleks pendidikan terpadu di Gantar, Indramayu.'],
+ ['Pesantren Daar El-Qolam','Tangerang','Banten','Pesantren modern di Jayanti, Tangerang.'],
+ ['Pesantren Al-Khairiyah','Cilegon','Banten','Pesantren dan lembaga pendidikan di Citangkil, Cilegon.'],
+ ['Pesantren Al-Anwar (Sarang)','Rembang','Jawa Tengah','Pesantren salaf di Sarang, Rembang, dikenal kajian kitab kuningnya.'],
+ ['Pesantren Maslakul Huda (Kajen)','Pati','Jawa Tengah','Salah satu pesantren di kawasan Kajen, Margoyoso, Pati.'],
+ ['Pesantren Futuhiyyah (Mranggen)','Demak','Jawa Tengah','Pesantren salaf di Mranggen, Demak.'],
+ ['Pesantren API Tegalrejo','Magelang','Jawa Tengah','Pesantren Asrama Pendidikan Islam di Tegalrejo, Magelang.'],
+ ['Pesantren Al-Asy\'ariyyah (Kalibeber)','Wonosobo','Jawa Tengah','Pesantren di Kalibeber, Mojotengah, Wonosobo.'],
+ ['Pesantren APIK Kaliwungu','Kendal','Jawa Tengah','Pesantren di Kaliwungu, Kendal, kota santri di pantai utara.'],
+ ['Pesantren Al-Munawwir (Krapyak)','Bantul','DI Yogyakarta','Pesantren Al-Qur\'an terkenal di Krapyak, Yogyakarta.'],
+ ['Pesantren Tebuireng','Jombang','Jawa Timur','Didirikan KH. Hasyim Asy\'ari pada 1899.'],
+ ['Pesantren Bahrul Ulum (Tambakberas)','Jombang','Jawa Timur','Pesantren besar di Tambakberas, Jombang.'],
+ ['Pesantren Mambaul Ma\'arif (Denanyar)','Jombang','Jawa Timur','Pesantren di Denanyar, Jombang.'],
+ ['Pesantren Lirboyo','Kediri','Jawa Timur','Pesantren salaf terbesar di Kediri, berdiri 1910.'],
+ ['Pesantren Al-Falah (Ploso)','Kediri','Jawa Timur','Pesantren salaf di Mojo, Kediri.'],
+ ['Pesantren Darussalam Gontor','Ponorogo','Jawa Timur','Pesantren modern terkenal di Ponorogo (sistem Kulliyatul Mu\'allimin).'],
+ ['Pesantren Sidogiri','Pasuruan','Jawa Timur','Pesantren salaf besar di Kraton, Pasuruan, berdiri sekitar abad ke-18.'],
+ ['Pesantren Langitan','Tuban','Jawa Timur','Pesantren salaf di Widang, Tuban.'],
+ ['Pesantren Termas','Pacitan','Jawa Timur','Pesantren di Arjosari, Pacitan, dikenal dengan tradisi keilmuan kitab.'],
+ ['Pesantren Sukorejo (Salafiyah Syafi\'iyah)','Situbondo','Jawa Timur','Pesantren besar di Banyuputih, Situbondo.'],
+ ['Pesantren Zainul Hasan (Genggong)','Probolinggo','Jawa Timur','Pesantren di Pajarakan, Probolinggo, dikenal dengan keilmuan Al-Qur\'an.']
+ ];
+ var tab='ziarah';
+ function $(i){return document.getElementById(i);}
+ function esc(t){return String(t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+ function maps(n,k,p){return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(n+' '+k+' '+p);}
+ function norm(t){return String(t).toLowerCase();}
+ function sel(){var data=tab==='ziarah'?Z:P,prov={};data.forEach(function(d){prov[d[2]]=1;});var s=$('zrProv'),cur=s.value;s.innerHTML='<option value="">Semua provinsi</option>'+Object.keys(prov).sort().map(function(p){return '<option>'+esc(p)+'</option>';}).join('');s.value=prov[cur]?cur:'';}
+ function gambar(){
+  var data=tab==='ziarah'?Z:P,q=norm($('zrCari').value),pv=$('zrProv').value;
+  var out=data.filter(function(d){return (!pv||d[2]===pv)&&(!q||norm(d.join(' ')).indexOf(q)>=0);});
+  $('zrHitung').textContent=out.length+' tempat';
+  $('zrIsi').innerHTML=out.length?out.map(function(d){var cat=tab==='ziarah'?d[3]:'Pesantren',ket=tab==='ziarah'?d[4]:d[3];
+   return '<div class="zr-k"><h4>'+esc(d[0])+'</h4><div class="lok">'+esc(d[1])+', '+esc(d[2])+' · '+esc(cat)+'</div><p>'+esc(ket)+'</p><a href="'+maps(d[0],d[1],d[2])+'" target="_blank" rel="noopener">📍 Lihat di Peta</a></div>';}).join(''):'<div class="zr-kosong">Tidak ada yang cocok dengan pencarian.</div>';
+ }
+ window.__ziarahInit=function(){sel();gambar();};
+ function init(){
+  var s=$('ziarah');if(!s||s.dataset.siap)return;s.dataset.siap='1';
+  s.innerHTML='<div class="hero"><div><h2>Ziarah &amp; Pesantren se-Jawa</h2><p>Daftar makam wali dan ulama tempat berziarah, serta pesantren-pesantren besar di Pulau Jawa. Cocok untuk merencanakan silaturahmi dan ziarah keluarga.</p></div><span class="pill">WISATA RELIGI</span></div><div class="panel"><div class="zr-tab"><button class="on" data-t="ziarah">🕌 Wisata Ziarah ('+Z.length+')</button><button data-t="pesantren">📚 Pesantren se-Jawa ('+P.length+')</button></div><div class="zr-adab" id="zrAdab"><b>Adab singkat berziarah:</b> niat karena Allah, ucapkan salam kepada ahli kubur, bacakan Al-Fatihah, Yasin, tahlil, dan doa untuk beliau, jaga kesopanan dan kebersihan, serta tidak menimbulkan keramaian yang mengganggu warga sekitar.</div><div class="zr-filter"><input id="zrCari" type="search" placeholder="Cari nama atau kota…"><select id="zrProv"></select></div><div class="bl-info" id="zrHitung" style="padding:0 0 8px;font-size:13px;color:var(--muted)"></div><div class="zr-grid" id="zrIsi"></div><div class="bl-foot" style="font-size:11px;color:var(--muted);margin-top:12px">Daftar ini ringkas dan terus dilengkapi; belum mencakup seluruh makam dan pesantren di Jawa. Periksa jam kunjung dan aturan setempat sebelum berangkat. Ketuk "Lihat di Peta" untuk rute.</div></div>';
+  s.querySelectorAll('.zr-tab button').forEach(function(b){b.addEventListener('click',function(){tab=b.dataset.t;s.querySelectorAll('.zr-tab button').forEach(function(x){x.classList.toggle('on',x===b);});$('zrAdab').style.display=tab==='ziarah'?'':'none';sel();gambar();});});
+  $('zrCari').addEventListener('input',gambar);$('zrProv').addEventListener('change',gambar);
+  sel();gambar();
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
 </script>
 </body>
