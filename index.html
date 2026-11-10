@@ -5013,6 +5013,17 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
 <script>
 (function(){
  var Z=[
+ ['Makam Sunan Rumenggong (Gunung Poronggol)','Garut','Jawa Barat','Ulama & tokoh','Dikenal di kalangan ulama Limbangan sebagai Prabu Jaya Kusumah (Raden Muhammad), ulama sekaligus penguasa; makam di Kampung Buniwangi, Desa Ciwangi, Kecamatan Limbangan.'],
+ ['Makam KH. Anwar Musaddad','Garut','Jawa Barat','Ulama & tokoh','Ulama Garut, mantan Wakil Rais Aam PBNU.'],
+ ['Makam perintis NU Garut (Mu\'allim Sopyan Munawar, KH. Ma\'mun, KH. Sulaeman Apip)','Garut','Jawa Barat','Ulama & tokoh','Para perintis dan pengurus awal NU di Garut yang diziarahi pada peringatan harlah NU; titik makam masing-masing belum dirinci.'],
+ ['Makam KH. Ruhiat (Pendiri Pesantren Cipasung)','Tasikmalaya','Jawa Barat','Ulama & tokoh','Di dalam masjid kompleks Pesantren Cipasung, Desa Cipakat, Singaparna (1917–1977).'],
+ ['Makam KH. Moh. Ilyas Ruhiat & KH. Dudung Abdul Halim','Tasikmalaya','Jawa Barat','Ulama & tokoh','Di pemakaman masyayikh dan dzuriyah, belakang Pesantren Cipasung, Singaparna. KH. Ilyas Ruhiat adalah Rais Aam PBNU 1992–1999.'],
+ ['Makam KH. Zainal Musthafa (Sukamanah)','Tasikmalaya','Jawa Barat','Ulama & tokoh','Pahlawan Nasional pemimpin perlawanan Sukamanah 1944; dimakamkan kembali di Sukamanah pada 1974.'],
+ ['Pasarean Gede: Makam Pangeran Santri','Sumedang','Jawa Barat','Ulama & tokoh','Pangeran Santri (Pangeran Kusumadinata I), tokoh penyebar Islam di Sumedang; situs cagar budaya Sumedang.'],
+ ['Makam Cut Nyak Dhien (Gunung Puyuh)','Sumedang','Jawa Barat','Tokoh sejarah','Pahlawan Nasional dari Aceh yang wafat dalam pengasingan di Sumedang pada 1908; ia dikenal juga sebagai sosok yang taat beragama.'],
+ ['Makam Prabu Geusan Ulun (Dayeuh Luhur)','Sumedang','Jawa Barat','Tokoh sejarah','Penguasa Sumedang Larang, putra Pangeran Santri; makam di kawasan Dayeuh Luhur.'],
+ ['Makam R.A. Wiranatakusumah II (pendiri Kota Bandung)','Kota Bandung','Jawa Barat','Tokoh sejarah','Bupati Bandung 1794–1829 yang memindahkan pusat kota ke tepi Cikapundung; makam di belakang Masjid Dalem Kaum, Balonggede.'],
+ ['Makam Habib Keling (Habib Umar)','Indramayu','Jawa Barat','Ulama & tokoh','Tokoh saleh yang menetap di pesisir Indramayu; makamnya diziarahi warga.'],
  ['Makam Sunan Gunung Jati','Cirebon','Jawa Barat','Wali Songo','Syarif Hidayatullah, penyebar Islam di tanah Pasundan dan pendiri Kesultanan Cirebon. Kompleks pemakaman di Astana Gunung Sembung.'],
  ['Makam Syekh Datuk Kahfi','Cirebon','Jawa Barat','Ulama & tokoh','Guru awal Syarif Hidayatullah, di kawasan Gunung Jati, Cirebon.'],
  ['Makam Syekh Nurjati','Cirebon','Jawa Barat','Ulama & tokoh','Ulama penyebar Islam awal di Cirebon, makamnya di bukit Amparan Jati.'],
@@ -5080,10 +5091,10 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
  function esc(t){return String(t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
  function maps(n,k,p){return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(n+' '+k+' '+p);}
  function norm(t){return String(t).toLowerCase();}
- function sel(){var data=tab==='ziarah'?Z:P,prov={};data.forEach(function(d){prov[d[2]]=1;});var s=$('zrProv'),cur=s.value;s.innerHTML='<option value="">Semua provinsi</option>'+Object.keys(prov).sort().map(function(p){return '<option>'+esc(p)+'</option>';}).join('');s.value=prov[cur]?cur:'';}
+ function sel(){var data=tab==='ziarah'?Z:P,prov={};data.forEach(function(d){prov[d[2]]=1;});var s=$('zrProv'),cur=s.value;s.innerHTML='<option value="">Semua provinsi</option>'+Object.keys(prov).sort().map(function(p){return '<option>'+esc(p)+'</option>';}).join('');s.value=prov[cur]?cur:'';var kt={};if(tab==='ziarah')Z.forEach(function(d){kt[d[3]]=1;});var k=$('zrKat');k.style.display=tab==='ziarah'?'':'none';k.innerHTML='<option value="">Semua jenis</option>'+Object.keys(kt).sort().map(function(x){return '<option>'+esc(x)+'</option>';}).join('');}
  function gambar(){
   var data=tab==='ziarah'?Z:P,q=norm($('zrCari').value),pv=$('zrProv').value;
-  var out=data.filter(function(d){return (!pv||d[2]===pv)&&(!q||norm(d.join(' ')).indexOf(q)>=0);});
+  var kk=tab==='ziarah'?$('zrKat').value:'';var out=data.filter(function(d){return (!pv||d[2]===pv)&&(!kk||d[3]===kk)&&(!q||norm(d.join(' ')).indexOf(q)>=0);});
   $('zrHitung').textContent=out.length+' tempat';
   $('zrIsi').innerHTML=out.length?out.map(function(d){var cat=tab==='ziarah'?d[3]:'Pesantren',ket=tab==='ziarah'?d[4]:d[3];
    return '<div class="zr-k"><h4>'+esc(d[0])+'</h4><div class="lok">'+esc(d[1])+', '+esc(d[2])+' · '+esc(cat)+'</div><p>'+esc(ket)+'</p><a href="'+maps(d[0],d[1],d[2])+'" target="_blank" rel="noopener">📍 Lihat di Peta</a></div>';}).join(''):'<div class="zr-kosong">Tidak ada yang cocok dengan pencarian.</div>';
@@ -5091,9 +5102,9 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
  window.__ziarahInit=function(){sel();gambar();};
  function init(){
   var s=$('ziarah');if(!s||s.dataset.siap)return;s.dataset.siap='1';
-  s.innerHTML='<div class="hero"><div><h2>Ziarah &amp; Pesantren se-Jawa</h2><p>Daftar makam wali dan ulama tempat berziarah, serta pesantren-pesantren besar di Pulau Jawa. Cocok untuk merencanakan silaturahmi dan ziarah keluarga.</p></div><span class="pill">WISATA RELIGI</span></div><div class="panel"><div class="zr-tab"><button class="on" data-t="ziarah">🕌 Wisata Ziarah ('+Z.length+')</button><button data-t="pesantren">📚 Pesantren se-Jawa ('+P.length+')</button></div><div class="zr-adab" id="zrAdab"><b>Adab singkat berziarah:</b> niat karena Allah, ucapkan salam kepada ahli kubur, bacakan Al-Fatihah, Yasin, tahlil, dan doa untuk beliau, jaga kesopanan dan kebersihan, serta tidak menimbulkan keramaian yang mengganggu warga sekitar.</div><div class="zr-filter"><input id="zrCari" type="search" placeholder="Cari nama atau kota…"><select id="zrProv"></select></div><div class="bl-info" id="zrHitung" style="padding:0 0 8px;font-size:13px;color:var(--muted)"></div><div class="zr-grid" id="zrIsi"></div><div class="bl-foot" style="font-size:11px;color:var(--muted);margin-top:12px">Daftar ini ringkas dan terus dilengkapi; belum mencakup seluruh makam dan pesantren di Jawa. Periksa jam kunjung dan aturan setempat sebelum berangkat. Ketuk "Lihat di Peta" untuk rute.</div></div>';
+  s.innerHTML='<div class="hero"><div><h2>Ziarah &amp; Pesantren se-Jawa</h2><p>Daftar makam wali dan ulama tempat berziarah, serta pesantren-pesantren besar di Pulau Jawa. Cocok untuk merencanakan silaturahmi dan ziarah keluarga.</p></div><span class="pill">WISATA RELIGI</span></div><div class="panel"><div class="zr-tab"><button class="on" data-t="ziarah">🕌 Wisata Ziarah ('+Z.length+')</button><button data-t="pesantren">📚 Pesantren se-Jawa ('+P.length+')</button></div><div class="zr-adab" id="zrAdab"><b>Adab singkat berziarah:</b> niat karena Allah, ucapkan salam kepada ahli kubur, bacakan Al-Fatihah, Yasin, tahlil, dan doa untuk beliau, jaga kesopanan dan kebersihan, serta tidak menimbulkan keramaian yang mengganggu warga sekitar.</div><div class="zr-filter"><input id="zrCari" type="search" placeholder="Cari nama atau kota…"><select id="zrProv"></select><select id="zrKat"></select></div><div class="bl-info" id="zrHitung" style="padding:0 0 8px;font-size:13px;color:var(--muted)"></div><div class="zr-grid" id="zrIsi"></div><div class="bl-foot" style="font-size:11px;color:var(--muted);margin-top:12px">Daftar ini ringkas dan terus dilengkapi; belum mencakup seluruh makam dan pesantren di Jawa. Sebagian keterangan merujuk NU Online, Detik Jabar, dan arsip akademik; keterangan sejarah tokoh bisa berbeda antarsumber. Periksa jam kunjung dan aturan setempat sebelum berangkat. Ketuk "Lihat di Peta" untuk rute.</div></div>';
   s.querySelectorAll('.zr-tab button').forEach(function(b){b.addEventListener('click',function(){tab=b.dataset.t;s.querySelectorAll('.zr-tab button').forEach(function(x){x.classList.toggle('on',x===b);});$('zrAdab').style.display=tab==='ziarah'?'':'none';sel();gambar();});});
-  $('zrCari').addEventListener('input',gambar);$('zrProv').addEventListener('change',gambar);
+  $('zrCari').addEventListener('input',gambar);$('zrProv').addEventListener('change',gambar);$('zrKat').addEventListener('change',gambar);
   sel();gambar();
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
