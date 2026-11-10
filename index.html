@@ -5108,9 +5108,13 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
  function urut(){
   var h=document.getElementById('home'),tr=document.getElementById('tree');if(!h||!tr)return false;
   var sil=tr.closest('.panel'),st=h.querySelector('.stats');if(!sil||!st)return false;
-  var ids=['sekitar','beritaLokal','sorotan','unduhApp'];
+  var ids=['sekitar','beritaLokal','sorotan'];
   for(var i=0;i<ids.length;i++){if(!document.getElementById(ids[i]))return false;}
+  var ua=document.getElementById('unduhApp'),vf=null;[].forEach.call(h.querySelectorAll('h3'),function(x){if(/Anggota Keluarga Terverifikasi/i.test(x.textContent))vf=x.closest('.panel');});
+  if(!ua||!vf)return false;
+  h.insertBefore(ua,h.firstChild);
   var ref=st;[sil].concat(ids.map(function(i){return document.getElementById(i);})).forEach(function(el){ref.parentNode.insertBefore(el,ref.nextSibling);ref=el;});
+  h.appendChild(vf);
   return true;
  }
  function mulai(){var n=0,t=setInterval(function(){if(urut()||++n>30)clearInterval(t);},300);}
