@@ -5036,7 +5036,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   spbu:{nama:'⛽ SPBU',q:'nwr["amenity"="fuel"]',r:8000,gm:'SPBU',ket:'Diurutkan dari yang terdekat.'},
   kuliner:{nama:'🍜 Kuliner',q:'nwr["amenity"~"^(restaurant|cafe|fast_food|food_court)$"]["name"]',r:3000,gm:'kuliner viral murah enak',ket:'Alamat otomatis menyesuaikan tempat yang dipilih. Ulasan dan harga ada di Google Maps.'}
  };
- var jenis='hotel',pos=null,sumber='kota',kotaTerakhir='';
+ var jenis=null,pos=null,posT=0,sumber='gps';
  function $(i){return document.getElementById(i);}
  function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v);}catch(e){return null;}}
  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
@@ -5049,28 +5049,24 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   if($('sekitar'))return;
   var ref=$('beritaLokal');if(!ref||!ref.parentNode)return false;
   var d=document.createElement('div');d.className='panel';d.id='sekitar';
-  d.innerHTML='<h3>📍 Sekitar <span id="skNama"></span></h3><div class="sk-info" id="skInfo">Hotel, SPBU, dan kuliner terdekat dari daerah yang dipilih di panel berita.</div><div class="sk-atas"><button class="sk-btn" type="button" id="skGps">📍 Pakai lokasi saya (lebih akurat)</button></div><div class="sk-tab" id="skTab"></div><div id="skIsi"></div><div class="sk-info" style="font-size:11px">Data tempat dari OpenStreetMap. Rating, harga, dan jam buka mengikuti Google Maps; ketuk tautan di setiap tempat.</div>';
+  d.innerHTML='<h3>📍 Sekitar Saya <span id="skNama" style="font-size:13px;color:var(--muted);font-weight:600"></span></h3><div class="sk-info" id="skInfo">Ketuk salah satu tombol di bawah untuk melihat hotel, SPBU, atau kuliner terdekat dari lokasi Anda saat ini.</div><div class="sk-tab" id="skTab"></div><div id="skIsi"></div><div class="sk-info" style="font-size:11px">Data tempat dari OpenStreetMap. Rating, harga, dan jam buka mengikuti Google Maps; ketuk tautan di setiap tempat.</div>';
   ref.parentNode.insertBefore(d,ref.nextSibling);
-  var tab=$('skTab');Object.keys(JENIS).forEach(function(k){var b=document.createElement('button');b.type='button';b.textContent=JENIS[k].nama;b.dataset.j=k;if(k===jenis)b.className='on';b.onclick=function(){jenis=k;[].forEach.call(tab.children,function(x){x.className=x.dataset.j===k?'on':'';});muat();};tab.appendChild(b);});
-  $('skGps').onclick=gps;
-  setInterval(function(){var p=$('blPilih');if(p&&p.value!==kotaTerakhir&&sumber==='kota'){kotaTerakhir=p.value;muat();}},900);
-  var p=$('blPilih');kotaTerakhir=p?p.value:'Garut';muat();
+  var tab=$('skTab');Object.keys(JENIS).forEach(function(k){var b=document.createElement('button');b.type='button';b.textContent=JENIS[k].nama;b.dataset.j=k;b.onclick=function(){jenis=k;sumber='gps';[].forEach.call(tab.children,function(x){x.className=x.dataset.j===k?'on':'';});muat();};tab.appendChild(b);});
   return true;
  }
- function gps(){
-  var isi=$('skIsi');if(!navigator.geolocation){isi.innerHTML='<div class="sk-info">Peramban tidak mendukung lokasi. Pilih daerah di panel berita.</div>';return;}
-  isi.innerHTML='<div class="sk-info">Mendeteksi lokasi…</div>';
-  navigator.geolocation.getCurrentPosition(function(p){sumber='gps';pos={lat:p.coords.latitude,lon:p.coords.longitude,nama:'lokasi Anda'};muat();},function(){isi.innerHTML='<div class="sk-info">Izin lokasi ditolak. Pilih daerah di panel berita.</div>';},{timeout:10000,maximumAge:300000});
+ function getPos(){
+  if(pos&&sumber==='gps'&&Date.now()-posT<300000)return Promise.resolve(pos);
+  return new Promise(function(ok,no){if(!navigator.geolocation)return no(new Error('x'));navigator.geolocation.getCurrentPosition(function(p){pos={lat:p.coords.latitude,lon:p.coords.longitude,nama:'lokasi Anda'};posT=Date.now();ok(pos);},no,{timeout:7000,maximumAge:300000});});
  }
  function geokode(kota){
   var ck='bi_geo_'+kota;try{var c=JSON.parse(ls(ck)||'null');if(c)return Promise.resolve(c);}catch(e){}
   return fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=id&q='+encodeURIComponent(kota+', Indonesia')).then(function(r){return r.json();}).then(function(j){if(!j.length)throw new Error('x');var o={lat:+j[0].lat,lon:+j[0].lon};ls(ck,JSON.stringify(o));return o;});
  }
  function overpass(j,p){
-  var J=JENIS[j],q='[out:json][timeout:25];('+J.q+'(around:'+J.r+','+p.lat+','+p.lon+'););out center 80;';
-  var u=['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter'],i=0;
-  function coba(){if(i>=u.length)return Promise.reject(new Error('gagal'));return fetch(u[i++]+'?data='+encodeURIComponent(q)).then(function(r){if(!r.ok)throw new Error('x');return r.json();}).catch(coba);}
-  return coba();
+  var J=JENIS[j],q='[out:json][timeout:12];('+J.q+'(around:'+J.r+','+p.lat+','+p.lon+'););out center 40;';
+  var u=['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter','https://overpass.private.coffee/api/interpreter'];
+  return new Promise(function(ok,no){var gagal=0;u.forEach(function(x){var c=window.AbortController?new AbortController():null,tm=setTimeout(function(){if(c)c.abort();},12000);
+   fetch(x+'?data='+encodeURIComponent(q),c?{signal:c.signal}:undefined).then(function(r){if(!r.ok)throw new Error('x');return r.json();}).then(function(r){clearTimeout(tm);ok(r);}).catch(function(){clearTimeout(tm);if(++gagal===u.length)no(new Error('gagal'));});});});
  }
  function gambar(j,p,els){
   var J=JENIS[j],isi=$('skIsi');
@@ -5088,16 +5084,16 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   isi.appendChild(ul);
  }
  function muat(){
-  var isi=$('skIsi');if(!isi)return;var j=jenis;
+  var isi=$('skIsi');if(!isi||!jenis)return;var j=jenis;
   var pk=$('blPilih'),kota=pk?pk.value:'Garut';
-  var tahap=sumber==='gps'&&pos?Promise.resolve(pos):geokode(kota).then(function(o){return {lat:o.lat,lon:o.lon,nama:kota};});
-  isi.innerHTML='<div class="sk-info">Mencari '+JENIS[j].nama.replace(/^\S+\s/,'').toLowerCase()+' terdekat…</div>';
+  isi.innerHTML='<div class="sk-info">Mencari '+JENIS[j].nama.replace(/^\S+\s/,'').toLowerCase()+' terdekat dari lokasi Anda…</div>';
+  var tahap=getPos().catch(function(){sumber='kota';return geokode(kota).then(function(o){return {lat:o.lat,lon:o.lon,nama:kota};});});
   tahap.then(function(p){
-   $('skNama').textContent=p.nama;
-   var ck='bi_sek_'+j+'_'+p.lat.toFixed(3)+'_'+p.lon.toFixed(3);
+   $('skNama').textContent=p.nama===kota?kota:'(lokasi Anda)';
+   var ck='bi_sek_'+j+'_'+p.lat.toFixed(2)+'_'+p.lon.toFixed(2);
    try{var c=JSON.parse(ls(ck)||'null');if(c&&Date.now()-c.t<6*3600e3){if(j===jenis)gambar(j,p,c.e);return;}}catch(e){}
-   return overpass(j,p).then(function(r){var e=(r.elements||[]).slice(0,80);ls(ck,JSON.stringify({t:Date.now(),e:e}));if(j===jenis)gambar(j,p,e);});
-  }).catch(function(){if(j===jenis)isi.innerHTML='<div class="sk-info">Data belum dapat dimuat. <a href="'+'https://www.google.com/maps/search/'+encodeURIComponent(JENIS[j].gm+' '+kota)+'" target="_blank" rel="noopener">Cari '+esc(JENIS[j].nama.replace(/^\S+\s/,''))+' di Google Maps</a></div>';});
+   return overpass(j,p).then(function(r){var e=(r.elements||[]).slice(0,40);ls(ck,JSON.stringify({t:Date.now(),e:e}));if(j===jenis)gambar(j,p,e);});
+  }).catch(function(){if(j===jenis)isi.innerHTML='<div class="sk-info">Data belum dapat dimuat. <a href="https://www.google.com/maps/search/'+encodeURIComponent(JENIS[j].gm+' '+kota)+'" target="_blank" rel="noopener">Cari '+esc(JENIS[j].nama.replace(/^\S+\s/,''))+' di Google Maps</a></div>';});
  }
  function mulai(){var n=0,t=setInterval(function(){if(buat()!==false||++n>20)clearInterval(t);},300);}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mulai);else mulai();
