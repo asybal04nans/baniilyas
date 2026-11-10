@@ -4070,7 +4070,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
  const buka=h=>{const b=document.querySelector('nav button[data-page="'+h+'"]');if(b)b.click();};
  function render(){
   const T=window.__terbit||{},box=$('sorotan');if(!box)return;
-  const art=(T.artikel||[]).slice().reverse().slice(0,3);
+  const art=(T.artikel||[]).slice().reverse().slice(0,1);
   const hariIni=new Date(Date.now()+7*3600e3).toISOString().slice(0,10);
   const agenda=(T.kalender||[]).filter(x=>x.date>=hariIni).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0).slice(0,3);
   if(!art.length&&!agenda.length){box.style.display='none';return;}
@@ -4994,9 +4994,14 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
    var li=document.createElement('li'),a=document.createElement('a');a.href=b.link;a.target='_blank';a.rel='noopener noreferrer';a.textContent=jd;
    var meta=document.createElement('div');meta.className='bl-meta';meta.textContent=[sm,waktu(b.waktu)].filter(Boolean).join(' · ');
    li.appendChild(a);li.appendChild(meta);ul.appendChild(li);});
+  var semua=[].slice.call(ul.children),tampil=3;
+  function atur(){semua.forEach(function(l,i){l.style.display=i<tampil?'':'none';});if(tb)tb.style.display=tampil>=semua.length?'none':'';}
+  var tb=null;
   isi.innerHTML='';
   if(!ul.children.length){isi.innerHTML='<div class="bl-info">Belum ada berita. <a href="'+linkCari(k)+'" target="_blank" rel="noopener">Cari di Google Berita</a></div>';return;}
   isi.appendChild(ul);
+  if(semua.length>3){tb=document.createElement('button');tb.type='button';tb.className='bl-btn';tb.style.marginTop='8px';tb.textContent='＋ Tambah berita';tb.onclick=function(){tampil+=3;atur();};isi.appendChild(tb);}
+  atur();
  }
  function muat(paksa){
   var k=($('blPilih')||{}).value||'Garut';$('blKota').textContent=k;var isi=$('blIsi');
@@ -5095,6 +5100,20 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   }).catch(function(){if(j===jenis)isi.innerHTML='<div class="sk-info">Data belum dapat dimuat. <a href="'+'https://www.google.com/maps/search/'+encodeURIComponent(JENIS[j].gm+' '+kota)+'" target="_blank" rel="noopener">Cari '+esc(JENIS[j].nama.replace(/^\S+\s/,''))+' di Google Maps</a></div>';});
  }
  function mulai(){var n=0,t=setInterval(function(){if(buat()!==false||++n>20)clearInterval(t);},300);}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mulai);else mulai();
+})();
+</script>
+<script>
+(function(){
+ function urut(){
+  var h=document.getElementById('home'),tr=document.getElementById('tree');if(!h||!tr)return false;
+  var sil=tr.closest('.panel'),st=h.querySelector('.stats');if(!sil||!st)return false;
+  var ids=['sekitar','beritaLokal','sorotan','unduhApp'];
+  for(var i=0;i<ids.length;i++){if(!document.getElementById(ids[i]))return false;}
+  var ref=st;[sil].concat(ids.map(function(i){return document.getElementById(i);})).forEach(function(el){ref.parentNode.insertBefore(el,ref.nextSibling);ref=el;});
+  return true;
+ }
+ function mulai(){var n=0,t=setInterval(function(){if(urut()||++n>30)clearInterval(t);},300);}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mulai);else mulai();
 })();
 </script>
