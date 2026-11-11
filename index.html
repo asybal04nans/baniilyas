@@ -4931,7 +4931,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   if($('beritaLokal'))return;
   var ref=$('unduhApp')||$('sorotan');if(!ref||!ref.parentNode)return;
   var d=document.createElement('div');d.className='panel';d.id='beritaLokal';
-  d.innerHTML='<h3>📰 Berita <span id="blKota"></span> Hari Ini</h3><div class="bl-info" style="padding:0">Pilih tema: inspiratif agama &amp; ekonomi umat, atau kuliner viral murah meriah, sesuai daerah Anda.</div><div class="bl-atas"><select id="blPilih" aria-label="Pilih daerah"></select><select id="blMode" aria-label="Jenis berita"><option value="ins">✨ Inspiratif: agama &amp; ekonomi umat</option><option value="kul">🍜 Kuliner viral, murah &amp; meriah</option><option value="semua">📰 Semua berita</option></select><button class="bl-btn" type="button" id="blLokasi">📍 Pakai lokasi saya</button><button class="bl-btn" type="button" id="blMuat">↻ Muat ulang</button></div><div id="blIsi"><div class="bl-info">Memuat berita…</div></div><div class="bl-foot">Sumber: Google Berita (disaring sesuai tema yang dipilih). Isi berita sepenuhnya milik penerbit masing-masing.</div>';
+  d.innerHTML='<h3>📰 Berita <span id="blKota"></span> Hari Ini</h3><div class="bl-info" style="padding:0">Mengikuti lokasi Anda saat ini. Tema: inspiratif agama &amp; ekonomi umat, atau kuliner viral murah meriah; bila di daerah Anda belum ada, ditampilkan dari daerah sekitar.</div><div class="bl-atas"><select id="blPilih" aria-label="Pilih daerah"></select><select id="blMode" aria-label="Jenis berita"><option value="ins">✨ Inspiratif: agama &amp; ekonomi umat</option><option value="kul">🍜 Kuliner viral, murah &amp; meriah</option><option value="semua">📰 Semua berita</option></select><button class="bl-btn" type="button" id="blLokasi">📍 Pakai lokasi saya</button><button class="bl-btn" type="button" id="blMuat">↻ Muat ulang</button></div><div id="blIsi"><div class="bl-info">Memuat berita…</div></div><div class="bl-foot">Sumber: Google Berita (disaring sesuai tema yang dipilih). Isi berita sepenuhnya milik penerbit masing-masing.</div>';
   ref.parentNode.insertBefore(d,ref.nextSibling);
   var sel=$('blPilih');KOTA.forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=k;sel.appendChild(o);});
   var awal=ls(KEY)||'Garut';tambah(awal);sel.value=awal;
@@ -4940,6 +4940,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
   var bm=$('blMode');bm.value=ls('bi_berita_mode')||'ins';bm.addEventListener('change',function(){ls('bi_berita_mode',bm.value);muat(false);});
   $('blLokasi').addEventListener('click',lokasi);
   muat(false);
+  try{if(navigator.permissions&&navigator.geolocation)navigator.permissions.query({name:'geolocation'}).then(function(s){if(s.state==='granted'||(s.state==='prompt'&&!ls('bi_auto_lok'))){ls('bi_auto_lok','1');lokasi();}}).catch(function(){});}catch(e){}
  }
  function tambah(k){var sel=$('blPilih');if(!sel)return;if(![].some.call(sel.options,function(o){return o.value===k;})){var o=document.createElement('option');o.value=k;o.textContent=k;sel.insertBefore(o,sel.firstChild);}}
  function lokasi(){
@@ -4950,7 +4951,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
    .then(function(r){return r.json();}).then(function(j){
     var cand=[j.city,j.locality,j.principalSubdivision].filter(Boolean).map(function(x){return String(x).replace(/^(Kota|Kabupaten|Kab\.)\s+/i,'').trim();});
     var pil=null;cand.forEach(function(c){if(pil)return;KOTA.forEach(function(k){if(!pil&&k.toLowerCase()===c.toLowerCase())pil=k;});});
-    var nm=pil||cand[0];if(!nm){throw new Error('x');}
+    var nm=pil||cand[0];if(!nm){throw new Error('x');}ls('bi_prov',j.principalSubdivision||'');
     tambah(nm);$('blPilih').value=nm;ls(KEY,nm);muat(true);
    }).catch(function(){isi.innerHTML='<div class="bl-info">Lokasi belum dapat dikenali. Pilih daerah dari daftar.</div>';});
   },function(){isi.innerHTML='<div class="bl-info">Izin lokasi ditolak. Pilih daerah dari daftar.</div>';},{timeout:10000,maximumAge:600000});
@@ -4958,6 +4959,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
  var INS='(inspiratif OR pesantren OR santri OR zakat OR sedekah OR wakaf OR UMKM OR wirausaha OR koperasi OR "ekonomi umat" OR "ekonomi syariah" OR dakwah OR ulama OR "kisah sukses" OR "kuliner viral" OR "kuliner murah" OR "murah meriah")';
  var KUL='("kuliner viral" OR "kuliner murah" OR "murah meriah" OR "wisata kuliner" OR "makanan viral" OR "jajanan viral")';
 
+ var NEIGH={'Garut':['Tasikmalaya','Bandung','Sumedang','Cianjur'],'Bandung':['Kota Bandung','Bandung Barat','Cimahi','Sumedang','Garut'],'Kota Bandung':['Bandung','Cimahi','Bandung Barat','Sumedang'],'Bandung Barat':['Cimahi','Kota Bandung','Bandung','Cianjur','Purwakarta'],'Cimahi':['Bandung Barat','Kota Bandung','Bandung'],'Sumedang':['Bandung','Garut','Majalengka','Subang'],'Cianjur':['Bandung Barat','Sukabumi','Bogor','Purwakarta'],'Tasikmalaya':['Garut','Ciamis'],'Ciamis':['Tasikmalaya','Kuningan','Garut'],'Majalengka':['Sumedang','Cirebon','Kuningan','Subang'],'Cirebon':['Kuningan','Majalengka','Subang'],'Kuningan':['Cirebon','Majalengka','Ciamis'],'Subang':['Purwakarta','Sumedang','Majalengka','Bandung Barat'],'Purwakarta':['Subang','Karawang','Bandung Barat','Cianjur'],'Karawang':['Bekasi','Purwakarta','Subang'],'Bekasi':['Karawang','Jakarta','Bogor'],'Bogor':['Sukabumi','Cianjur','Jakarta','Bekasi'],'Sukabumi':['Cianjur','Bogor'],'Jakarta':['Bekasi','Bogor','Banten'],'Banten':['Jakarta','Bogor','Sukabumi']};
  var KULRE=/kuliner|warung|kedai|rumah makan|resto|restoran|jajanan|bakso|soto|sate\b|seblak|cendol|oleh-oleh|murah meriah|angkringan|pecel|nasi (liwet|timbel|goreng|uduk|kuning|bakar)|mie (ayam|kocok)|\bmi (ayam|kocok)|bubur|lontong|dodol|surabi|colenak|batagor|baso|cilok|cireng|kopi|makanan (viral|khas|legendaris)|menu (murah|viral)|wisata kuliner/i;
  var INSRE=/inspirasi|inspiratif|pesantren|santri|ponpes|zakat|sedekah|infak|wakaf|umkm|wirausaha|pengusaha muda|koperasi|ekonomi (umat|syariah|pesantren|kerakyatan|keluarga)|dakwah|ulama|\bkiai\b|\bkyai\b|ustaz|ustadz|masjid|kisah sukses|pemberdayaan|berdaya|mandiri|majelis taklim|pengajian|ngaji/i;
  var NEG=/tewas|meninggal|korban|ditangkap|diamankan|polisi|polres|polsek|pembunuhan|narkoba|cabul|pencabulan|pelecehan|kecelakaan|banjir|longsor|gempa|korupsi|tersangka|ditahan|dipenjara|kebakaran|keracunan|tawuran|senjata tajam|begal|curanmor|pencurian|penipuan|hoaks|demo\b|kasus/i;
@@ -4965,11 +4967,16 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
  function ambilTema(k,md){
   var K='"'+k+'"';
   var qs=md==='kul'?[K+' kuliner viral',K+' kuliner murah meriah',K+' wisata kuliner']:[K+' pesantren',K+' ekonomi umat zakat wakaf',K+' UMKM wirausaha inspiratif',K+' kisah sukses ulama dakwah'];
-  var re=md==='kul'?KULRE:INSRE;
+  var re=md==='kul'?KULRE:INSRE,seen={};
+  function kumpul(ls2,tag){var out=[];ls2.forEach(function(arr){arr.forEach(function(b){var j=String(b.judul||'');if(!re.test(j)||NEG.test(j)||seen[j])return;seen[j]=1;if(tag)b.daerah=tag;out.push(b);});});out.sort(function(x,y){return new Date(y.waktu)-new Date(x.waktu);});return out;}
+  function cari(daerah,n){var Kd='"'+daerah+'"';var q=md==='kul'?[Kd+' kuliner viral',Kd+' kuliner murah meriah',Kd+' wisata kuliner']:[Kd+' pesantren',Kd+' ekonomi umat zakat wakaf',Kd+' UMKM wirausaha inspiratif',Kd+' kisah sukses ulama dakwah'];return Promise.all(q.slice(0,n||q.length).map(function(x){return ambil(qUrl(x,30)).catch(function(){return [];});}));}
   return Promise.all(qs.map(function(q){return ambil(qUrl(q,30)).catch(function(){return [];});})).then(function(ls2){
-   var seen={},out=[];ls2.forEach(function(arr){arr.forEach(function(b){var j=String(b.judul||'');if(!re.test(j)||NEG.test(j)||seen[j])return;seen[j]=1;out.push(b);});});
-   out.sort(function(x,y){return new Date(y.waktu)-new Date(x.waktu);});
-   return out;
+   var out=kumpul(ls2);
+   if(out.length>=3)return out;
+   var tetangga=NEIGH[k]||(String(ls('bi_prov')||'').indexOf('Jawa Barat')>-1?['Bandung Barat','Kota Bandung','Cimahi','Bandung']:[]);
+   tetangga=tetangga.filter(function(x){return x!==k;}).slice(0,4);
+   if(!tetangga.length)return out;
+   return Promise.all(tetangga.map(function(d){return cari(d,2).then(function(r){return kumpul(r,d);});})).then(function(rs){rs.forEach(function(r){out=out.concat(r);});return out;});
   });
  }
  function mode(){var v=($('blMode')||{}).value;return v==='semua'||v==='kul'?v:'ins';}
@@ -4994,7 +5001,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
    var jd=String(b.judul||'').trim(),sm=b.sumber||'';var m=/^(.*)\s+-\s+([^-]+)$/.exec(jd);if(m){jd=m[1];if(!sm)sm=m[2];}
    if(!/^https?:\/\//i.test(b.link||''))return;
    var li=document.createElement('li'),a=document.createElement('a');a.href=b.link;a.target='_blank';a.rel='noopener noreferrer';a.textContent=jd;
-   var meta=document.createElement('div');meta.className='bl-meta';meta.textContent=[sm,waktu(b.waktu)].filter(Boolean).join(' · ');
+   var meta=document.createElement('div');meta.className='bl-meta';meta.textContent=[sm,waktu(b.waktu),b.daerah?'Sekitar: '+b.daerah:''].filter(Boolean).join(' · ');
    li.appendChild(a);li.appendChild(meta);ul.appendChild(li);});
   var semua=[].slice.call(ul.children),tampil=3;
   function atur(){semua.forEach(function(l,i){l.style.display=i<tampil?'':'none';});if(tb)tb.style.display=tampil>=semua.length?'none':'';}
@@ -5007,7 +5014,7 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
  }
  function muat(paksa){
   var k=($('blPilih')||{}).value||'Garut';$('blKota').textContent=k;var isi=$('blIsi');
-  var md=mode(),ck='bi_berita4_'+md+'_'+k;
+  var md=mode(),ck='bi_berita5_'+md+'_'+k;
   if(!paksa){try{var c=JSON.parse(ls(ck)||'null');if(c&&Date.now()-c.t<TTL&&c.a&&c.a.length){gambar(k,c.a);return;}}catch(e){}}
   isi.innerHTML='<div class="bl-info">Memuat berita '+k.replace(/[<>&]/g,'')+'…</div>';
   (md!=='semua'?ambilTema(k,md):ambil(rssUrl(k,1)).then(function(a){return a.length>=4?a:ambil(rssUrl(k,7)).catch(function(){return a;});}).catch(function(){return ambil(rssUrl(k,7));}))
