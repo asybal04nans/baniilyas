@@ -497,7 +497,7 @@ main {
    <button data-page="zis">Zakat, Infaq &amp; Shodaqoh</button>
    <button data-page="surat">Surat-Surat Pilihan dan Tahlil</button>
    <button data-page="kartu">Kartu Bani Ilyas</button>
-   <button data-page="chat">Chat Anak Incu</button>
+   <button data-page="ngaji">Ngaji Al-Qur’an</button>
    <button data-page="artikel">Artikel Agama</button>
    <button data-page="tautan">Tautan</button>
    <button data-page="verifikasi">Verifikasi Admin</button>
@@ -769,7 +769,29 @@ main {
  </div>
 </section>
 
-<section id="chat" class="hidden">
+<section id="ngaji" class="hidden">
+ <div class="hero"><div><h2>Ngaji Al-Qur’an</h2><p>Dengarkan tilawah tartil para imam Masjidil Haram dan Masjid Nabawi, serta qari kebanggaan Indonesia. Pilih qari, pilih surat, lalu putar.</p></div><span class="pill">TARTIL &amp; MURATTAL</span></div>
+ <div class="panel" id="ngPlayer">
+  <div class="ng-pilih">
+   <div class="field"><label for="ngQari">Qari (imam)</label><select id="ngQari"></select></div>
+   <div class="field"><label for="ngSurat">Surat</label><select id="ngSurat"></select></div>
+  </div>
+  <div class="ng-judul" id="ngJudul">Pilih qari dan surat</div>
+  <audio id="ngAudio" controls preload="none" style="width:100%"></audio>
+  <div class="ng-aksi"><button type="button" class="ng-btn" id="ngPrev">⏮ Sebelumnya</button><button type="button" class="ng-btn" id="ngPutar">▶ Putar</button><button type="button" class="ng-btn" id="ngNext">Berikutnya ⏭</button><a class="ng-btn" id="ngUnduh" href="#" target="_blank" rel="noopener" download>⬇ Unduh MP3</a></div>
+  <label class="ng-oto"><input type="checkbox" id="ngOto" checked> Lanjut otomatis ke surat berikutnya</label>
+  <div class="ng-info" id="ngInfo"></div>
+  <div class="ng-adab"><b>Adab mendengarkan Al-Qur’an:</b> dalam keadaan suci bila memungkinkan, diam dan menyimak, serta tidak memutar saat sedang berbicara atau di tempat yang tidak pantas.</div>
+ </div>
+ <div class="panel">
+  <div class="panelhead"><h3>🇮🇩 Qari Indonesia</h3><span class="pill">KEBANGGAAN NUSANTARA</span></div>
+  <p class="note">Rekaman resmi qari Indonesia tidak tersedia sebagai berkas MP3 terbuka, sehingga disajikan lewat YouTube. Ketuk nama untuk mendengarkan tilawah beliau.</p>
+  <div class="ng-id" id="ngId"></div>
+  <div class="ng-yt" id="ngYt"><iframe title="Tilawah H. Muammar ZA" src="" data-src="https://www.youtube-nocookie.com/embed/Vl93JrWEZC4" loading="lazy" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe><div class="ng-cap">Tilawah H. Muammar ZA, QS. Ibrahim ayat 31–34</div></div>
+ </div>
+ <div class="panel"><p class="note" style="margin:0">Audio imam Haramain dimuat langsung dari <b>mp3quran.net</b> dan hak ciptanya milik masing-masing qari/penyedia. Bila suatu audio belum bisa diputar, coba qari atau surat lain, atau muat ulang halaman.</p></div>
+</section>
+<section id="chat" class="hidden" hidden style="display:none!important">
  <div class="panel">
   <div class="panelhead"><h3>Chat Anak Incu Bani Ilyas</h3><span class="pill">RUANG SILATURAHMI KULAWARGA</span></div>
   <p class="media-intro">Tempat anak, incu, buyut, jeung turunan Bani Ilyas untuk bersilaturahmi, bertukar kabar, bertanya tentang pancakaki, dan berbagi informasi kegiatan keluarga. Gunakan bahasa yang santun dan saling menghormati.</p>
@@ -1506,7 +1528,7 @@ window.PancakakiDownloadGate = {
 <footer>Arsip Digital Kulawarga Bani Ilyas · Limbangan, Garut · Rarancang awal pikeun dimekarkeun babarengan ku kulawarga</footer>
 <script>
 const navButtons=document.querySelectorAll('nav button');
-const pageIds=['home','profil','add','archive','pesantren','ziarah','umkm','library','calendar','donasi','haul','guide','nasab','kartu','chat','artikel','tautan','hubungan','waris','zis','surat','verifikasi'];
+const pageIds=['home','profil','add','archive','pesantren','ziarah','umkm','library','calendar','donasi','haul','guide','nasab','kartu','ngaji','artikel','tautan','hubungan','waris','zis','surat','verifikasi'];
 let __dariRiwayat=false;
 const __halAwal=(document.querySelector('nav button.active')||navButtons[0]||{dataset:{}}).dataset.page||'home';
 try{history.replaceState({p:__halAwal},'');}catch(e){}
@@ -5130,6 +5152,69 @@ nav button[data-page="verifikasi"] .titik-merah{position:absolute;top:-7px;right
  }
  function mulai(){var n=0,t=setInterval(function(){if(urut()||++n>30)clearInterval(t);},300);}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mulai);else mulai();
+})();
+</script>
+<style>
+#ngaji .ng-pilih{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){#ngaji .ng-pilih{grid-template-columns:1fr}}
+#ngaji .ng-judul{margin:14px 0 8px;font-weight:800;color:var(--navy);font-size:17px}
+#ngaji .ng-aksi{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+#ngaji .ng-btn{border:1px solid var(--navy2);background:#fff;color:var(--navy);border-radius:999px;padding:9px 14px;font-weight:700;cursor:pointer;font-size:13px;text-decoration:none;display:inline-block}
+#ngaji #ngPutar{background:var(--navy);color:#fff}
+#ngaji .ng-oto{font-size:13px;color:var(--muted);display:flex;gap:8px;align-items:center}
+#ngaji .ng-info{font-size:12.5px;color:var(--muted);margin-top:8px;min-height:18px}
+#ngaji .ng-adab{margin-top:12px;padding:10px 12px;border-radius:12px;background:#f6efdc;border:1px solid #e2d6b7;font-size:12.5px;line-height:1.6;color:#5e6b5d}
+#ngaji .ng-id{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin:10px 0 14px}
+#ngaji .ng-id a{display:block;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;text-decoration:none;color:var(--navy)}
+#ngaji .ng-id b{display:block;font-size:14px}#ngaji .ng-id small{color:var(--muted);font-size:12px;line-height:1.4}
+#ngaji .ng-yt iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:12px;background:#000}
+#ngaji .ng-cap{font-size:12px;color:var(--muted);margin-top:6px}
+</style>
+<script>
+(function(){
+ var SURAT=['Al-Fatihah','Al-Baqarah','Ali Imran','An-Nisa','Al-Ma’idah','Al-An’am','Al-A’raf','Al-Anfal','At-Taubah','Yunus','Hud','Yusuf','Ar-Ra’d','Ibrahim','Al-Hijr','An-Nahl','Al-Isra’','Al-Kahfi','Maryam','Thaha','Al-Anbiya’','Al-Hajj','Al-Mu’minun','An-Nur','Al-Furqan','Asy-Syu’ara’','An-Naml','Al-Qashash','Al-‘Ankabut','Ar-Rum','Luqman','As-Sajdah','Al-Ahzab','Saba’','Fathir','Yasin','Ash-Shaffat','Shad','Az-Zumar','Ghafir','Fushshilat','Asy-Syura','Az-Zukhruf','Ad-Dukhan','Al-Jatsiyah','Al-Ahqaf','Muhammad','Al-Fath','Al-Hujurat','Qaf','Adz-Dzariyat','Ath-Thur','An-Najm','Al-Qamar','Ar-Rahman','Al-Waqi’ah','Al-Hadid','Al-Mujadilah','Al-Hasyr','Al-Mumtahanah','Ash-Shaff','Al-Jumu’ah','Al-Munafiqun','At-Taghabun','Ath-Thalaq','At-Tahrim','Al-Mulk','Al-Qalam','Al-Haqqah','Al-Ma’arij','Nuh','Al-Jinn','Al-Muzzammil','Al-Muddatstsir','Al-Qiyamah','Al-Insan','Al-Mursalat','An-Naba’','An-Nazi’at','‘Abasa','At-Takwir','Al-Infithar','Al-Muthaffifin','Al-Insyiqaq','Al-Buruj','Ath-Thariq','Al-A’la','Al-Ghasyiyah','Al-Fajr','Al-Balad','Asy-Syams','Al-Lail','Adh-Dhuha','Asy-Syarh','At-Tin','Al-‘Alaq','Al-Qadr','Al-Bayyinah','Az-Zalzalah','Al-‘Adiyat','Al-Qari’ah','At-Takatsur','Al-‘Ashr','Al-Humazah','Al-Fil','Quraisy','Al-Ma’un','Al-Kautsar','Al-Kafirun','An-Nashr','Al-Masad','Al-Ikhlas','Al-Falaq','An-Nas'];
+ var QARI=[
+  ['Imam Masjidil Haram (Makkah)',[
+   ['Syekh Abdurrahman As-Sudais',11,'sds'],['Syekh Saud Asy-Syuraim',7,'shur'],['Syekh Maher Al-Muaiqly',12,'maher'],['Syekh Yasser Ad-Dosari',11,'yasser'],['Syekh Bandar Baleela',6,'balilah']]],
+  ['Imam Masjid Nabawi (Madinah)',[
+   ['Syekh Ali Al-Hudhaify',9,'hthfi'],['Syekh Muhammad Ayyub',8,'ayyub'],['Syekh Salah Al-Budair',6,'s_bud'],['Syekh Abdul Muhsin Al-Qasim',8,'qasm']]]
+ ];
+ var IDN=[['KH. Muammar ZA','Qari legendaris asal Pemalang, juara internasional, pendiri Pesantren Ummul Qura.','Muammar ZA tilawah'],['Hj. Maria Ulfah','Qariah asal Lamongan, juara internasional, tercatat di antara 500 Muslim berpengaruh.','Maria Ulfah tilawah'],['KH. Mu’min Ainul Mubarak','Qari asal Tasikmalaya, juara MTQ internasional Malaysia 2008 dan Iran 2009.','Mu\'min Ainul Mubarak tilawah'],['H. Darwin Hasibuan','Qari asal Sumatera Utara, suara tinggi yang populer di India dan Pakistan.','Darwin Hasibuan tilawah'],['Syamsuri Firdaus','Qari asal Bima, juara 1 MTQ internasional di Turki 2019.','Syamsuri Firdaus tilawah']];
+ function $(i){return document.getElementById(i);}
+ function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v);}catch(e){return null;}}
+ function p3(n){return ('00'+n).slice(-3);}
+ var kandidat=[],ki=0,cur={q:null,s:1};
+ function qa(i){var n=0;for(var g=0;g<QARI.length;g++)for(var j=0;j<QARI[g][1].length;j++){if(n===i)return QARI[g][1][j];n++;}return QARI[0][1][0];}
+ function urls(q,s){var base=[q[1]];for(var n=6;n<=14;n++)if(n!==q[1])base.push(n);var sv=ls('bi_ng_sv_'+q[2]);if(sv){base=[+sv].concat(base.filter(function(x){return x!==+sv;}));}return base.map(function(n){return 'https://server'+n+'.mp3quran.net/'+q[2]+'/'+p3(s)+'.mp3';});}
+ function muat(main){
+  var qi=+$('ngQari').value,s=+$('ngSurat').value;cur.q=qa(qi);cur.s=s;kandidat=urls(cur.q,s);ki=0;
+  $('ngJudul').textContent='Surat '+SURAT[s-1]+' · '+cur.q[0];$('ngInfo').textContent='';
+  var a=$('ngAudio');$('ngUnduh').href=kandidat[0];ls('bi_ng_qari',qi);ls('bi_ng_surat',s);
+  if(main){a.src=kandidat[0];var pr=a.play();if(pr&&pr.catch)pr.catch(function(){});}else{a.removeAttribute('src');}
+ }
+ function buat(){
+  var sq=$('ngQari');if(!sq||sq.options.length)return;
+  var n=0;QARI.forEach(function(g){var og=document.createElement('optgroup');og.label=g[0];g[1].forEach(function(q){var o=document.createElement('option');o.value=n++;o.textContent=q[0];og.appendChild(o);});sq.appendChild(og);});
+  var ss=$('ngSurat');SURAT.forEach(function(nm,i){var o=document.createElement('option');o.value=i+1;o.textContent=(i+1)+'. '+nm;ss.appendChild(o);});
+  sq.value=ls('bi_ng_qari')||0;ss.value=ls('bi_ng_surat')||1;if(!sq.value)sq.value=0;if(!ss.value)ss.value=1;
+  sq.onchange=function(){muat(true);};ss.onchange=function(){muat(true);};
+  $('ngPutar').onclick=function(){var a=$('ngAudio');if(!a.getAttribute('src'))muat(true);else if(a.paused)a.play().catch(function(){});else a.pause();};
+  $('ngNext').onclick=function(){var v=+ss.value;if(v<114){ss.value=v+1;muat(true);}};
+  $('ngPrev').onclick=function(){var v=+ss.value;if(v>1){ss.value=v-1;muat(true);}};
+  var a=$('ngAudio');
+  a.addEventListener('play',function(){$('ngPutar').textContent='⏸ Jeda';});a.addEventListener('pause',function(){$('ngPutar').textContent='▶ Putar';});
+  a.addEventListener('ended',function(){if($('ngOto').checked)$('ngNext').click();});
+  a.addEventListener('playing',function(){var u=kandidat[ki]||'';var m=/server(\d+)\.mp3quran/.exec(u);if(m&&cur.q)ls('bi_ng_sv_'+cur.q[2],m[1]);$('ngInfo').textContent='';});
+  a.addEventListener('error',function(){
+   if(ki+1<kandidat.length){ki++;a.src=kandidat[ki];$('ngUnduh').href=kandidat[ki];$('ngInfo').textContent='Mencari sumber audio…';a.play().catch(function(){});}
+   else $('ngInfo').textContent='Audio belum dapat dimuat. Coba qari/surat lain atau periksa sambungan internet.';
+  });
+  muat(false);
+  var d=$('ngId');IDN.forEach(function(x){var l=document.createElement('a');l.href='https://www.youtube.com/results?search_query='+encodeURIComponent(x[2]);l.target='_blank';l.rel='noopener';l.innerHTML='<b>'+x[0]+'</b><small>'+x[1]+'</small>';d.appendChild(l);});
+  var f=document.querySelector('#ngYt iframe');var b=document.querySelector('nav button[data-page="ngaji"]');
+  if(b)b.addEventListener('click',function(){if(f&&!f.getAttribute('src'))f.setAttribute('src',f.dataset.src);});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',buat);else buat();
 })();
 </script>
 <style>
