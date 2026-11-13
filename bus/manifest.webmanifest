@@ -1,0 +1,17 @@
+{
+  "name": "Pulang Pakai Bis Rombongan - Santri Lirboyo",
+  "short_name": "Bus Santri",
+  "description": "Pesan kursi bus kepulangan santri Lirboyo.",
+  "lang": "id",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fbf7ec",
+  "theme_color": "#1d4a38",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

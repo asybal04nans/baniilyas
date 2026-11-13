@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1d4a38">
+<title>Pulang Pakai Bis Rombongan · Santri Lirboyo</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+:root{--g:#1d4a38;--g2:#e3efe8;--gold:#c9a35a;--cream:#fffdf6;--ink:#1f2a24;--mut:#667068;--line:#d8cfbb;--red:#b03a2e;--bg:#fbf7ec}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:linear-gradient(160deg,#143527,#1d4a38 60%,#1f5f4a);color:#fff;padding:18px 16px 0;text-align:center;overflow:hidden}
+header h1{margin:0;font-size:22px;font-weight:800;font-family:Georgia,serif}
+header h1 span{color:#e5c982}
+header p{margin:4px 0 0;font-size:13px;opacity:.85}
+header svg{display:block;margin:10px auto 0;width:100%;max-width:340px;height:auto}
+main{max-width:520px;margin:0 auto;padding:14px}
+.card{background:var(--cream);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+label{display:block;font-size:13px;font-weight:700;margin:10px 0 4px}
+input,select{width:100%;padding:11px;border:1px solid var(--line);border-radius:8px;font-size:16px;background:#fff}
+button{font:inherit;cursor:pointer}
+.btn{background:var(--g);color:#fff;border:0;border-radius:8px;padding:12px 16px;font-weight:700;width:100%;margin-top:12px}
+.btn.sec{background:#fff;color:var(--g);border:1px solid var(--g)}
+.btn:disabled{opacity:.5}
+.row{display:flex;gap:8px;align-items:center}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px}
+.tab{border:1px solid var(--line);background:#fff;border-radius:20px;padding:7px 14px;white-space:nowrap;font-size:14px}
+.tab.on{background:var(--g);color:#fff;border-color:var(--g)}
+.legend{display:flex;gap:12px;font-size:12px;color:var(--mut);margin:8px 0;flex-wrap:wrap}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:4px;border:1px solid var(--line)}
+.bus{border:2px solid var(--line);border-radius:22px 22px 10px 10px;padding:12px 14px;background:#fff}
+.front{display:flex;justify-content:space-between;font-size:12px;color:var(--mut);border-bottom:1px dashed var(--line);padding-bottom:8px;margin-bottom:10px}
+.wheel{width:30px;height:30px;border:2px solid var(--mut);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px}
+.r{display:grid;grid-template-columns:1fr 1fr 34px 1fr 1fr;gap:6px;margin-bottom:6px}
+.s{height:40px;border-radius:8px;border:1px solid var(--g);background:var(--g2);font-weight:700;font-size:14px;color:var(--g)}
+.s.t{background:#e5e5e5;border-color:#ccc;color:#999;cursor:not-allowed}
+.s.p{background:var(--g);color:#fff}
+.s.me{background:var(--gold);border-color:#b28a42;color:#000}
+.aisle{display:flex;align-items:center;justify-content:center;font-size:10px;color:#aaa}
+.msg{font-size:13px;margin-top:8px}.err{color:var(--red)}.ok{color:var(--g)}
+.hide{display:none!important}
+.mut{color:var(--mut);font-size:12px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td,th{border-bottom:1px solid var(--line);padding:6px 4px;text-align:left}
+select.mini{width:auto;padding:4px;font-size:13px}
+.link{background:none;border:0;color:var(--g);text-decoration:underline;padding:4px;font-size:13px}
+.tiket{border:2px dashed var(--g);border-radius:12px;padding:14px;text-align:center;background:#fff}
+.tiket b.big{font-size:26px;display:block;color:var(--g)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:20px;z-index:9}
+.modal .box{background:#fff;border-radius:14px;padding:18px;max-width:340px;width:100%}
+a.btn{display:block;text-decoration:none;text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <h1>Pulang pakai <span>bis rombongan</span> yuk!</h1>
+  <p>Kursi Bus Kepulangan Santri Lirboyo</p>
+  <p id="sub" style="font-size:12px;opacity:.7">Memuat…</p>
+  <svg viewBox="0 0 340 110" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <rect x="0" y="94" width="340" height="3" fill="#c9a35a" opacity=".5"/>
+    <rect x="20" y="22" width="300" height="62" rx="14" fill="#fffdf6"/>
+    <rect x="20" y="62" width="300" height="12" fill="#c9a35a"/>
+    <rect x="34" y="32" width="38" height="24" rx="4" fill="#7fb7a0"/><rect x="78" y="32" width="38" height="24" rx="4" fill="#7fb7a0"/>
+    <rect x="122" y="32" width="38" height="24" rx="4" fill="#7fb7a0"/><rect x="166" y="32" width="38" height="24" rx="4" fill="#7fb7a0"/>
+    <rect x="210" y="32" width="38" height="24" rx="4" fill="#7fb7a0"/>
+    <path d="M258 32h50a8 8 0 0 1 8 8v16h-58z" fill="#7fb7a0"/><rect x="296" y="66" width="24" height="8" fill="#1d4a38"/>
+    <circle cx="80" cy="86" r="14" fill="#1f2a24"/><circle cx="80" cy="86" r="6" fill="#ccd"/>
+    <circle cx="260" cy="86" r="14" fill="#1f2a24"/><circle cx="260" cy="86" r="6" fill="#ccd"/>
+  </svg>
+</header>
+
+<div id="konfirm" class="modal hide"><div class="box"></div></div>
+
+<main>
+  <div id="tiket" class="card hide"></div>
+
+  <section class="card">
+    <b>1. Isi data sesuai Kartu Santri</b>
+    <label for="nama">Nama (sesuai kartu santri)</label>
+    <input id="nama" autocomplete="off" placeholder="Nama lengkap">
+    <label for="kartu">Nomor Kartu Santri</label>
+    <input id="kartu" autocomplete="off" inputmode="numeric" placeholder="Nomor kartu">
+    <button class="btn sec" id="cekBtn">Cek pesanan saya</button>
+    <div class="mut" style="margin-top:6px">Satu nomor kartu hanya bisa memesan satu kursi per tahun.</div>
+  </section>
+
+  <section class="card">
+    <div class="row" style="justify-content:space-between"><b>2. Pilih kursi kosong</b><span class="mut" id="thn"></span></div>
+    <div class="tabs" id="tabs"></div>
+    <div class="mut" id="busInfo"></div>
+    <div class="legend">
+      <span><i style="background:var(--g2);border-color:var(--g)"></i>Kosong</span>
+      <span><i style="background:#e5e5e5"></i>Terisi</span>
+      <span><i style="background:var(--g)"></i>Dipilih</span>
+      <span><i style="background:var(--gold)"></i>Kursi Anda</span>
+    </div>
+    <div class="bus"><div class="front"><span>🚪 Pintu</span><span>Depan</span><span class="wheel">⌖</span></div><div id="grid"></div></div>
+    <button class="btn" id="pesan" disabled>Pilih kursi dulu</button>
+    <div class="msg" id="msg"></div>
+  </section>
+
+  <div style="text-align:center"><button class="link" id="adminBtn">⚙ Panel pengurus</button></div>
+
+  <section class="card hide" id="adminLogin">
+    <b>Masuk pengurus</b>
+    <label for="pin">PIN pengurus</label>
+    <input id="pin" type="password" autocomplete="off" placeholder="PIN">
+    <button class="btn" id="pinOk">Masuk</button>
+    <div class="msg err" id="pinMsg"></div>
+  </section>
+
+  <section class="card hide" id="admin">
+    <div class="row" style="justify-content:space-between"><b>Panel pengurus</b><button class="link" id="keluar">Keluar</button></div>
+    <label>Tahun tampilan</label>
+    <select id="selTahun"></select>
+    <div class="row"><input id="tahunBaru" inputmode="numeric" placeholder="Tahun baru, mis. 2027"><button class="btn sec" style="width:auto;margin-top:0" id="addTahun">Tambah</button></div>
+    <label>No. WhatsApp panitia (mis. 0812xxxxxxx)</label><input id="cfgWa" inputmode="tel">
+    <label>Biaya per kursi (mis. Rp 250.000)</label><input id="cfgHarga">
+    <label>Cara pembayaran (rekening/tujuan transfer)</label><input id="cfgBayar">
+    <label>Bus untuk tahun ini</label>
+    <div id="busEdit"></div>
+    <button class="btn sec" id="addBus">+ Tambah bus</button>
+    <button class="btn" id="saveCfg">Simpan pengaturan</button>
+    <div class="msg" id="adminMsg"></div>
+    <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+    <b>Daftar pemesan</b> <span class="mut" id="cnt"></span>
+    <div style="overflow-x:auto"><table id="list"></table></div>
+    <button class="btn sec" id="salin">Salin daftar (CSV)</button>
+  </section>
+</main>
+
+<script>
+// ===== PENGATURAN: tempel URL Web App Google Apps Script di sini =====
+const API = "GANTI_DENGAN_URL_APPS_SCRIPT";
+// =====================================================================
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let cfg={tahun:[new Date().getFullYear()],aktif:new Date().getFullYear(),bus:{},wa:'',harga:'',infoBayar:''};
+let year=cfg.aktif,busId=null,pilih=null,taken={},mine=null,pin='',rowsAdmin=[],cfgDirty=false,pertama=true;
+try{pin=sessionStorage.getItem('pinBus')||'';}catch(e){}
+const busList=()=>cfg.bus[year]||(cfg.bus[year]=[{id:'bus1',nama:'Bus 1',tujuan:'',baris:10}]);
+const waNum=n=>{let d=String(n||'').replace(/\D/g,'');if(d.startsWith('0'))d='62'+d.slice(1);return d;};
+const STATUS={belum:'Menunggu pembayaran',lapor:'Menunggu verifikasi panitia',lunas:'✔ Lunas'};
+
+async function api(aksi,data){
+  if(API.startsWith('GANTI'))throw new Error('Alamat server belum dipasang (lihat PANDUAN).');
+  const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({aksi,tahun:year},data||{}))});
+  const j=await r.json();if(!j.ok)throw new Error(j.error||'Gagal');return j;
+}
+async function muat(){
+  if(API.startsWith('GANTI')){$('sub').textContent='Server belum dipasang';render();return;}
+  try{
+    const r=await fetch(API+'?aksi=data'+(pertama?'':'&tahun='+encodeURIComponent(year))+'&t='+Date.now());
+    const j=await r.json();if(!j.ok)throw new Error(j.error);
+    if(pertama){year=j.tahun;pertama=false;}
+    if(!cfgDirty)cfg=j.config;
+    taken={};j.kursi.forEach(k=>taken[k.bus+'-'+k.no]=k);
+    $('sub').textContent='Pemesanan kursi bus pulang · Tahun '+year;
+  }catch(e){$('sub').textContent='Gagal memuat data. Cek sinyal.';}
+  render();
+}
+function render(){
+  $('thn').textContent='Tahun '+year;
+  const bl=busList();if(!bl.find(b=>b.id===busId))busId=bl[0].id;
+  $('tabs').innerHTML=bl.map(b=>`<button class="tab ${b.id===busId?'on':''}" data-b="${b.id}">${esc(b.nama)}</button>`).join('');
+  document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{busId=t.dataset.b;pilih=null;render();});
+  const b=bl.find(x=>x.id===busId);
+  $('busInfo').textContent=(b.tujuan?'Tujuan: '+b.tujuan+' · ':'')+(b.baris*4)+' kursi (2 kiri – 2 kanan)';
+  let h='';
+  for(let r=0;r<b.baris;r++){
+    const n=[1,2,3,4].map(c=>r*4+c);
+    const cell=k=>{const t=taken[b.id+'-'+k];
+      const cls=t?(mine&&mine.bus===b.id&&mine.no===k?'me':'t'):(pilih===k?'p':'');
+      return `<button class="s ${cls}" data-k="${k}" ${t?'disabled':''}>${k}</button>`};
+    h+=`<div class="r">${cell(n[0])}${cell(n[1])}<div class="aisle">${r+1}</div>${cell(n[2])}${cell(n[3])}</div>`;
+  }
+  $('grid').innerHTML=h;
+  document.querySelectorAll('.s:not(.t)').forEach(s=>s.onclick=()=>{pilih=+s.dataset.k;render();});
+  const p=$('pesan');p.disabled=!pilih||!!mine;
+  p.textContent=mine?'Anda sudah memesan':pilih?`Pesan kursi nomor ${pilih} (${b.nama})`:'Pilih kursi dulu';
+  showTiket();
+}
+function showTiket(){
+  const t=$('tiket');
+  if(!mine){t.classList.add('hide');return;}
+  const b=busList().find(x=>x.id===mine.bus)||{nama:mine.bus};
+  const lunas=mine.status==='lunas',lapor=mine.status==='lapor';
+  const kartu=$('kartu').value.trim(),wa=waNum(cfg.wa);
+  const pesan=`Assalamualaikum, saya sudah membayar kursi bus pulang santri.\nNama: ${mine.nama}\nNo. Kartu: ${kartu}\n${b.nama}, Kursi ${mine.no}\nKode: ${mine.kode}\nMohon dikonfirmasi. Terima kasih.`;
+  t.classList.remove('hide');
+  t.innerHTML=`<div class="tiket">Kursi Anda (tahun ${year})<b class="big">${esc(b.nama)} · No. ${mine.no}</b>${esc(mine.nama)}<br><span class="mut">Kartu ${esc(kartu)}</span><br><span class="mut">Kode booking: <b>${esc(mine.kode)}</b></span>
+  <div style="margin-top:10px;font-weight:700;color:${lunas?'var(--g)':'var(--red)'}">${STATUS[mine.status]||''}</div>
+  ${lunas?'':`<div class="mut" style="margin-top:6px">${cfg.harga?'Biaya: <b>'+esc(cfg.harga)+'</b><br>':''}${cfg.infoBayar?esc(cfg.infoBayar)+'<br>':''}</div>
+  ${lapor?'':'<button class="btn" id="lapor">Saya sudah bayar (kabari panitia)</button>'}
+  ${wa?`<a class="btn sec" href="https://wa.me/${wa}?text=${encodeURIComponent(pesan)}" target="_blank" rel="noopener">Kirim bukti bayar via WhatsApp</a>`:''}`}</div>`;
+  const l=$('lapor');if(l)l.onclick=async()=>{l.disabled=true;try{const j=await api('lapor',{kartu});mine.status=j.status;showTiket();}catch(e){l.disabled=false;$('msg').className='msg err';$('msg').textContent=e.message;}};
+}
+async function cekSaya(){
+  const kartu=$('kartu').value.trim();
+  if(!kartu){mine=null;render();return;}
+  try{const j=await api('cek',{kartu});mine=j.pesanan;if(mine&&!$('nama').value)$('nama').value=mine.nama;}
+  catch(e){$('msg').className='msg err';$('msg').textContent=e.message;}
+  render();
+}
+$('cekBtn').onclick=cekSaya;
+$('pesan').onclick=()=>{
+  const nama=$('nama').value.trim(),kartu=$('kartu').value.trim(),m=$('msg');m.className='msg err';
+  if(nama.length<3){m.textContent='Isi nama sesuai kartu santri.';return;}
+  if(!/^[A-Za-z0-9\-\/\.]{3,30}$/.test(kartu)){m.textContent='Nomor kartu tidak valid.';return;}
+  if(taken[busId+'-'+pilih]){m.textContent='Maaf, kursi baru saja diambil. Pilih kursi lain.';pilih=null;render();return;}
+  const bn=(busList().find(x=>x.id===busId)||{}).nama||busId,kb=$('konfirm');
+  kb.classList.remove('hide');
+  kb.firstChild.innerHTML=`<b>Konfirmasi kursi</b><p style="font-size:14px">${esc(nama)}<br>Kartu: ${esc(kartu)}<br><b>${esc(bn)} · Kursi ${pilih}</b> (tahun ${year})</p><div class="row"><button class="btn sec" id="kBatal">Ubah</button><button class="btn" id="kOk">Ya, simpan</button></div>`;
+  $('kBatal').onclick=()=>kb.classList.add('hide');
+  $('kOk').onclick=async()=>{
+    $('kOk').disabled=true;
+    try{
+      const j=await api('pesan',{bus:busId,no:pilih,nama,kartu});
+      kb.classList.add('hide');pilih=null;mine={bus:j.bus,no:j.no,status:j.status,kode:j.kode,nama:j.nama};
+      m.className='msg ok';m.textContent='Berhasil! Simpan/tangkap layar tiket Anda.';
+      await muat();
+    }catch(e){kb.classList.add('hide');m.textContent=e.message;await muat();}
+  };
+};
+
+/* ===== Panel pengurus ===== */
+$('adminBtn').onclick=()=>{
+  if(pin){masukAdmin();return;}
+  $('adminLogin').classList.toggle('hide');
+};
+$('pinOk').onclick=async()=>{pin=$('pin').value;await masukAdmin();};
+$('keluar').onclick=()=>{pin='';try{sessionStorage.removeItem('pinBus');}catch(e){}$('admin').classList.add('hide');};
+async function masukAdmin(){
+  try{
+    const j=await api('daftar',{pin});rowsAdmin=j.rows;
+    try{sessionStorage.setItem('pinBus',pin);}catch(e){}
+    $('adminLogin').classList.add('hide');$('admin').classList.remove('hide');$('pinMsg').textContent='';
+    renderAdmin();
+  }catch(e){pin='';$('adminLogin').classList.remove('hide');$('pinMsg').textContent=e.message;}
+}
+async function muatAdmin(){try{const j=await api('daftar',{pin});rowsAdmin=j.rows;renderAdminList();}catch(e){$('adminMsg').className='msg err';$('adminMsg').textContent=e.message;}}
+function renderAdmin(){
+  $('cfgWa').value=cfg.wa||'';$('cfgHarga').value=cfg.harga||'';$('cfgBayar').value=cfg.infoBayar||'';
+  $('cfgWa').oninput=e=>{cfg.wa=e.target.value;cfgDirty=true;};
+  $('cfgHarga').oninput=e=>{cfg.harga=e.target.value;cfgDirty=true;};
+  $('cfgBayar').oninput=e=>{cfg.infoBayar=e.target.value;cfgDirty=true;};
+  $('selTahun').innerHTML=cfg.tahun.map(t=>`<option ${t==year?'selected':''}>${t}</option>`).join('');
+  $('busEdit').innerHTML=busList().map((b,i)=>`<div class="row" style="margin-bottom:6px">
+    <input data-i="${i}" data-f="nama" value="${esc(b.nama)}" placeholder="Nama bus">
+    <input data-i="${i}" data-f="tujuan" value="${esc(b.tujuan||'')}" placeholder="Tujuan">
+    <input data-i="${i}" data-f="baris" value="${b.baris}" inputmode="numeric" style="width:70px" title="Jumlah baris (4 kursi/baris)"></div>`).join('')+
+    '<div class="mut">Kolom ketiga = jumlah baris (×4 kursi). Bus besar umumnya 10–12 baris.</div>';
+  document.querySelectorAll('#busEdit input').forEach(i=>i.oninput=()=>{
+    const b=busList()[+i.dataset.i];b[i.dataset.f]=i.dataset.f==='baris'?Math.max(1,Math.min(20,+i.value||1)):i.value;cfgDirty=true;});
+  renderAdminList();
+}
+function renderAdminList(){
+  const rows=[...rowsAdmin].sort((a,b)=>String(a.bus).localeCompare(String(b.bus))||a.no-b.no);
+  $('cnt').textContent='('+rows.length+')';
+  $('list').innerHTML='<tr><th>Bus</th><th>Kursi</th><th>Nama</th><th>Kartu</th><th>Status</th><th></th></tr>'+
+    rows.map(r=>`<tr><td>${esc(r.bus)}</td><td>${r.no}</td><td>${esc(r.nama)}</td><td>${esc(r.kartu)}</td>
+    <td><select class="mini" data-st="${esc(r.bus)}|${r.no}">${['belum','lapor','lunas'].map(s=>`<option value="${s}" ${r.status===s?'selected':''}>${s}</option>`).join('')}</select></td>
+    <td><button class="link" data-del="${esc(r.bus)}|${r.no}">hapus</button></td></tr>`).join('');
+  document.querySelectorAll('[data-st]').forEach(x=>x.onchange=async()=>{
+    const [bus,no]=x.dataset.st.split('|');
+    try{await api('status',{pin,bus,no:+no,status:x.value});await muat();await muatAdmin();}catch(e){$('adminMsg').className='msg err';$('adminMsg').textContent=e.message;}
+  });
+  document.querySelectorAll('[data-del]').forEach(x=>x.onclick=async()=>{
+    if(!confirm('Hapus pesanan ini?'))return;
+    const [bus,no]=x.dataset.del.split('|');
+    try{await api('hapus',{pin,bus,no:+no});await muat();await muatAdmin();}catch(e){$('adminMsg').className='msg err';$('adminMsg').textContent=e.message;}
+  });
+}
+$('selTahun').onchange=async()=>{year=+$('selTahun').value;busId=null;pilih=null;mine=null;await muat();await muatAdmin();renderAdmin();};
+$('addTahun').onclick=async()=>{const y=+$('tahunBaru').value;if(!(y>2000&&y<2200))return;
+  if(!cfg.tahun.includes(y)){cfg.tahun.push(y);cfg.tahun.sort();}
+  if(!cfg.bus[y])cfg.bus[y]=JSON.parse(JSON.stringify(busList()));
+  cfgDirty=true;year=y;busId=null;mine=null;$('tahunBaru').value='';taken={};render();await muatAdmin();renderAdmin();};
+$('addBus').onclick=()=>{const l=busList();l.push({id:'bus'+(Date.now()%1e6),nama:'Bus '+(l.length+1),tujuan:'',baris:10});cfgDirty=true;renderAdmin();render();};
+$('saveCfg').onclick=async()=>{
+  const m=$('adminMsg');
+  try{cfg.aktif=year;await api('simpanConfig',{pin,config:cfg});cfgDirty=false;m.className='msg ok';m.textContent='Tersimpan. Tahun aktif: '+year;}
+  catch(e){m.className='msg err';m.textContent=e.message;}
+};
+$('salin').onclick=async()=>{
+  const rows=[...rowsAdmin].sort((a,b)=>String(a.bus).localeCompare(String(b.bus))||a.no-b.no);
+  const csv='Bus,Kursi,Nama,No Kartu,Status\n'+rows.map(r=>[r.bus,r.no,'"'+String(r.nama).replace(/"/g,'""')+'"',r.kartu,r.status].join(',')).join('\n');
+  try{await navigator.clipboard.writeText(csv);$('adminMsg').className='msg ok';$('adminMsg').textContent='Daftar disalin.';}catch(e){$('adminMsg').className='msg err';$('adminMsg').textContent='Gagal menyalin.';}
+};
+
+render();muat();
+setInterval(()=>{if(!document.hidden&&!$('konfirm').offsetParent)muat();},20000);
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
